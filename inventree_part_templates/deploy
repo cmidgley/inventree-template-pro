@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Simple shell script for deploying code to the plugins directory used by 
+# docker to inject code without needing to use PIP.  Only during dev/test.
+
+# Make sure we have latest code
+git pull
+
+# Enable command tracing
+set -x
+
+# Define the target directory
+target_dir=~/inventree-data/plugins/inventree-part-templates/
+
+# Ensure the target directory exists and is empty
+rm -rf "${target_dir}"
+mkdir -p "${target_dir}"
+
+# Copy the new files into the target directory
+cp -r . "${target_dir}"
+
+# Restart the InvenTree server container
+docker container restart inventree-server
+
+# Wait for the server to be fully up
+sleep 13
+

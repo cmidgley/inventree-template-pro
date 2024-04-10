@@ -1,3 +1,26 @@
 {% load i18n %}
 
 <div>Inside category panel</div>
+<h1>Template Details</h1>
+{% if part_templates %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Key</th>
+                <th>Template</th>
+                <th>Inherited Template</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in part_templates %}
+                <tr>
+                    <td>{{ item.key }}</td>
+                    <td>{{ item.template }}</td>
+                    <td>{{ item.inherited_template }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No template details available.</p>
+{% endif %}

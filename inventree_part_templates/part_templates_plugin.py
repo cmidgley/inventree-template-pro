@@ -29,12 +29,15 @@ from django.views.generic import UpdateView
 
 # API support for URLs and JSON
 from django.urls import path
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 import json
 
 # Plugin version number
 from .version import PLUGIN_VERSION
 
+# User support
+from django.contrib.auth.models import User
+from typing import cast
 
 class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, InvenTreePlugin):
     """
@@ -109,80 +112,173 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
     METADATA_PARENT = 'part_template_plugin'
 
     #
-    # mixin entrypoints
+    # Report mixin entrypoints
     #
 
-    def add_report_context(self, _report_instance, model_instance: Part | StockItem, _request, context: Dict[str, Any]) -> None:
+    def add_report_context(self, _report_instance, model_instance: Part | StockItem, _request: HttpRequest, context: Dict[str, Any]) -> None:
         """
         Callback from InvenTree ReportMixin to add context to the report instance.
 
         Args:
             _report_instance: The report instance.
-            model_instance: The model instance.
-            _request: The request.
-            context: The context dictionary.
+            model_instance (Part | StockItem): The model instance.
+            _request (HttpRequest): The request.
+            context (Dict[str, Any]): The context dictionary.
 
         Returns:
             None
         """
         self._add_context(model_instance, context)
 
-    def add_label_context(self, _label_instance, model_instance: Part | StockItem, _request, context: Dict[str, Any]) -> None:
+    def add_label_context(self, _label_instance, model_instance: Part | StockItem, _request: HttpRequest, context: Dict[str, Any]) -> None:
         """
         Callback from InvenTree ReportMixin to add context to the label instance.
 
         Args:
-            _report_instance: The report instance.
-            model_instance: The model instance.
-            _request: The request.
-            context: The context dictionary.
+            _label_instance: The label instance.
+            model_instance (Part | StockItem): The model instance.
+            _request (HttpRequest): The request.
+            context (Dict[str, Any]): The context dictionary.
 
         Returns:
             None
         """
         self._add_context(model_instance, context)
 
-    def get_custom_panels(self, view: UpdateView, _request) -> List[Any]:
+    #
+    # Panel mixin entrypoints
+    #
+
+    def get_panel_context(self, view: UpdateView, request: HttpRequest, context: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Retrieves the panel context for the given view, when PartDetail or CategoryDetail and user
+        is superuser.  The context name is 'part_templates' and is a list of entries one per
+        template context variable defined in the plugin settings.  Each entry contains the key
+        name (key), the template associated with the key (template), and the inherited template
+        for the key (inherited_template).  The inherited template is the template that would be
+        used if the template on the instance was not defined.
+
+        Args:
+            view (UpdateView): The view object.
+            request (HtpRequest): The request object.
+            context (Dict[str, Any]): The context dictionary.
+
+        Returns:
+            Dict[str, Any]: The updated context dictionary.
+        """
+
+        # pick up our context from the super
+        ctx = super().get_panel_context(view, request, context)
+
+        # if not superuser, just return that context
+        if not cast(User, request.user).is_superuser:
+            return ctx
+
+        # if one of our detail pane pages, add context to get the part templates
+        if isinstance(view, (PartDetail, CategoryDetail)):
+            ctx['part_templates'] = self._get_panel_context(view.get_object())
+
+        return ctx
+
+    def get_custom_panels(self, view: UpdateView, request: HttpRequest) -> List[Any]:
+        """
+        Retrieves a list of custom panels if PartDetail or CategoryDetail, and superuser.
+
+        Args:
+            view (UpdateView): The view object.
+            request (HttpRequest): The request object.
+
+        Returns:
+            List[Any]: A list of custom panels.
+
+        """
         panels = []
+
+        # make sure they are superuser
+        if not cast(User, request.user).is_superuser:
+            return panels
 
         if isinstance(view, PartDetail):
             panels.append({
                 'title': 'Part Templates',
                 'icon': 'fa-file-alt',
                 'content_template': 'part_templates/part_detail_panel.html',
-                # 'context': {
-                #     'part': view.object,
-                # }
             })
         elif isinstance(view, CategoryDetail):
             panels.append({
-                'title': 'Category Templates',
+                'title': 'Part Templates',
                 'icon': 'fa-file-alt',
                 'content_template': 'part_templates/category_detail_panel.html',
-                # 'context': {
-                #     'category': view.object,
-                # }
-            })
-        elif isinstance(view, StockItemDetail):
-            panels.append({
-                'title': 'Stock Templates',
-                'icon': 'fa-file-alt',
-                'content_template': 'part_templates/stock_detail_panel.html',
-                # 'context': {
-                #     'stock': view.object,
-                # }
             })
 
         return panels
 
+    #
+    # private method support for panel
+    #
+
+    def _get_panel_context(self, instance: Part | PartCategory) -> List[Dict[str, str]]:
+        """
+        Get the panel context containing a list of the plugin's configured context variables, and
+        for each include the key name (key), the template associated with the key (template), and
+        the inherited template for the key (inherited_template).  The inherited template is the
+        template that would be used if the template on the instance was not defined.
+
+        Args:
+            instance (Part | PartCategory): The instance for which to retrieve the panel context.
+
+        Returns:
+            List[Dict[str, str]]: A list of dictionaries representing the panel context.
+                Each dictionary contains the following keys:
+                - 'key': The context variable name.
+                - 'template': The template associated with the context variable.
+                - 'inherited_template': The inherited template for the context variable.
+        """
+        context: List[Dict[str, str]] = []
+
+        # process each possible key from settings
+        for key_number in range(1, self.MAX_TEMPLATES + 1):
+            key: str = self.get_setting(f'T{key_number}_KEY')
+            default_template: str = self.get_setting(f'T{key_number}_TEMPLATE')
+
+            # determine the parent category so we can pick up what would be the inherited template
+            # if this does not override it
+            parent_category = instance.category if isinstance(instance, Part) else instance.parent
+
+            # get the template metadata, which is a dictionary of context_name: template for this instance
+            if instance.metadata and instance.metadata.get(self.METADATA_PARENT) and instance.metadata[self.METADATA_PARENT].get('templates'):
+                metadata_templates = instance.metadata[self.METADATA_PARENT]['templates']
+            else:
+                metadata_templates = {}
+
+            # get the inherited template (ignoring our current template, this is what it would be if
+            # the template on this instance was not defined)
+            inherited_template = self._find_category_template(parent_category, key, default_template)
+
+            # if the user has defined a key (context variable name), add to our context
+            if key:
+                context.append({
+                    'key': key,
+                    'template': metadata_templates.get(key, ""),
+                    'inherited_template': inherited_template
+                })
+
+        return context
+    
+
+    #
+    # Urls mixin entrypoints
+    #
+
+    # todo: implement and document
     def setup_urls(self):
         return [
                 path("example/<int:layer>/<path:size>/",
                     self.do_something, name='transfer'),
         ]
 
-    # Define the function that will be called.
-    def do_something(self, _request, _layer, _size):
+    # todo: implement and document
+    def do_something(self, _request: HttpRequest, _layer, _size):
         # data = json.loads(request.body)
         return HttpResponse('OK')
 

@@ -5,7 +5,7 @@
 
 # Plugin imports
 from plugin import InvenTreePlugin
-from plugin.mixins import ReportMixin
+from plugin.mixins import ReportMixin, SettingsMixin
 
 # InvenTree models
 from stock.models import StockItem
@@ -20,7 +20,8 @@ import traceback
 # Plugin version number
 from .version import PLUGIN_VERSION
 
-class PartTemplatesPlugin(ReportMixin, InvenTreePlugin):
+class PartTemplatesPlugin(ReportMixin, SettingsMixin, InvenTreePlugin):
+    # plugin metadata for identity in InvenTree
     NAME = "InvenTreePartTemplates"
     SLUG = "part-templates"
     TITLE = "InvenTree Part Templates"
@@ -28,6 +29,31 @@ class PartTemplatesPlugin(ReportMixin, InvenTreePlugin):
     VERSION = PLUGIN_VERSION
     AUTHOR = "Chris Midgley"
 
+    # plugin custom settings
+    SETTINGS = {
+        'T1_KEY': {
+            'name': 'Template 1: Variable Name',
+            'description': 'Context variable name for template 1',
+            'default': 'description',
+        },
+        'T1_TEMPLATE': {
+            'name': 'Template 1: Default template',
+            'description': 'Template to use when no other templates are inherited',
+            'default': '{{ part.name }}{% if part.IPN %} ({{ part.IPN }}){% endif %}',
+        },
+        'T2_KEY': {
+            'name': 'Template 2: Variable Name',
+            'description': 'Context variable name for template 1',
+            'default': 'category',
+        },
+        'T2_TEMPLATE': {
+            'name': 'Template 2: Default template',
+            'description': 'Template to use when no other templates are inherited',
+            'default': '{% if part.category.parent %} ({{ part.category.parent.name }}){% endif %}{{ part.category.name }}',
+        },
+    }
+
+    # internal settings
     CONTEXT_KEY = 'part_templates'
 
     def add_report_context(self, report_instance, model_instance, request, context):

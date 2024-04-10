@@ -3,14 +3,23 @@
 # Simple shell script for deploying code to the plugins directory used by 
 # docker to inject code without needing to use PIP.  Only during dev/test.
 
-# Make sure we have latest code
-git pull
+
+# Pull latest source, unless told not to with --nopull or -n
+if [ "$1" != "-nopull" ] && [ "$1" != "-n" ]; then
+    # Enable command tracing
+    set -x
+    # Make sure we have the latest code
+    git pull
+fi
+
+# Disable command tracing
+set +x
+
+# Definviews e the target directory
+target_dir=~/inventree-data/plugins/inventree-part-templates/
 
 # Enable command tracing
 set -x
-
-# Define the target directory
-target_dir=~/inventree-data/plugins/inventree-part-templates/
 
 # Ensure the target directory exists and is empty
 rm -rf "${target_dir}"

@@ -22,7 +22,7 @@ from django.template import Context, Template
 
 # InvenTree views
 from part.views import PartDetail, CategoryDetail
-from stock.views import StockDetail
+from stock.views import StockItemDetail
 
 # Django views
 from django.views.generic import UpdateView
@@ -149,7 +149,7 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             panels.append({
                 'title': 'Part Templates',
                 'icon': 'fa-file-alt',
-                'template_name': 'part_templates/part_detail_panel.html',
+                'content_template': 'part_templates/part_detail_panel.html',
                 # 'context': {
                 #     'part': view.object,
                 # }
@@ -158,16 +158,16 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             panels.append({
                 'title': 'Category Templates',
                 'icon': 'fa-file-alt',
-                'template_name': 'part_templates/category_detail_panel.html',
+                'content_template': 'part_templates/category_detail_panel.html',
                 # 'context': {
                 #     'category': view.object,
                 # }
             })
-        elif isinstance(view, StockDetail):
+        elif isinstance(view, StockItemDetail):
             panels.append({
                 'title': 'Stock Templates',
                 'icon': 'fa-file-alt',
-                'template_name': 'part_templates/stock_detail_panel.html',
+                'content_template': 'part_templates/stock_detail_panel.html',
                 # 'context': {
                 #     'stock': view.object,
                 # }

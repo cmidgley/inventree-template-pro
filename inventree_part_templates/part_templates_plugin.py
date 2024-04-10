@@ -17,7 +17,7 @@ from django.template import Context, Template
 # Error reporting assistance
 import traceback
 
-class InvenTreeAutodescribe(ReportMixin, InvenTreePlugin):
+class PartTemplatesPlugin(ReportMixin, InvenTreePlugin):
     NAME = "InvenTreePartTemplates"
     SLUG = "part-templates"
     TITLE = "InvenTree Part Templates"

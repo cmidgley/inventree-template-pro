@@ -18,7 +18,7 @@ from django.template import Context, Template
 import traceback
 
 # Plugin version number
-from inventree_part_templates.version import PLUGIN_VERSION
+from .version import PLUGIN_VERSION
 
 class PartTemplatesPlugin(ReportMixin, InvenTreePlugin):
     NAME = "InvenTreePartTemplates"

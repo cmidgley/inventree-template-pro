@@ -58,3 +58,86 @@ This customization would automatically apply to all sub-categories of "Resistor"
 
 Individual parts can also have template overrides, allowing for exceptions to the category-based templates where necessary.
 
+## Defining part / category templates
+
+An template is a standard Django template, just as used by InvenTree for labels and reports.  The
+[context variables](https://docs.inventree.org/en/stable/report/context_variables/) provided are:
+
+* `part`: This is the part that the report or label is working on.  If the report/label is on a
+  `Stock`, this will represent the part of the stock being reported.
+* `category`: This is the leaf category of the part.  It's a shorthand for `part.category`.
+* `stock`: If the report is using stock, then this is the stock object.  You can test for this with
+  `{% if part_templates.stock %}this is stock{% end if %}`.
+* `parameters`: The parameters associated with the part.  This is a shorthand for `part.parameters`.
+
+Some examples:
+
+* `{{ part.name }}` will output the part name
+* `{{ parameters.Resistance }}` will output the part's 'Resistence' parameter
+* `{{ parameters['Rated Voltage']}}` is the syntax for parameters with spaces in their names
+* `{{ category.name }} Cap: {{ parameters.Capacitance }} {{ parameters['Rated Voltage'] }} {{
+  parameters['Tolerance'] }} {{ parameters['Mounting Type']}}`: Assuming the properties are defined,
+  something like `Ceramic Cap: 0.1uF 50 V 10% SMT`
+
+
+## Assigning templates to categories and parts
+
+The plugin [Model Metadata](https://docs.inventree.org/en/stable/extend/plugins/metadata/) system is
+used to assign templates.  A planned work item is to add a user interface using the [Panel
+Mixin](https://docs.inventree.org/en/latest/extend/plugins/panel/), but until then you have to use
+the Admin interface for `PART / Part Categories` and `PART / Parts` and hand-edit the individual
+part or categories `Plugin Metadata` like this:
+
+```json
+{
+    'part_template_plugin': {
+        'templates': {
+            'description': '{{ part.name }}'
+            'category': '{{ category.parent.name }} {{ category.name }}'
+        },
+    }
+}
+
+The "closest" template for any one key/variable name will be used, so if a part defines "description" but not "category", and the 
+category also defines "description" but not "category", and then the category parent defines "category", the template for
+"description" will come from the part, and the template for "category" will come from the categories parent.  If no template is found, the
+default template on the plugin setup page will be used.  If no templates are used, the resulting value will be empty (no errors, just
+empty).
+
+## Use in Reports and Labels
+
+Using `inventree-part-template` in a label or report, once you have defined the part/category templates, is simple: a new
+context variable is available called `part_templates` that has a property for each template created, using the name specified
+in the plugin setup.  
+
+For example, let's say you created `category` as the first template name, and `description` as the second.  In your report / label, you just refer to them like other context variables:
+
+```django
+{{ part_templates.category }}<br>
+{{ part_templates.description }}
+```
+
+There is one special property called `error`.  This is normally `None` but is set when there was an
+error processing the templates.  A best practice for a report/label might be:
+
+```django
+{% if not part_templates %}
+    <div class="error">You must install inventree-part-templates first</div>
+{% elif part_templates.error %}
+    <div class="error">{{ error }}<div>
+{% else %}
+(your label/report as normal)
+{% endif %}
+```
+
+## Installation
+
+`part-templates-plugin` is [installed like most
+plugins](https://docs.inventree.org/en/latest/extend/plugins/install/#plugin-installation-file-pip).
+It can be installed with using plugins in settings, via PIP, or using the plugins.txt file
+(recommended if using Docker).
+
+## TODO
+
+* document the 'error' property
+* document a recommend label/report structure to test for existance

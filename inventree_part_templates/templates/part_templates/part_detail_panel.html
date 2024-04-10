@@ -1,26 +1,38 @@
 {% load i18n %}
-
+<script>
+    function saveTemplates() {
+        var inputs = document.querySelectorAll('input.template-input');
+        var output = [];
+        inputs.forEach(function(input) {
+            output.push(input.id + ': ' + input.value);
+        });
+        alert('Templates:\n' + output.join('\n'));
+    }
+</script>
 <div>Inside part panel</div>
 <h1>Template Details</h1>
 {% if part_templates %}
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Key</th>
-                <th>Template</th>
-                <th>Inherited Template</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in part_templates %}
+    <form onsubmit="saveTemplates(); return false;">
+        <table border="1">
+            <thead>
                 <tr>
-                    <td>{{ item.key }}</td>
-                    <td>{{ item.template }}</td>
-                    <td>{{ item.inherited_template }}</td>
+                    <th>Context Variable</th>
+                    <th>Local Template</th>
+                    <th>Inherited Template</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for item in part_templates %}
+                    <tr>
+                        <td>{{ item.key }}</td>
+                        <td><input type="text" id="template-{{ item.key }}" class="template-input" value="{{ item.template|default_if_none:'n/a' }}" /></td>
+                        <td>{{ item.inherited_template|default_if_none:'n/a' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">Save</button>
+    </form>
 {% else %}
     <p>No template details available.</p>
 {% endif %}

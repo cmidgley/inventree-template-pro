@@ -4,14 +4,14 @@
 """
 
 # Typing
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 # Error reporting assistance
 import traceback
 
 # Plugin imports
 from plugin import InvenTreePlugin
-from plugin.mixins import ReportMixin, SettingsMixin
+from plugin.mixins import ReportMixin, SettingsMixin, PanelMixin, UrlsMixin
 
 # InvenTree models
 from stock.models import StockItem
@@ -20,11 +20,23 @@ from part.models import Part, PartCategory
 # Django templates
 from django.template import Context, Template
 
+# InvenTree views
+from part.views import PartDetail, CategoryDetail
+from stock.views import StockDetail
+
+# Django views
+from django.views.generic import UpdateView
+
+# API support for URLs and JSON
+from django.urls import path
+from django.http import HttpResponse
+import json
+
 # Plugin version number
 from .version import PLUGIN_VERSION
 
 
-class PartTemplatesPlugin(ReportMixin, SettingsMixin, InvenTreePlugin):
+class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, InvenTreePlugin):
     """
     A plugin for InvenTree that extends reporting with customizable part / category templates.
     """
@@ -58,7 +70,7 @@ class PartTemplatesPlugin(ReportMixin, SettingsMixin, InvenTreePlugin):
         'T2_TEMPLATE': {
             'name': 'Template 2: Default template',
             'description': 'Template to use when no other templates are inherited',
-            'default': '{% if part.category.parent %} ({{ part.category.parent.name }}){% endif %}{{ part.category.name }}',
+            'default': '{% if part.category.parent %} {{ part.category.parent.name }} / {% endif %}{{ part.category.name }}',
         },
         'T3_KEY': {
             'name': 'Template 3: Variable Name',
@@ -96,6 +108,10 @@ class PartTemplatesPlugin(ReportMixin, SettingsMixin, InvenTreePlugin):
     CONTEXT_KEY = 'part_templates'
     METADATA_PARENT = 'part_template_plugin'
 
+    #
+    # mixin entrypoints
+    #
+
     def add_report_context(self, _report_instance, model_instance: Part | StockItem, _request, context: Dict[str, Any]) -> None:
         """
         Callback from InvenTree ReportMixin to add context to the report instance.
@@ -125,6 +141,54 @@ class PartTemplatesPlugin(ReportMixin, SettingsMixin, InvenTreePlugin):
             None
         """
         self._add_context(model_instance, context)
+
+    def get_custom_panels(self, view: UpdateView, _request) -> List[Any]:
+        panels = []
+
+        if isinstance(view, PartDetail):
+            panels.append({
+                'title': 'Part Templates',
+                'icon': 'fa-file-alt',
+                'template_name': 'part_templates/part_detail_panel.html',
+                # 'context': {
+                #     'part': view.object,
+                # }
+            })
+        elif isinstance(view, CategoryDetail):
+            panels.append({
+                'title': 'Category Templates',
+                'icon': 'fa-file-alt',
+                'template_name': 'part_templates/category_detail_panel.html',
+                # 'context': {
+                #     'category': view.object,
+                # }
+            })
+        elif isinstance(view, StockDetail):
+            panels.append({
+                'title': 'Stock Templates',
+                'icon': 'fa-file-alt',
+                'template_name': 'part_templates/stock_detail_panel.html',
+                # 'context': {
+                #     'stock': view.object,
+                # }
+            })
+
+        return panels
+
+    def setup_urls(self):
+        return [
+                path("example/<int:layer>/<path:size>/",
+                    self.do_something, name='transfer'),
+        ]
+
+    # Define the function that will be called.
+    def do_something(self, _request, _layer, _size):
+        # data = json.loads(request.body)
+        return HttpResponse('OK')
+
+    #
+    # internal methods
+    #
 
     def _add_context(self, instance: Part | StockItem, context: Dict[str, Any]) -> None:
         """

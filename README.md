@@ -122,7 +122,7 @@ error processing the templates.  A best practice for a report/label might be:
 
 ```django
 {% if not part_templates %}
-    <div class="error">You must install inventree-part-templates first</div>
+    <div class="error">Plugin inventree-part-templates required</div>
 {% elif part_templates.error %}
     <div class="error">{{ error }}<div>
 {% else %}

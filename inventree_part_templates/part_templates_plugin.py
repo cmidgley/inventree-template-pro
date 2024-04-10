@@ -17,12 +17,15 @@ from django.template import Context, Template
 # Error reporting assistance
 import traceback
 
+# Plugin version number
+from inventree_part_templates.version import PLUGIN_VERSION
+
 class PartTemplatesPlugin(ReportMixin, InvenTreePlugin):
     NAME = "InvenTreePartTemplates"
     SLUG = "part-templates"
     TITLE = "InvenTree Part Templates"
     DESCRIPTION = "Extends reporting with customizable part category templates"
-    VERSION = "0.2.1"
+    VERSION = PLUGIN_VERSION
     AUTHOR = "Chris Midgley"
 
     CONTEXT_KEY = 'part_templates'

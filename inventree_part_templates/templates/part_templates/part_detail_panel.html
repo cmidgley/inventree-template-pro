@@ -14,8 +14,7 @@ panel used on Part and Category detail pages to display and manage part template
     async function saveTemplate(fields, opts) {
         try {
             // make the web API call to save the template
-            //const response = await fetch(`${opts.api_url}/?template=${encodeURIComponent(fields.template.value)}`);
-            const response = await fetch(`${opts.api_url}`);
+            const response = await fetch(`${opts.api_url}?template=${encodeURIComponent(fields.template.value)}`);
             // make sure we got an HTTP success
             if (response.ok) {
                 // make sure we get a JSON response

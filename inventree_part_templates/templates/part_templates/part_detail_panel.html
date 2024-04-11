@@ -1,17 +1,21 @@
 {% load i18n %}
-<!--script>
-    function saveTemplates() {
-        var inputs = document.querySelectorAll('input.template-input');
-        var output = [];
-        inputs.forEach(function(input) {
-            output.push(input.id + ': ' + input.value);
-        });
-        alert('Templates:\n' + output.join('\n'));
+<script>
+    function onPanelLoad() {
+        alert('Panel loaded');
+        $('#part-template-table').find('.button-part-templates-edit').click(function() {
+                // var pk = $(this).attr('pk');
+
+                // editPartParameter(pk, {
+                //     refreshTable: table
+                // });
+                alert('edit clicked');
+            });
+
     }
-</script-->
+</script>
 {% if part_templates %}
     <form onsubmit="saveTemplates(); return false;">
-        <table class='table table-condensed'>
+        <table class='table table-condensed' id="part-template-table">
             <thead>
                 <tr>
                     <th> {% trans "Variable Name" %} </th>
@@ -30,8 +34,6 @@
                                 {{ item.inherited_template }}
                                 <span class='badge badge-left rounded-pill bg-success'>{% trans "Inherited" %}</span>
                             {% endif %}
-                            <!-- input type="text" id="T-{{ item.key }}" class="template-input"
-                            value="{{ item.template|default_if_none:'n/a' }}" /-->
                         </td>
                         <td>
                             <div class="btn-group float-right" role="group">
@@ -47,7 +49,6 @@
                 {% endfor %}
             </tbody>
         </table>
-        <!--button type="submit">Save</button-->
     </form>
 {% else %}
     <p>Plugin not configured (see <a href="/settings/">settings</a> and

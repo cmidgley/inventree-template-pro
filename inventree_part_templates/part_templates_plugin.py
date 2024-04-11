@@ -203,12 +203,14 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
                 'title': 'Part Templates',
                 'icon': 'fa-file-alt',
                 'content_template': 'part_templates/part_detail_panel.html',
+                'javascript': 'onPanelLoad();'
             })
         elif isinstance(view, CategoryDetail):
             panels.append({
                 'title': 'Part Templates',
                 'icon': 'fa-file-alt',
                 'content_template': 'part_templates/category_detail_panel.html',
+                'javascript': 'onPanelLoad();'
             })
 
         return panels

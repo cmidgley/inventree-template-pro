@@ -14,8 +14,8 @@
         <table class='table table-condensed'>
             <thead>
                 <tr>
-                    <th> {% trans "Variable Name" } </th>
-                    <th> {% trans "Active Template" } </th>
+                    <th> {% trans "Variable Name" %} </th>
+                    <th> {% trans "Active Template" %} </th>
                     <th> </th>
                 </tr>
             </thead>
@@ -35,18 +35,11 @@
                         </td>
                         <td>
                             <div class="btn-group float-right" role="group">
-                                <button pk="45" id="button-part-templates-edit-{{ item.key }}" 
-                                    data-template-key="{{ item.key }}"
-                                    class="btn btn-outline-secondary button-part-templates-edit" title="Edit template">
+                                <button pk="45" id="button-part-templates-edit-{{ item.key }}" data-template-key="{{ item.key }}" class="btn btn-outline-secondary button-part-templates-edit" title="Edit template">
                                     <span class='fas fa-edit icon-blue'></span>
                                 </button>
-                                <button pk="45" id="button-part-templates-delete-{{ item.key }}"
-                                    data-template-key="{{ item.key }}"
-                                    class="btn btn-outline-secondary button-part-templates-delete"
-                                    title="Delete template"{% if not template
-                                    %} disabled="true"{% endif %}>
-                                    <span class='fas fa-trash-alt {% if template %}icon-red{% else
-                                    %}icon-gray{% endif %}'></span>
+                                <button pk="45" id="button-part-templates-delete-{{ item.key }}" data-template-key="{{ item.key }}" class="btn btn-outline-secondary button-part-templates-delete" title="Delete template"{% if not template %} disabled="true"{% endif %}>
+                                    <span class='fas fa-trash-alt {% if template %}icon-red{% else %}icon-gray{% endif %}'></span>
                                 </button>
                             </div>
                         </td>

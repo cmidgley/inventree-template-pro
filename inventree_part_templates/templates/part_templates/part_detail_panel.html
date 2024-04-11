@@ -16,9 +16,10 @@
 
 		let key = $(this).attr('key');
                 alert('edit clicked: ' + key);
-                constructForm(`TO-BE-DEFINED/${key}/`, {
+                // todo: resolve 'part' (entity) and '1' (pk)
+                constructForm("{% url 'plugin:SLUG:template-delete' key 'part' 1 %}", {
                     method: 'DELETE',
-                    title: '{% trans "Delete Template" %}',
+                    title: '{% trans "Delete Part Template" %}',
                     preFormControl: html,
                     refreshTable: table,
                 });

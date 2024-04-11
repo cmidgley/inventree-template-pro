@@ -1,20 +1,20 @@
 {% load i18n %}
 <script>
-    function onPanelLoad() {
-        alert('Panel loaded');
+    function onPartTemplatesPanelLoad() {
         $('#part-template-table').find('.button-part-templates-edit').click(function() {
                 // var pk = $(this).attr('pk');
 
                 // editPartParameter(pk, {
                 //     refreshTable: table
                 // });
-                alert('edit clicked');
+
+		let key = $(this).attr('key');
+                alert('edit clicked: ' + key);
             });
 
     }
 </script>
 {% if part_templates %}
-    <form onsubmit="saveTemplates(); return false;">
         <table class='table table-condensed' id="part-template-table">
             <thead>
                 <tr>
@@ -37,10 +37,10 @@
                         </td>
                         <td>
                             <div class="btn-group float-right" role="group">
-                                <button pk="45" id="button-part-templates-edit-{{ item.key }}" data-template-key="{{ item.key }}" class="btn btn-outline-secondary button-part-templates-edit" title="Edit template">
+				    <button key="{{ item.key }}" id="button-part-templates-edit-{{ item.key }}" class="btn btn-outline-secondary button-part-templates-edit" title="Edit template">
                                     <span class='fas fa-edit icon-blue'></span>
                                 </button>
-                                <button pk="45" id="button-part-templates-delete-{{ item.key }}" data-template-key="{{ item.key }}" class="btn btn-outline-secondary button-part-templates-delete" title="Delete template"{% if not template %} disabled="true"{% endif %}>
+				<button key="{{ item.key }}" id="button-part-templates-delete-{{ item.key }}" class="btn btn-outline-secondary button-part-templates-delete" title="Delete template"{% if not template %} disabled="true"{% endif %}>
                                     <span class='fas fa-trash-alt {% if template %}icon-red{% else %}icon-gray{% endif %}'></span>
                                 </button>
                             </div>
@@ -49,7 +49,6 @@
                 {% endfor %}
             </tbody>
         </table>
-    </form>
 {% else %}
     <p>Plugin not configured (see <a href="/settings/">settings</a> and
     select "Inventree Part Templates" from the Plugins section).</p>

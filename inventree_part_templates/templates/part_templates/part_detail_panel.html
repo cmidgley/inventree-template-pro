@@ -1,5 +1,5 @@
 {% load i18n %}
-<script>
+<!--script>
     function saveTemplates() {
         var inputs = document.querySelectorAll('input.template-input');
         var output = [];
@@ -8,31 +8,55 @@
         });
         alert('Templates:\n' + output.join('\n'));
     }
-</script>
-<div>Inside part panel</div>
-<h1>Template Details</h1>
+</script-->
 {% if part_templates %}
     <form onsubmit="saveTemplates(); return false;">
-        <table border="1">
+        <table class='table table-condensed'>
             <thead>
                 <tr>
-                    <th>Context Variable</th>
-                    <th>Local Template</th>
-                    <th>Inherited Template</th>
+                    <th> {% trans "Variable Name" } </th>
+                    <th> {% trans "Active Template" } </th>
+                    <th> </th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in part_templates %}
                     <tr>
                         <td>{{ item.key }}</td>
-                        <td><input type="text" id="template-{{ item.key }}" class="template-input" value="{{ item.template|default_if_none:'n/a' }}" /></td>
-                        <td>{{ item.inherited_template|default_if_none:'n/a' }}</td>
+                        <td>
+                            {% if item.template %}
+                                {{ item.template }}
+                            {% else %}
+                                {{ item.inherited_template }}
+                                <span class='badge badge-left rounded-pill bg-success'>{% trans "Inherited" %}</span>
+                            {% endif %}
+                            <!-- input type="text" id="T-{{ item.key }}" class="template-input"
+                            value="{{ item.template|default_if_none:'n/a' }}" /-->
+                        </td>
+                        <td>
+                            <div class="btn-group float-right" role="group">
+                                <button pk="45" id="button-part-templates-edit-{{ item.key }}" 
+                                    data-template-key="{{ item.key }}"
+                                    class="btn btn-outline-secondary button-part-templates-edit" title="Edit template">
+                                    <span class='fas fa-edit icon-blue'></span>
+                                </button>
+                                <button pk="45" id="button-part-templates-delete-{{ item.key }}"
+                                    data-template-key="{{ item.key }}"
+                                    class="btn btn-outline-secondary button-part-templates-delete"
+                                    title="Delete template"{% if not template
+                                    %} disabled="true"{% endif %}>
+                                    <span class='fas fa-trash-alt {% if template %}icon-red{% else
+                                    %}icon-gray{% endif %}'></span>
+                                </button>
+                            </div>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-        <button type="submit">Save</button>
+        <!--button type="submit">Save</button-->
     </form>
 {% else %}
-    <p>No template details available.</p>
+    <p>Plugin not configured (see <a href="/settings/">settings</a> and
+    select "Inventree Part Templates" from the Plugins section).</p>
 {% endif %}

@@ -277,10 +277,10 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             A list of URL patterns for the part templates plugin.
         """
         return [
-            path('template_delete/<str:key>/<str:entity>/<int:pk>/', self._webapi_template_delete, name='template_delete'),
+            path('set_template/<str:key>/<str:entity>/<int:pk>/', self._webapi_set_template, name='template_set_template'),
         ]
 
-    def _webapi_template_delete(self, request: HttpRequest, key: str, entity: str, pk: int) -> HttpResponse:
+    def _webapi_set_template(self, request: HttpRequest, key: str, entity: str, pk: int) -> HttpResponse:
         """
         Web API endpoint for the panel frontend to delete a template from the database.
 

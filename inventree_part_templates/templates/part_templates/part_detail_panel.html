@@ -33,6 +33,7 @@
         $(table)
             .find('.button-part-templates-edit')
             .click(function () {
+                // TODO: Write instructions
                 let html = `
                     <div>
                         {% trans "TODO - WRITE INSTRUCTIONS FOR USING TEMPLATES" %}
@@ -115,7 +116,7 @@
                     <button
                         key="{{ item.key }}"
                         template="{{ item.template }}"
-                        api_url="{% url 'plugin:part-templates:template_delete' item.key item.entity item.pk %}"
+                        api_url="{% url 'plugin:part-templates:set_template' item.key item.entity item.pk %}"
                         id="button-part-templates-edit-{{ item.key }}"
                         class="btn btn-outline-secondary button-part-templates-edit"
                         title="Edit template">
@@ -123,7 +124,7 @@
                     </button>
                     <button
                         key="{{ item.key }}"
-                        api_url="{% url 'plugin:part-templates:template_delete' item.key item.entity item.ok %}"
+                        api_url="{% url 'plugin:part-templates:set_template' item.key item.entity item.ok %}"
                         id="button-part-templates-delete-{{ item.key }}"
                         class="btn btn-outline-secondary button-part-templates-delete"
                         title="Delete template"

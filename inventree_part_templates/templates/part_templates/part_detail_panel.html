@@ -1,15 +1,27 @@
 {% load i18n %}
 <script>
     function onPartTemplatesPanelLoad() {
-        $('#part-template-table').find('.button-part-templates-edit').click(function() {
+        let table = $('#part-template-table');
+        $(table).find('.button-part-templates-edit').click(function() {
                 // var pk = $(this).attr('pk');
 
                 // editPartParameter(pk, {
                 //     refreshTable: table
                 // });
 
+        let html = `
+        <div class='alert alert-block alert-danger'>
+            {% trans "Deleting this template will revert to using any inherited templates." %}
+        </div>`
+
 		let key = $(this).attr('key');
                 alert('edit clicked: ' + key);
+                constructForm(`{% url "TO-BE-DEFINED" %}${key}/`, {
+                    method: 'DELETE',
+                    title: '{% trans "Delete Template" %}',
+                    preFormControl: html,
+                    refreshTable: table,
+                });
             });
 
     }

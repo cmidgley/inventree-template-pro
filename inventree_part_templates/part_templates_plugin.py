@@ -1,6 +1,9 @@
 """ 
     InvenTree-Part-Templates: A plugin for InvenTree that extends reporting (including label reports) with context variables
     that are built from category and part templates.  
+
+    Copyright (c) 2024 Chris Midgley
+    License: MIT (see LICENSE file)
 """
 
 # Typing
@@ -29,7 +32,7 @@ from django.views.generic import UpdateView
 
 # API support for URLs and JSON
 from django.urls import path
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, JsonResponse
 import json
 
 # Plugin version number
@@ -198,20 +201,14 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
         if not cast(User, request.user).is_superuser:
             return panels
 
-        if isinstance(view, PartDetail):
-            panels.append({
-                'title': 'Part Templates',
-                'icon': 'fa-file-alt',
-                'content_template': 'part_templates/part_detail_panel.html',
-                'javascript': 'onPartTemplatesPanelLoad();'
-            })
-        elif isinstance(view, CategoryDetail):
-            panels.append({
-                'title': 'Part Templates',
-                'icon': 'fa-file-alt',
-                'content_template': 'part_templates/category_detail_panel.html',
-                'javascript': 'onPartTemplatesPanelLoad();'
-            })
+        panels.append({
+            'title': 'Part Templates',
+            'icon': 'fa-file-alt',
+            'entity': 'part' if isinstance(view, PartDetail) else 'category',
+            'pk': view.get_object().pk,
+            'content_template': 'part_templates/part_detail_panel.html',
+            'javascript': 'onPartTemplatesPanelLoad();'
+        })
 
         return panels
 
@@ -266,22 +263,45 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
                 })
 
         return context
-    
 
     #
     # Urls mixin entrypoints
     #
 
-    # todo: implement and document
     def setup_urls(self):
+        """
+        Sets up the URLs for the part templates plugin, which simply saves the template string
+        (query string template) to the key/entity (part/category) and pk (id of the part/category).
+
+        Returns:
+            A list of URL patterns for the part templates plugin.
+        """
         return [
             path('template_delete/<str:key>/<str:entity>/<int:pk>/', self._webapi_template_delete, name='template_delete'),
         ]
 
-    # todo: implement and document
-    def _webapi_template_delete(self, _request: HttpRequest, key: str, entity: str, pk: int):
-        # data = json.loads(request.body)
-        return HttpResponse('OK')
+    def _webapi_template_delete(self, request: HttpRequest, key: str, entity: str, pk: int) -> HttpResponse:
+        """
+        Web API endpoint for the panel frontend to delete a template from the database.
+
+        Args:
+            _request (HttpRequest): The HTTP request object.
+            key (str): The API key.
+            entity (str): The entity name.
+            pk (int): The primary key of the template to delete.
+
+        Returns:
+            HttpResponse: The HTTP response indicating the result of the deletion.
+        """
+        template = request.GET.get('template')
+        if template is None:
+            # If the required parameter is not present, return an error
+            return JsonResponse({
+                'error': 'Missing required parameter: template'
+            }, status=400)
+
+        # return HttpResponse('OK')
+        return JsonResponse({'error': 'Fake error to test logic'}, status=409)
 
     #
     # internal methods

@@ -1,103 +1,144 @@
+//
+// inventree-part-templates
+//
+// Copyright (c) 2024 Chris Midgley
+// License: MIT (see LICENSE file)
+//
+// panel used on Part and Category detail pages to display and manage part templates
+//
+
 {% load i18n %}
 <script>
+    // helper API to save a template to part/category metadata.  Handles detection of errors from
+    // Http and server, and closes the model on success.
+    async function saveTemplate(fields, opts) {
+        try {
+            const response = await fetch(`${api_url}/?template=${encodeURIComponent(fields.template.value)}`);
+            if (response.ok) {
+                showMessage('Template saved', { style: 'success' });
+                $(opts.modal).modal('hide');
+            }
+            else
+                showMessage(`{% trans "Unable to save; HTTP error " %}${response.status}`, { style: 'danger' });
+        } catch (e) {
+            showMessage(`{% trans "Unable to save; network error " %}${e}`, { style: 'danger' });
+        }
+    }
+    
+    // handler for when the part templates panel is loaded.  Sets up the on-click handlers for edit 
+    // and delete, including the confirmation/edit dialogs and requesting the template changes to be saved.
     function onPartTemplatesPanelLoad() {
         let table = $('#part-template-table');
-        $(table).find('.button-part-templates-edit').click(function() {
-                // var pk = $(this).attr('pk');
+        // edit button handler
+        $(table)
+            .find('.button-part-templates-edit')
+            .click(function () {
+                let html = `
+                    <div>
+                        {% trans "TODO - WRITE INSTRUCTIONS FOR USING TEMPLATES" %}
+                    </div>`;
 
-                // editPartParameter(pk, {
-                //     refreshTable: table
-                // });
+                let key = $(this).attr('key');
+                let template = $(this).attr('template');
+                let api_url = $(this).attr('api_url');
 
-        let html = `
-        <div class='alert alert-block alert-danger'>
-            {% trans "Deleting this template will revert to using any inherited templates." %}
-        </div>`
-
-		let key = $(this).attr('key');
-		let api_url = $(this).attr('api_url');
-                // todo: resolve 'part' (entity) and '1' (pk)
                 constructForm(null, {
-                    title: '{% trans "Delete Part Template" %}',
-			submitText: `{% trans "Delete" %}`,
-			submitClass: 'danger',
+                    title: '{% trans "Edit Part Template" %}',
+                    submitText: `{% trans "Save" %}`,
+                    submitClass: 'success',
                     preFormContent: html,
                     refreshTable: table,
-			fields: {
-				template: {
-					                label: `{% trans "Part template" %}`,
-                type: "string",
-                localOnly: true,
-                value: "prior-template-value-here",
-                //onEdit: (_value, _name, _field, formOptions) => {
-	//		alert('onEdit');
-                    //updateFormUrl(formOptions);
-         //       }
-
-				}
-			},
-			confirm: true,
-			onSubmit: async function(fields, opts) {
-				//alert(JSON.stringify(fields));
-				alert(fields.template.value);
-				await fetch(api_url);
-				showMessage('Template deleted', { style: 'success' });
-				$(opts.modal).modal('hide');
-			},
+                    fields: {
+                        template: {
+                            label: `{% trans "Part template" %}`,
+                            type: 'string',
+                            localOnly: true,
+                            value: template,
+                        },
+                    },
+                    confirm: true,
+                    onSubmit: saveTemplate
                 });
             });
 
+        // delete button handler
+        $(table)
+            .find('.button-part-templates-delete')
+            .click(function () {
+                // var pk = $(this).attr('pk');
+
+                let html = `
+                    <div class='alert alert-block alert-danger'>
+                        {% trans "Deleting this template will revert to using any inherited templates." %}
+                    </div>`;
+
+                let key = $(this).attr('key');
+                let api_url = $(this).attr('api_url');
+
+                constructForm(null, {
+                    title: '{% trans "Delete Part Template" %}',
+                    submitText: `{% trans "Delete" %}`,
+                    submitClass: 'danger',
+                    preFormContent: html,
+                    refreshTable: table,
+                    confirm: true,
+                    onSubmit: saveTemplate
+                });
+            });
     }
 </script>
 {% if part_templates %}
-        <table class='table table-condensed' id="part-template-table">
-            <thead>
-                <tr>
-                    <th> {% trans "Variable Name" %} </th>
-                    <th> {% trans "Active Template" %} </th>
-                    <th> </th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in part_templates %}
-                    <tr>
-                        <td>{{ item.key }}</td>
-                        <td>
-                            {% if item.template %}
-                                {{ item.template }}
-                            {% else %}
-                                {{ item.inherited_template }}
-                                <span class='badge badge-left rounded-pill bg-success'>{% trans "Inherited" %}</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="btn-group float-right" role="group">
-				<button 
-					    key="{{ item.key }}" 
-					    api_url="{% url 'plugin:part-templates:template_delete' item.key 'part' 1 %}" 
-					    id="button-part-templates-edit-{{ item.key }}" 
-					    class="btn btn-outline-secondary button-part-templates-edit" 
-					    title="Edit template"
-					>
-                               		<span class='fas fa-edit icon-blue'></span>
-                                </button>
-				<button 
-					key="{{ item.key }}" 
-				        api_url="{% url 'plugin:part-templates:template_delete' item.key 'part' 1 %}" 
-					id="button-part-templates-delete-{{ item.key }}" 
-					class="btn btn-outline-secondary button-part-templates-delete" 
-					title="Delete template"
-					{% if not template %}disabled="true"{% endif %}
-				>
-                                    <span class='fas fa-trash-alt {% if template %}icon-red{% else %}icon-gray{% endif %}'></span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<table class="table table-condensed" id="part-template-table">
+    <thead>
+        <tr>
+            <th>{% trans "Variable Name" %}</th>
+            <th>{% trans "Active Template" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in part_templates %}
+        <tr>
+            <td>{{ item.key }}</td>
+            <td>
+                {% if item.template %}
+                    {{ item.template }}
+                {% else %}
+                    {{ item.inherited_template }}
+                    <span class="badge badge-left rounded-pill bg-success">
+                        {% trans "Inherited" %}
+                    </span>
+                {% endif %}
+            </td>
+            <td>
+                <div class="btn-group float-right" role="group">
+                    <button
+                        key="{{ item.key }}"
+                        template="{{ item.template }}"
+                        api_url="{% url 'plugin:part-templates:template_delete' item.key item.entity item.pk %}"
+                        id="button-part-templates-edit-{{ item.key }}"
+                        class="btn btn-outline-secondary button-part-templates-edit"
+                        title="Edit template">
+                        <span class="fas fa-edit icon-blue"></span>
+                    </button>
+                    <button
+                        key="{{ item.key }}"
+                        api_url="{% url 'plugin:part-templates:template_delete' item.key item.entity item.ok %}"
+                        id="button-part-templates-delete-{{ item.key }}"
+                        class="btn btn-outline-secondary button-part-templates-delete"
+                        title="Delete template"
+                        {% if not template %}disabled="true"{% endif %}>
+                            <span class="fas fa-trash-alt {% if template %}icon-red{% else %}icon-gray{% endif %}"></span>
+                    </button>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% else %}
-    <p>Plugin not configured (see <a href="/settings/">settings</a> and
-    select "Inventree Part Templates" from the Plugins section).</p>
+<p>
+    Plugin not configured (see <a href="/settings/">settings</a> and select
+    "Inventree Part Templates" from the Plugins section).
+</p>
 {% endif %}

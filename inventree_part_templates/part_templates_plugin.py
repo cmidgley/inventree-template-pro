@@ -275,11 +275,11 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
     # todo: implement and document
     def setup_urls(self):
         return [
-            path('template-delete/<str:key>/<str:entity>/<int:pk>/', self._webapi_template_delete, name='template-delete'),
+            path('template_delete/<str:key>/<str:entity>/<int:pk>/', self._webapi_template_delete, name='template_delete'),
         ]
 
     # todo: implement and document
-    def _webapi_template_delete(self, _request: HttpRequest, _key: str, _entity: str, _pk: int):
+    def _webapi_template_delete(self, _request: HttpRequest, key: str, entity: str, pk: int):
         # data = json.loads(request.body)
         return HttpResponse('OK')
 

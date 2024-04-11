@@ -15,13 +15,35 @@
         </div>`
 
 		let key = $(this).attr('key');
-                alert('edit clicked: ' + key);
+		let api_url = $(this).attr('api_url');
                 // todo: resolve 'part' (entity) and '1' (pk)
-                constructForm("{% url 'plugin:SLUG:template-delete' key 'part' 1 %}", {
-                    method: 'DELETE',
+                constructForm(null, {
                     title: '{% trans "Delete Part Template" %}',
-                    preFormControl: html,
+			submitText: `{% trans "Delete" %}`,
+			submitClass: 'danger',
+                    preFormContent: html,
                     refreshTable: table,
+			fields: {
+				template: {
+					                label: `{% trans "Part template" %}`,
+                type: "string",
+                localOnly: true,
+                value: "prior-template-value-here",
+                //onEdit: (_value, _name, _field, formOptions) => {
+	//		alert('onEdit');
+                    //updateFormUrl(formOptions);
+         //       }
+
+				}
+			},
+			confirm: true,
+			onSubmit: async function(fields, opts) {
+				//alert(JSON.stringify(fields));
+				alert(fields.template.value);
+				await fetch(api_url);
+				showMessage('Template deleted', { style: 'success' });
+				$(opts.modal).modal('hide');
+			},
                 });
             });
 
@@ -50,10 +72,23 @@
                         </td>
                         <td>
                             <div class="btn-group float-right" role="group">
-				    <button key="{{ item.key }}" id="button-part-templates-edit-{{ item.key }}" class="btn btn-outline-secondary button-part-templates-edit" title="Edit template">
-                                    <span class='fas fa-edit icon-blue'></span>
+				<button 
+					    key="{{ item.key }}" 
+					    api_url="{% url 'plugin:part-templates:template_delete' item.key 'part' 1 %}" 
+					    id="button-part-templates-edit-{{ item.key }}" 
+					    class="btn btn-outline-secondary button-part-templates-edit" 
+					    title="Edit template"
+					>
+                               		<span class='fas fa-edit icon-blue'></span>
                                 </button>
-				<button key="{{ item.key }}" id="button-part-templates-delete-{{ item.key }}" class="btn btn-outline-secondary button-part-templates-delete" title="Delete template"{% if not template %} disabled="true"{% endif %}>
+				<button 
+					key="{{ item.key }}" 
+				        api_url="{% url 'plugin:part-templates:template_delete' item.key 'part' 1 %}" 
+					id="button-part-templates-delete-{{ item.key }}" 
+					class="btn btn-outline-secondary button-part-templates-delete" 
+					title="Delete template"
+					{% if not template %}disabled="true"{% endif %}
+				>
                                     <span class='fas fa-trash-alt {% if template %}icon-red{% else %}icon-gray{% endif %}'></span>
                                 </button>
                             </div>

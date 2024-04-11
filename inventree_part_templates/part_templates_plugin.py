@@ -30,10 +30,9 @@ from stock.views import StockItemDetail
 # Django views
 from django.views.generic import UpdateView
 
-# API support for URLs and JSON
+# API support for URLs
 from django.urls import path
 from django.http import HttpResponse, HttpRequest, JsonResponse
-import json
 
 # Plugin version number
 from .version import PLUGIN_VERSION
@@ -287,7 +286,7 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
         Web API endpoint for the panel frontend to delete a template from the database.
 
         Args:
-            _request (HttpRequest): The HTTP request object.
+            request (HttpRequest): The HTTP request object.
             key (str): The API key.
             entity (str): The entity name.
             pk (int): The primary key of the template to delete.
@@ -303,8 +302,27 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
                 'message': 'Missing required parameter: template'
             }, status=200)
 
-        #return JsonResponse({'status': 'ok', 'message': 'Template saved successfully'})
-        return JsonResponse({'status': 'error', 'message': 'Fake error to test logic'}, status=200)
+        # locate this pk on the specified entity
+        if entity == 'part':
+            instance = Part.objects.get(pk=pk)
+        elif entity == 'category':
+            instance = PartCategory.objects.get(pk=pk)
+        else:
+            return JsonResponse({
+                'status': 'error',
+                'message': f"Invalid entity type {entity}"
+            }, status=200)
+
+        # did we locate the entity?
+        if not instance:
+            return JsonResponse({
+                'status': 'error',
+                'message': f"Could not locate {entity} {pk}"
+            }, status=200)
+
+        return JsonResponse({'status': 'error', 'message': f'Found {pk} - need to set {key} to {template}'})
+
+        # return JsonResponse({'status': 'ok', 'message': 'Template saved successfully'})
 
     #
     # internal methods

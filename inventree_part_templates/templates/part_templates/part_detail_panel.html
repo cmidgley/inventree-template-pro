@@ -22,12 +22,12 @@ panel used on Part and Category detail pages to display and manage part template
                 if (contentType && contentType.includes("application/json")) {
                     const data = await response.json();
                     if (data.status === 'ok') {
-                        showMessage(`Template saved: ${data.message}`, { style: 'success' });
+                        showMessage(`{% trans "Template saved: " %}${data.message}`, { style: 'success' });
                     } else {
-                        showMessage(`Unable to save; Server returned error: ${data.message ?? '(no message)'}`, { style: 'danger' });
+                        showMessage(`{% trans "Unable to save; Server returned error: " %}${data.message ?? '{% trans "(no message)" %}'}`, { style: 'danger' });
                     }
                 } else
-		    showMessage("Unable to save; Server returned non-JSON response", { style: 'danger' });
+		    showMessage(`{% trans "Unable to save; Server returned non-JSON response" %}`, { style: 'danger' });
             } else
                 showMessage(`{% trans "Unable to save; HTTP error " %}${response.status}`, { style: 'danger' });
         } catch (e) {
@@ -131,7 +131,7 @@ panel used on Part and Category detail pages to display and manage part template
                         api_url="{% url 'plugin:part-templates:set_template' item.key item.entity item.pk %}"
                         id="button-part-templates-edit-{{ item.key }}"
                         class="btn btn-outline-secondary button-part-templates-edit"
-                        title="Edit template">
+                        title='{% trans "Edit template" %}'>
                         <span class="fas fa-edit icon-blue"></span>
                     </button>
                     <button
@@ -139,7 +139,7 @@ panel used on Part and Category detail pages to display and manage part template
                         api_url="{% url 'plugin:part-templates:set_template' item.key item.entity item.pk %}"
                         id="button-part-templates-delete-{{ item.key }}"
                         class="btn btn-outline-secondary button-part-templates-delete"
-                        title="Delete template"
+                        title='{% trans "Delete template" %}'
                         {% if not template %}disabled="true"{% endif %}>
                             <span class="fas fa-trash-alt {% if template %}icon-red{% else %}icon-gray{% endif %}"></span>
                     </button>
@@ -151,7 +151,6 @@ panel used on Part and Category detail pages to display and manage part template
 </table>
 {% else %}
 <p>
-    Plugin not configured (see <a href="/settings/">settings</a> and select
-    "Inventree Part Templates" from the Plugins section).
+    {% trans "Plugin not configured (see <a href="/settings/">settings</a> and select Inventree Part Templates" from the Plugins section)." %}
 </p>
 {% endif %}

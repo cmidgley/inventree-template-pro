@@ -204,8 +204,6 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
         panels.append({
             'title': 'Part Templates',
             'icon': 'fa-file-alt',
-            'entity': 'part' if isinstance(view, PartDetail) else 'category',
-            'pk': view.get_object().pk,
             'content_template': 'part_templates/part_detail_panel.html',
             'javascript': 'onPartTemplatesPanelLoad();'
         })
@@ -232,6 +230,8 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
                 - 'key': The context variable name.
                 - 'template': The template associated with the context variable.
                 - 'inherited_template': The inherited template for the context variable.
+                - 'entity': the name of the entity being edited (Part, StockItem)
+                - 'pk': The primary key of the entity object
         """
         context: List[Dict[str, str]] = []
 
@@ -259,7 +259,9 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
                 context.append({
                     'key': key,
                     'template': metadata_templates.get(key, ""),
-                    'inherited_template': inherited_template
+                    'inherited_template': inherited_template,
+                    'entity': 'part' if isinstance(instance, PartDetail) else 'category',
+                    'pk': instance.pk,
                 })
 
         return context
@@ -277,7 +279,7 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             A list of URL patterns for the part templates plugin.
         """
         return [
-            path('set_template/<str:key>/<str:entity>/<int:pk>/', self._webapi_set_template, name='template_set_template'),
+            path('set_template/<str:key>/<str:entity>/<int:pk>/', self._webapi_set_template, name='set_template'),
         ]
 
     def _webapi_set_template(self, request: HttpRequest, key: str, entity: str, pk: int) -> HttpResponse:

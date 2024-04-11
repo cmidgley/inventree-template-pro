@@ -10,19 +10,19 @@
 {% load i18n %}
 <script>
     // helper API to save a template to part/category metadata.  Handles detection of errors from
-    // Http and server, and closes the model on success.
+    // Http and server, and closes the model dialog
     async function saveTemplate(fields, opts) {
         try {
-            const response = await fetch(`${api_url}/?template=${encodeURIComponent(fields.template.value)}`);
+            const response = await fetch(`${opts.api_url}/?template=${encodeURIComponent(fields.template.value)}`);
             if (response.ok) {
                 showMessage('Template saved', { style: 'success' });
-                $(opts.modal).modal('hide');
             }
             else
                 showMessage(`{% trans "Unable to save; HTTP error " %}${response.status}`, { style: 'danger' });
         } catch (e) {
             showMessage(`{% trans "Unable to save; network error " %}${e}`, { style: 'danger' });
         }
+	$(opts.modal).modal('hide');
     }
     
     // handler for when the part templates panel is loaded.  Sets up the on-click handlers for edit 
@@ -49,6 +49,7 @@
                     submitClass: 'success',
                     preFormContent: html,
                     refreshTable: table,
+                    api_url: api_url,
                     fields: {
                         template: {
                             label: `{% trans "Part template" %}`,
@@ -57,7 +58,6 @@
                             value: template,
                         },
                     },
-                    confirm: true,
                     onSubmit: saveTemplate
                 });
             });
@@ -82,6 +82,7 @@
                     submitClass: 'danger',
                     preFormContent: html,
                     refreshTable: table,
+                    api_url: api_url,
                     confirm: true,
                     onSubmit: saveTemplate
                 });
@@ -124,7 +125,7 @@
                     </button>
                     <button
                         key="{{ item.key }}"
-                        api_url="{% url 'plugin:part-templates:set_template' item.key item.entity item.ok %}"
+                        api_url="{% url 'plugin:part-templates:set_template' item.key item.entity item.pk %}"
                         id="button-part-templates-delete-{{ item.key }}"
                         class="btn btn-outline-secondary button-part-templates-delete"
                         title="Delete template"

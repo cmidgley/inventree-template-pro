@@ -299,11 +299,12 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
         if template is None:
             # If the required parameter is not present, return an error
             return JsonResponse({
-                'error': 'Missing required parameter: template'
-            }, status=400)
+                'status': 'error',
+                'message': 'Missing required parameter: template'
+            }, status=200)
 
-        # return HttpResponse('OK')
-        return JsonResponse({'error': 'Fake error to test logic'}, status=409)
+        #return JsonResponse({'status': 'ok', 'message': 'Template saved successfully'})
+        return JsonResponse({'status': 'error', 'message': 'Fake error to test logic'}, status=200)
 
     #
     # internal methods

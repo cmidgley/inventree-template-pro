@@ -1,11 +1,11 @@
-//
-// inventree-part-templates
-//
-// Copyright (c) 2024 Chris Midgley
-// License: MIT (see LICENSE file)
-//
-// panel used on Part and Category detail pages to display and manage part templates
-//
+<!--
+inventree-part-templates
+
+Copyright (c) 2024 Chris Midgley
+License: MIT (see LICENSE file)
+
+panel used on Part and Category detail pages to display and manage part templates
+-->
 
 {% load i18n %}
 <script>
@@ -13,11 +13,23 @@
     // Http and server, and closes the model dialog
     async function saveTemplate(fields, opts) {
         try {
-            const response = await fetch(`${opts.api_url}/?template=${encodeURIComponent(fields.template.value)}`);
+            // make the web API call to save the template
+            //const response = await fetch(`${opts.api_url}/?template=${encodeURIComponent(fields.template.value)}`);
+            const response = await fetch(`${opts.api_url}`);
+            // make sure we got an HTTP success
             if (response.ok) {
-                showMessage('Template saved', { style: 'success' });
-            }
-            else
+                // make sure we get a JSON response
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const data = await response.json();
+                    if (data.status === 'ok') {
+                        showMessage(`Template saved: ${data.message}`, { style: 'success' });
+                    } else {
+                        showMessage(`Unable to save; Server returned error: ${data.message ?? '(no message)'}`, { style: 'danger' });
+                    }
+                } else
+		    showMessage("Unable to save; Server returned non-JSON response", { style: 'danger' });
+            } else
                 showMessage(`{% trans "Unable to save; HTTP error " %}${response.status}`, { style: 'danger' });
         } catch (e) {
             showMessage(`{% trans "Unable to save; network error " %}${e}`, { style: 'danger' });

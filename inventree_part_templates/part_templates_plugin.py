@@ -320,9 +320,28 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
                 'message': f"Could not locate {entity} {pk}"
             }, status=200)
 
-        return JsonResponse({'status': 'error', 'message': f'Found {pk} - need to set {key} to {template}'})
+        # is key valid
+        # todo: verify the key is correct to the plugin settings
 
-        # return JsonResponse({'status': 'ok', 'message': 'Template saved successfully'})
+        # set up our metadata
+        origMeta = instance.metadata
+        if not instance.metadata:
+            instance.metadata = {}
+        if not instance.metadata.get(self.METADATA_PARENT):
+            instance.metadata[self.METADATA_PARENT] = {}
+        if not instance.metadata[self.METADATA_PARENT].get("templates"):
+            instance.metadata[self.METADATA_PARENT]['templates'] = {}
+
+        # set or delete the key using template
+        # todo: add exception / error handling in case save fails... 
+        if template:
+            instance.metadata[self.METADATA_PARENT].get("templates")[key] = template
+            instance.save()
+        elif instance.metadata[self.METADATA_PARENT]["templates"].get(key):
+            del instance.metadata[self.METADATA_PARENT]["templates"][key]
+            instance.save()
+
+        return JsonResponse({'status': 'ok', 'message': 'Template saved successfully', 'origMeta': origMeta, 'new-template': template, 'metadata': instance.metadata, 'name': instance.name, 'pk': instance.pk })
 
     #
     # internal methods

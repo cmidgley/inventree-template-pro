@@ -42,6 +42,7 @@ panel used on Part and Category detail pages to display and manage part template
             showMessage(`{% trans "Unable to save; network error " %}${e}`, { style: 'danger' });
         }
     	$(opts.modal).modal('hide');
+        window.location.href = window.location.origin + window.location.pathname + '?display=parttemplatesparttemplates#'
         location.reload();
     }
     
@@ -55,18 +56,18 @@ panel used on Part and Category detail pages to display and manage part template
             .click(function () {
                 let html = `
                     <div>
-                        {% trans "Part templates are Django Template Language templates with the following <a href="https://docs.inventree.org/en/latest/report/context_variables" target="_blank">context variables</a>:" %}
+                        {% trans "Part templates are Django Template Language templates with the following <a href='https://docs.inventree.org/en/latest/report/context_variables' target='_blank'>context variables</a>:" %}
                         <ul>
                             <li>{% trans "<code>part</code>: The part context associated with the report/label" %}</li>
                             <li>{% trans "<code>category</code>: The category, short-hand for <code>part.category</code>" %}</li>
                             <li>{% trans "<code>parameters</code> The parameters associated with the part, short-hand for <code>part.parameters</code>" %}</li>
-                            <li>{% trans "<code>stock</code>: The stock item, if reporting on stock (check with <code>{% if stock %}</code>)" %}</li>
+			    <li>{% trans "<code>stock</code>: The stock item, when reporting on a stock item" %}</li>
                         </ul>
                         {% trans "Some examples:" %}
                         <ul>
-                            <li><code>{% raw "{% part.name %}{% if part.IPN %} ({% part.IPN %}){% endif %}" %}</code></li>
-                            <li><code>{% raw "{% parameters.Resistance %} {% parameters["Rated Voltage"] %}" %}</code></li>
-                            <li><code>{% raw "%{ part.IPN %}%{if stock %} (%{stack.quantity %} of {% part.total_stock %} at %{ stock.location.name %}){% endif %}" %}</code></li>
+			    <li><code>{% verbatim %}{% part.name %}{% if part.IPN %} ({{ part.IPN }}){% endif %}{% endverbatim %}</code></li>
+			    <li><code>{% verbatim %}{{ parameters.Resistance }} {{ parameters["Rated Voltage"] }}{% endverbatim %}</code></li>
+			    <li><code>{% verbatim %}{% part.IPN %}{% if stock %} ({{ stock.quantity }} of {{ part.total_stock }} at {{ stock.location.name }}){% endif %}{% endverbatim %}</code></li>
                     </div>`;
 
                 let key = $(this).attr('key');
@@ -125,10 +126,10 @@ panel used on Part and Category detail pages to display and manage part template
                 <thead>
                     <tr>
                         <th><div class="th-inner">{% trans "Variable Name" %}</div></th>
-                        {% if part_templates.mayView %}
+                        {% if part_templates_may_view %}
                             <th><div class="th-inner">{% trans "Value" %}</div></th>
                         {% endif %}
-                        {% if part_templates.mayEdit %}
+                        {% if part_templates_may_edit %}
                             <th><div class="th-inner">{% trans "Active Template" %}</div></th>
                             <th></th>
                         {% endif %}
@@ -138,10 +139,10 @@ panel used on Part and Category detail pages to display and manage part template
                     {% for item in part_templates %}
                     <tr>
                         <td>{{ item.key }}</td>
-                        {% if part_templates.mayView %}
+                        {% if part_templates_may_view %}
                         <td>(not implemeted)</td>
                         {% endif %}
-                        {% if part_templates.mayEdit %}
+                        {% if part_templates_may_edit %}
                             <td>
                                 {% if item.template %}
                                     {{ item.template }}

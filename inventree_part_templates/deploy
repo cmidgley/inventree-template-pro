@@ -27,10 +27,12 @@ mkdir -p "${target_dir}"
 
 # Copy the new files into the target directory
 cp -r . "${target_dir}"
+# Remove this deploy script, as it is only valid from the git repo
+rm "${target_dir}deploy"
 
 # Restart the InvenTree server container
 docker container restart inventree-server
 
 # Wait for the server to be fully up
-sleep 13
+sleep 14
 

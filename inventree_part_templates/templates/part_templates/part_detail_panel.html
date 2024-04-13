@@ -9,12 +9,20 @@ panel used on Part and Category detail pages to display and manage part template
 
 {% load i18n %}
 <script>
+    async function saveTemplateForm(fields, opts) {
+        saveTemplate(getFormFieldValue(fields.template.name, fields.template, opts), opts);
+    }
+
+    async function deleteTemplate(fields, opts) {
+        saveTemplate("", opts);
+    }
+
     // helper API to save a template to part/category metadata.  Handles detection of errors from
     // Http and server, and closes the model dialog
-    async function saveTemplate(fields, opts) {
+    async function saveTemplate(template, opts) {
         try {
             // make the web API call to save the template
-            const response = await fetch(`${opts.api_url}?template=${encodeURIComponent(opts.fieldTemplate)}`);
+            const response = await fetch(`${opts.api_url}?template=${encodeURIComponent(template)}`);
             // make sure we got an HTTP success
             if (response.ok) {
                 // make sure we get a JSON response
@@ -34,6 +42,7 @@ panel used on Part and Category detail pages to display and manage part template
             showMessage(`{% trans "Unable to save; network error " %}${e}`, { style: 'danger' });
         }
 	$(opts.modal).modal('hide');
+        $('#part-template-table').bootstrapTable('refresh');
     }
     
     // handler for when the part templates panel is loaded.  Sets up the on-click handlers for edit 
@@ -59,21 +68,16 @@ panel used on Part and Category detail pages to display and manage part template
                     submitText: `{% trans "Save" %}`,
                     submitClass: 'success',
                     preFormContent: html,
-                    refreshTable: table,
                     api_url: api_url,
-                    fieldTemplate: template,
                     fields: {
                         template: {
                             label: `{% trans "Part template" %}`,
                             type: 'string',
                             localOnly: true,
                             value: template,
-			    onEdit: (value, _name, _field, _formOptions) => {
-                                 _formOptions.fieldTemplate = value;
-                            }
                         },
                     },
-                    onSubmit: saveTemplate
+                    onSubmit: saveTemplateForm
                 });
             });
 
@@ -96,17 +100,27 @@ panel used on Part and Category detail pages to display and manage part template
                     submitText: `{% trans "Delete" %}`,
                     submitClass: 'danger',
                     preFormContent: html,
-                    refreshTable: table,
                     api_url: api_url,
-                    fieldTemplate: "",
                     confirm: true,
-                    onSubmit: saveTemplate
+                    onSubmit: deleteTemplate
                 });
             });
     }
 </script>
 {% if part_templates %}
-<table class="table table-condensed" id="part-template-table">
+<div class="bootstrap-table bootstrap5">
+	<div class="fixed-table-container" style="padding-bottom: 0px;">
+		<!-- 
+	  <div class="fixed-table-loading table table-bordered table-hover" style="top: 1px;">
+      <span class="loading-wrap">
+      <span class="loading-text" style="font-size: 12px;">Loading data</span>
+      <span class="animation-wrap"><span class="animation-dot"></span></span>
+      </span>
+    
+      </div>
+		-->
+		<div class="fixed-table-body">
+<table class="table table-condensed table-striped table-bordered table-hover" id="part-template-table">
     <thead>
         <tr>
             <th>{% trans "Variable Name" %}</th>
@@ -145,8 +159,8 @@ panel used on Part and Category detail pages to display and manage part template
                         id="button-part-templates-delete-{{ item.key }}"
                         class="btn btn-outline-secondary button-part-templates-delete"
                         title='{% trans "Delete template" %}'
-                        {% if not template %}disabled="true"{% endif %}>
-                            <span class="fas fa-trash-alt {% if template %}icon-red{% else %}icon-gray{% endif %}"></span>
+                        {% if not item.template %}disabled="true"{% endif %}>
+                            <span class="fas fa-trash-alt {% if item.template %}icon-red{% else %}icon-gray{% endif %}"></span>
                     </button>
                 </div>
             </td>
@@ -154,6 +168,7 @@ panel used on Part and Category detail pages to display and manage part template
         {% endfor %}
     </tbody>
 </table>
+		</div></div></div>
 {% else %}
 <p>
     {% trans 'Plugin not configured (see <a href="/settings/">settings</a> and select Inventree Part Templates" from the Plugins section).' %}

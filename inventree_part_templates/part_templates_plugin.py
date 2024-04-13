@@ -199,6 +199,8 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
         # make sure they are superuser
         if not cast(User, request.user).is_superuser:
             return panels
+        if not isinstance(view, (PartDetail, CategoryDetail)):
+            return panels
 
         panels.append({
             'title': 'Part Templates',
@@ -244,6 +246,7 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             parent_category = instance.category if isinstance(instance, Part) else instance.parent
 
             # get the template metadata, which is a dictionary of context_name: template for this instance
+            #instance = Part.objects.get(pk=instance.pk)
             if instance.metadata and instance.metadata.get(self.METADATA_PARENT) and instance.metadata[self.METADATA_PARENT].get('templates'):
                 metadata_templates = instance.metadata[self.METADATA_PARENT]['templates']
             else:
@@ -257,9 +260,9 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             if key:
                 context.append({
                     'key': key,
-                    'template': metadata_templates.get(key, ""),
+                    'template': metadata_templates.get(key, ''),
                     'inherited_template': inherited_template,
-                    'entity': 'part' if isinstance(instance, PartDetail) else 'category',
+                    'entity': 'part' if isinstance(instance, Part) else 'category',
                     'pk': instance.pk,
                 })
 
@@ -324,7 +327,6 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
         # todo: verify the key is correct to the plugin settings
 
         # set up our metadata
-        origMeta = instance.metadata
         if not instance.metadata:
             instance.metadata = {}
         if not instance.metadata.get(self.METADATA_PARENT):
@@ -341,7 +343,7 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             del instance.metadata[self.METADATA_PARENT]["templates"][key]
             instance.save()
 
-        return JsonResponse({'status': 'ok', 'message': 'Template saved successfully', 'origMeta': origMeta, 'new-template': template, 'metadata': instance.metadata, 'name': instance.name, 'pk': instance.pk })
+        return JsonResponse({'status': 'ok', 'message': 'Template saved successfully' })
 
     #
     # internal methods

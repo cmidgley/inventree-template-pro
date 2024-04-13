@@ -12,6 +12,9 @@ from typing import Dict, Any, List
 # Error reporting assistance
 import traceback
 
+# Translation support
+from django.utils.translation import gettext_lazy as _
+
 # Plugin imports
 from plugin import InvenTreePlugin
 from plugin.mixins import ReportMixin, SettingsMixin, PanelMixin, UrlsMixin
@@ -49,14 +52,32 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
     # plugin metadata for identity in InvenTree
     NAME = "InvenTreePartTemplates"
     SLUG = "part-templates"
-    TITLE = "InvenTree Part Templates"
-    DESCRIPTION = "Extends reporting with customizable part / category templates"
+    TITLE = _("InvenTree Part Templates")
+    DESCRIPTION = _("Extends reporting with customizable part / category templates")
     VERSION = PLUGIN_VERSION
     AUTHOR = "Chris Midgley"
 
     # plugin custom settings
     MAX_TEMPLATES = 5
     SETTINGS = {
+        'EDITING': {
+            'name': _('Panel editing'),
+            'description': _('Rules for when Part Templates may be edited in a Part Templates panel.'),
+            'choices': [
+                ('superuser',_('Only if user is Superuser')),
+                ('always',_('Always allow Part Template editing')),
+                ('never',_('Never allow Part Template editing'))],
+            'default': 'superuser',
+        },
+        'VIEWING': {
+            'name': _('Panel viewing'),
+            'description': _('Rules for when rendered context variables are shown in a Part Templates panel.'),
+            'choices': [
+                ('superuser',_('Only if user is Superuser')),
+                ('always',_('Always allow Part Template viewing')),
+                ('never',_('Never allow Part Template viewing'))],
+            'default': 'superuser',
+        },
         'T1_KEY': {
             'name': 'Template 1: Variable Name',
             'description': 'Context variable name',
@@ -153,17 +174,16 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
 
     def get_panel_context(self, view: UpdateView, request: HttpRequest, context: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Retrieves the panel context for the given view, when PartDetail or CategoryDetail and user
-        is superuser.  The context name is 'part_templates' and is a list of entries one per
-        template context variable defined in the plugin settings.  Each entry contains the key
-        name (key), the template associated with the key (template), and the inherited template
-        for the key (inherited_template).  The inherited template is the template that would be
-        used if the template on the instance was not defined.
+        Retrieves the panel context for the given view, when PartDetail or CategoryDetail and
+        settings EDITING and VIEWING indiate the panel should be shown.  The context name is
+        'part_templates' and is a list of entries one per template context variable defined in the
+        plugin settings.  Each entry contains the key name (key), the template associated with the
+        key (template), and the inherited template for the key (inherited_template).  The inherited
+        template is the template that would be used if the template on the instance was not defined.
 
         Args:
-            view (UpdateView): The view object.
-            request (HtpRequest): The request object.
-            context (Dict[str, Any]): The context dictionary.
+            view (UpdateView): The view object.  request (HtpRequest): The request object.  context
+            (Dict[str, Any]): The context dictionary.
 
         Returns:
             Dict[str, Any]: The updated context dictionary.
@@ -172,19 +192,24 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
         # pick up our context from the super
         ctx = super().get_panel_context(view, request, context)
 
-        # if not superuser, just return that context
-        if not cast(User, request.user).is_superuser:
+        # are we providing a panel?
+        if not self._may_edit_panel(request, view) and not self._may_view_panel(request, view):
             return ctx
 
-        # if one of our detail pane pages, add context to get the part templates
-        if isinstance(view, (PartDetail, CategoryDetail)):
-            ctx['part_templates'] = self._get_panel_context(view.get_object())
+        # add our context
+        ctx['part_templates'] = self._get_panel_context(view.get_object())
+        ctx['mayEdit'] = self._may_edit_panel(request, view)
+        ctx['mayView'] = self._may_view_panel(request, view)
+
+        # render the part, if we have one to render
+        if isinstance(view.get_object(), (Part, StockItem)):
+            ctx['rendered'] = "(rendered not implemented)"
 
         return ctx
 
     def get_custom_panels(self, view: UpdateView, request: HttpRequest) -> List[Any]:
         """
-        Retrieves a list of custom panels if PartDetail or CategoryDetail, and superuser.
+        Retrieves our custom panel, if it is enabled and on a supported view.
 
         Args:
             view (UpdateView): The view object.
@@ -196,12 +221,11 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
         """
         panels = []
 
-        # make sure they are superuser
-        if not cast(User, request.user).is_superuser:
-            return panels
-        if not isinstance(view, (PartDetail, CategoryDetail)):
+        # are we providing a panel?
+        if not self._may_edit_panel(request, view) and not self._may_view_panel(request, view):
             return panels
 
+        # add our panel
         panels.append({
             'title': 'Part Templates',
             'icon': 'fa-file-alt',
@@ -268,6 +292,50 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
 
         return context
 
+    def _may_edit_panel(self, request: HttpRequest, view: UpdateView) -> bool:
+        """
+        Determines whether the panel can be edited based on the current settings and user permissions.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+
+        Returns:
+            bool: True if the panel can be edited, False otherwise.
+        """
+        # check if settings allow editing
+        if self.get_setting('EDITING') == 'never':
+            return False
+        if self.get_setting('EDITING') == 'superuser' and not cast(User, request.user).is_superuser:
+            return False
+
+        # make sure it's a view we support editing on
+        if not isinstance(view, (PartDetail, CategoryDetail)):
+            return False
+
+        return True
+
+    def _may_view_panel(self, request: HttpRequest, view: UpdateView) -> bool:
+        """
+        Determines whether the panel can be viewed based on the user's permissions and settings.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+
+        Returns:
+            bool: True if the panel can be viewed, False otherwise.
+        """
+        # check if settings allow viewing
+        if self.get_setting('VIEWING') == 'never':
+            return False
+        if self.get_setting('VIEWING') == 'superuser' and not cast(User, request.user).is_superuser:
+            return False
+
+        # make sure it's a view we support viewing on
+        if not isinstance(view, (PartDetail, StockItemDetail)):
+            return False
+
+        return True
+
     #
     # Urls mixin entrypoints
     #
@@ -323,8 +391,16 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
                 'message': f"Could not locate {entity} {pk}"
             }, status=200)
 
-        # is key valid
-        # todo: verify the key is correct to the plugin settings
+        # is key valid?
+        for key_number in range(1, self.MAX_TEMPLATES + 1):
+            setup_key: str = self.get_setting(f'T{key_number}_KEY')
+            if key == setup_key:
+                break
+        else:
+            return JsonResponse({
+                'status': 'error',
+                'message': f"Invalid key {key}"
+            }, status=200)
 
         # set up our metadata
         if not instance.metadata:
@@ -335,13 +411,18 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             instance.metadata[self.METADATA_PARENT]['templates'] = {}
 
         # set or delete the key using template
-        # todo: add exception / error handling in case save fails... 
-        if template:
-            instance.metadata[self.METADATA_PARENT].get("templates")[key] = template
-            instance.save()
-        elif instance.metadata[self.METADATA_PARENT]["templates"].get(key):
-            del instance.metadata[self.METADATA_PARENT]["templates"][key]
-            instance.save()
+        try:
+            if template:
+                instance.metadata[self.METADATA_PARENT].get("templates")[key] = template
+                instance.save()
+            elif instance.metadata[self.METADATA_PARENT]["templates"].get(key):
+                del instance.metadata[self.METADATA_PARENT]["templates"][key]
+                instance.save()
+        except Exception as e:      # pylint: disable=broad-except
+            return JsonResponse({
+                'status': 'error',
+                'message': f"Error saving template: {str(e)}"
+            }, status=200)
 
         return JsonResponse({'status': 'ok', 'message': 'Template saved successfully' })
 

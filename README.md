@@ -1,26 +1,82 @@
 # InvenTree-Part-Templates
 
+Have you invested the time and energy to get all your parts with detailed parameters, only to get
+labels (and reports) like this?
+
+`CC0603KRX7R9BB104 / 311-1344-2-ND`
+
+With `inventree-part-templates`, you can leverage that work have parametric labels and reports:
+
+`0603 Ceramic Cap 0.1uF 50V 10%`
+`R-10K 0402 1%`
+`MCU STM32: Bin A-32`
+
+## Introduction
+
 **InvenTree-Part-Templates** is a plugin for InvenTree that enhances the reporting capabilities,
-including regular and label reports, by introducing context variables derived from category and part
-templates. This plugin allows for extensive customization based on part-specific attributes and
-category hierarchies, enabling users to create highly tailored template definitions.  For example,
-you might have a label that uses "{{ part_templates.description }}" that resolves to "1.1K 1% 62.5mW
-0402" on a resistor, but "10pF 65V Tant 1206" for a capacitor, all based on the part category and
-part properties.
+including regular and label reports, by introducing a `part_templates` context variable with
+configurable properties derived from category and part templates.  The templates inherit across
+the category heirarchy, so you can customize templates where needed, but don't have to do it every
+category.
+
+For example, you might define a template for a label called "part_description".  On the "Capacitor"
+part category you might have a template that shows farads and max voltage, and on the "Resistor"
+part category you might show resistance and wattage.  In your label (or report) you would simply
+reference `{{ part_templates.part_description }}` and the correct template is automatically chosen
+based on the part's category.  If you have a part in the "Capacitor / Electrolytic" category, but
+only have a template on "Capacitor", the template on "Capacitor" would be inherited, but you can
+always added (or remove) a template on "Electroylytic", or even on the part itself, to refine the
+results.
 
 ## Features
 
-- **Template Customization**: Define multiple template names, each supporting its own set of
-  inherited templates. This feature allows multiple templates to be customized, such as for short
-  and long parametric part descriptions, and accurate category names without the full heirarchy.
+- **Template Customization**: Define multiple context properties, each with its own set of inherited
+  templates. For example, you can have short and long parametric part descriptions, and detailed or
+  abbreviated category names, available to use in all your labels and reports.
   
-- **Flexible Inheritance**: Templates are primarily defined per part category and are inherited from
-  parent categories, but can be overridden on individual parts.  This makes templates easy to
-  define, but also the ability to be highly precise down the the individual part.
+- **Flexible Inheritance**: Templates are defined per part category and are inherited from parent
+  categories, but can be overridden on individual parts (and have defaults).  This makes templates
+  easy to define while also being able to be highly precise all the way down the the individual part.
 
 - **Simplified and consistent reporting**: Easily reference templates within your reports or labels
-  using standard Django template placeholders (`{{ part_templates.part_description }}`). The
+  using standard Django template placeholders (such as `{{ part_templates.part_description }}`). The
   templates can be used on any report, including labels, any place where you access parts or stock.
+
+- **Easy to configure templates with integrated panel**: A new `Parts Template` panel is (optionally)
+  available on the "Part", "Stock", and "Part Category" pages.  This panel provides the ability to
+  to manage the configuration and see the results of the Part Templates plugin.  On Part and Stock
+  pages, you can see the rendered template value, making it easy to tune and debug your templates.
+  On Part and Part Category pages you can edit the templates, where they are applied to the part and
+  catalog heirarchy.
+
+- **Control panel visibility**: The ability to view or edit the parts template can be controlled
+  from settings, allowing spearate View and Edit options for Everyone, Superuser and None.
+
+## Installation
+
+`part-templates-plugin` is [installed like most
+plugins](https://docs.inventree.org/en/latest/extend/plugins/install/).
+It can be installed with using plugins in settings, via PIP, or using the plugins.txt file
+(recommended if using Docker).  
+
+This plugin requires the `Enable URL integration` plugin setting to be enabled as it needs to
+perform REST API calls to InvenTree to edit and delete templates.
+
+Don't forget to enable the plugin after adding it.
+
+
+## Plugin Configuration
+
+Under `Settings / Plugin Settings / InvenTree Part Templates` you will find the settings for the
+plug-in.  
+
+TODO: CONTINUE FROM HERE
+
+## Template Configuration
+
+## Label and Report Usage
+
+
 
 ## Example Usage
 
@@ -82,27 +138,7 @@ Some examples:
 
 ## Assigning templates to categories and parts
 
-The plugin [Model Metadata](https://docs.inventree.org/en/stable/extend/plugins/metadata/) system is
-used to assign templates.  A planned work item is to add a user interface using the [Panel
-Mixin](https://docs.inventree.org/en/latest/extend/plugins/panel/), but until then you have to use
-the Admin interface for `PART / Part Categories` and `PART / Parts` and hand-edit the individual
-part or categories `Plugin Metadata` like this:
-
-```json
-{
-    'part_template_plugin': {
-        'templates': {
-            'description': '{{ part.name }}'
-            'category': '{{ category.parent.name }} {{ category.name }}'
-        },
-    }
-}
-
-The "closest" template for any one key/variable name will be used, so if a part defines "description" but not "category", and the 
-category also defines "description" but not "category", and then the category parent defines "category", the template for
-"description" will come from the part, and the template for "category" will come from the categories parent.  If no template is found, the
-default template on the plugin setup page will be used.  If no templates are used, the resulting value will be empty (no errors, just
-empty).
+***** TO BE DONE *****
 
 ## Use in Reports and Labels
 
@@ -129,13 +165,6 @@ error processing the templates.  A best practice for a report/label might be:
 (your label/report as normal)
 {% endif %}
 ```
-
-## Installation
-
-`part-templates-plugin` is [installed like most
-plugins](https://docs.inventree.org/en/latest/extend/plugins/install/#plugin-installation-file-pip).
-It can be installed with using plugins in settings, via PIP, or using the plugins.txt file
-(recommended if using Docker).
 
 ## TODO
 

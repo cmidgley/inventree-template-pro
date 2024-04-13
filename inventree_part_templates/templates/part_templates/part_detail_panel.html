@@ -41,8 +41,8 @@ panel used on Part and Category detail pages to display and manage part template
         } catch (e) {
             showMessage(`{% trans "Unable to save; network error " %}${e}`, { style: 'danger' });
         }
-	$(opts.modal).modal('hide');
-        $('#part-template-table').bootstrapTable('refresh');
+    	$(opts.modal).modal('hide');
+        location.reload();
     }
     
     // handler for when the part templates panel is loaded.  Sets up the on-click handlers for edit 
@@ -53,10 +53,20 @@ panel used on Part and Category detail pages to display and manage part template
         $(table)
             .find('.button-part-templates-edit')
             .click(function () {
-                // TODO: Write instructions
                 let html = `
                     <div>
-                        {% trans "TODO - WRITE INSTRUCTIONS FOR USING TEMPLATES" %}
+                        {% trans "Part templates are Django Template Language templates with the following <a href="https://docs.inventree.org/en/latest/report/context_variables" target="_blank">context variables</a>:" %}
+                        <ul>
+                            <li>{% trans "<code>part</code>: The part context associated with the report/label" %}</li>
+                            <li>{% trans "<code>category</code>: The category, short-hand for <code>part.category</code>" %}</li>
+                            <li>{% trans "<code>parameters</code> The parameters associated with the part, short-hand for <code>part.parameters</code>" %}</li>
+                            <li>{% trans "<code>stock</code>: The stock item, if reporting on stock (check with <code>{% if stock %}</code>)" %}</li>
+                        </ul>
+                        {% trans "Some examples:" %}
+                        <ul>
+                            <li><code>{% raw "{% part.name %}{% if part.IPN %} ({% part.IPN %}){% endif %}" %}</code></li>
+                            <li><code>{% raw "{% parameters.Resistance %} {% parameters["Rated Voltage"] %}" %}</code></li>
+                            <li><code>{% raw "%{ part.IPN %}%{if stock %} (%{stack.quantity %} of {% part.total_stock %} at %{ stock.location.name %}){% endif %}" %}</code></li>
                     </div>`;
 
                 let key = $(this).attr('key');
@@ -110,65 +120,68 @@ panel used on Part and Category detail pages to display and manage part template
 {% if part_templates %}
 <div class="bootstrap-table bootstrap5">
 	<div class="fixed-table-container" style="padding-bottom: 0px;">
-		<!-- 
-	  <div class="fixed-table-loading table table-bordered table-hover" style="top: 1px;">
-      <span class="loading-wrap">
-      <span class="loading-text" style="font-size: 12px;">Loading data</span>
-      <span class="animation-wrap"><span class="animation-dot"></span></span>
-      </span>
-    
-      </div>
-		-->
 		<div class="fixed-table-body">
-<table class="table table-condensed table-striped table-bordered table-hover" id="part-template-table">
-    <thead>
-        <tr>
-            <th>{% trans "Variable Name" %}</th>
-            <th>{% trans "Active Template" %}</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in part_templates %}
-        <tr>
-            <td>{{ item.key }}</td>
-            <td>
-                {% if item.template %}
-                    {{ item.template }}
-                {% else %}
-                    {{ item.inherited_template }}
-                    <span class="badge badge-left rounded-pill bg-success">
-                        {% trans "Inherited" %}
-                    </span>
-                {% endif %}
-            </td>
-            <td>
-                <div class="btn-group float-right" role="group">
-                    <button
-                        key="{{ item.key }}"
-                        template="{{ item.template }}"
-                        api_url="{% url 'plugin:part-templates:set_template' item.key item.entity item.pk %}"
-                        id="button-part-templates-edit-{{ item.key }}"
-                        class="btn btn-outline-secondary button-part-templates-edit"
-                        title='{% trans "Edit template" %}'>
-                        <span class="fas fa-edit icon-blue"></span>
-                    </button>
-                    <button
-                        key="{{ item.key }}"
-                        api_url="{% url 'plugin:part-templates:set_template' item.key item.entity item.pk %}"
-                        id="button-part-templates-delete-{{ item.key }}"
-                        class="btn btn-outline-secondary button-part-templates-delete"
-                        title='{% trans "Delete template" %}'
-                        {% if not item.template %}disabled="true"{% endif %}>
-                            <span class="fas fa-trash-alt {% if item.template %}icon-red{% else %}icon-gray{% endif %}"></span>
-                    </button>
-                </div>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-		</div></div></div>
+            <table class="table table-condensed table-striped table-bordered table-hover" id="part-template-table">
+                <thead>
+                    <tr>
+                        <th><div class="th-inner">{% trans "Variable Name" %}</div></th>
+                        {% if part_templates.mayView %}
+                            <th><div class="th-inner">{% trans "Value" %}</div></th>
+                        {% endif %}
+                        {% if part_templates.mayEdit %}
+                            <th><div class="th-inner">{% trans "Active Template" %}</div></th>
+                            <th></th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in part_templates %}
+                    <tr>
+                        <td>{{ item.key }}</td>
+                        {% if part_templates.mayView %}
+                        <td>(not implemeted)</td>
+                        {% endif %}
+                        {% if part_templates.mayEdit %}
+                            <td>
+                                {% if item.template %}
+                                    {{ item.template }}
+                                {% else %}
+                                    {{ item.inherited_template }}
+                                    <span class="badge badge-left rounded-pill bg-success">
+                                        {% trans "Inherited" %}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group float-right" role="group">
+                                    <button
+                                        key="{{ item.key }}"
+                                        template="{{ item.template }}"
+                                        api_url="{% url 'plugin:part-templates:set_template' item.key item.entity item.pk %}"
+                                        id="button-part-templates-edit-{{ item.key }}"
+                                        class="btn btn-outline-secondary button-part-templates-edit"
+                                        title='{% trans "Edit template" %}'>
+                                        <span class="fas fa-edit icon-blue"></span>
+                                    </button>
+                                    <button
+                                        key="{{ item.key }}"
+                                        api_url="{% url 'plugin:part-templates:set_template' item.key item.entity item.pk %}"
+                                        id="button-part-templates-delete-{{ item.key }}"
+                                        class="btn btn-outline-secondary button-part-templates-delete"
+                                        title='{% trans "Delete template" %}'
+                                        {% if not item.template %}disabled="true"{% endif %}>
+                                            <span class="fas fa-trash-alt {% if item.template %}icon-red{% else %}icon-gray{% endif %}"></span>
+                                    </button>
+                                </div>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+		</div>
+    </div>
+</div>
 {% else %}
 <p>
     {% trans 'Plugin not configured (see <a href="/settings/">settings</a> and select Inventree Part Templates" from the Plugins section).' %}

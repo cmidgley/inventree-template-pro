@@ -50,7 +50,7 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
     """
 
     # plugin metadata for identity in InvenTree
-    NAME = "InvenTreePartTemplates"
+    NAME = "PartTemplatesPlugin"
     SLUG = "part-templates"
     TITLE = _("InvenTree Part Templates")
     DESCRIPTION = _("Extends reporting with customizable part / category templates")
@@ -79,53 +79,53 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             'default': 'superuser',
         },
         'T1_KEY': {
-            'name': 'Template 1: Variable Name',
-            'description': 'Context variable name',
+            'name': _('Template 1: Variable Name'),
+            'description': _('Context variable name'),
             'default': 'description',
         },
         'T1_TEMPLATE': {
-            'name': 'Template 1: Default template',
-            'description': 'Template to use when no other templates are inherited',
+            'name': _('Template 1: Default template'),
+            'description': _('Template to use when no other templates are inherited'),
             'default': '{{ part.name }}{% if part.IPN %} ({{ part.IPN }}){% endif %}',
         },
         'T2_KEY': {
-            'name': 'Template 2: Variable Name',
-            'description': 'Context variable name',
+            'name': _('Template 2: Variable Name'),
+            'description': _('Context variable name'),
             'default': 'category',
         },
         'T2_TEMPLATE': {
-            'name': 'Template 2: Default template',
-            'description': 'Template to use when no other templates are inherited',
+            'name': _('Template 2: Default template'),
+            'description': _('Template to use when no other templates are inherited'),
             'default': '{% if part.category.parent %} {{ part.category.parent.name }} / {% endif %}{{ part.category.name }}',
         },
         'T3_KEY': {
-            'name': 'Template 3: Variable Name',
-            'description': 'Context variable name',
+            'name': _('Template 3: Variable Name'),
+            'description': _('Context variable name'),
             'default': '',
         },
         'T3_TEMPLATE': {
-            'name': 'Template 3: Default template',
-            'description': 'Template to use when no other templates are inherited',
+            'name': _('Template 3: Default template'),
+            'description': _('Template to use when no other templates are inherited'),
             'default': '',
         },
         'T4_KEY': {
-            'name': 'Template 4: Variable Name',
-            'description': 'Context variable name',
+            'name': _('Template 4: Variable Name'),
+            'description': _('Context variable name'),
             'default': '',
         },
         'T4_TEMPLATE': {
-            'name': 'Template 4: Default template',
-            'description': 'Template to use when no other templates are inherited',
+            'name': _('Template 4: Default template'),
+            'description': _('Template to use when no other templates are inherited'),
             'default': '',
         },
         'T5_KEY': {
-            'name': 'Template 5: Variable Name',
-            'description': 'Context variable name',
+            'name': _('Template 5: Variable Name'),
+            'description': _('Context variable name'),
             'default': '',
         },
         'T5_TEMPLATE': {
-            'name': 'Template 5: Default template',
-            'description': 'Template to use when no other templates are inherited',
+            'name': _('Template 5: Default template'),
+            'description': _('Template to use when no other templates are inherited'),
             'default': '',
         },
     }
@@ -287,7 +287,7 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
                 try:
                     rendered_template = self._apply_template(instance, None, template if template else inherited_template)
                 except Exception as e:      # pylint: disable=broad-except
-                    rendered_template = f'(error: {str(e)})'
+                    rendered_template = f'({_("error")}: {str(e)})'
 
             # if the user has defined a key (context variable name), add to our context
             if key:
@@ -380,7 +380,7 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             # If the required parameter is not present, return an error
             return JsonResponse({
                 'status': 'error',
-                'message': 'Missing required parameter: template'
+                'message': _('Missing required parameter: template')
             }, status=200)
 
         # locate this pk on the specified entity
@@ -391,14 +391,14 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
         else:
             return JsonResponse({
                 'status': 'error',
-                'message': f"Invalid entity type {entity}"
+                'message': _('Invalid entity type: {entity}').format(entity=entity)
             }, status=200)
 
         # did we locate the entity?
         if not instance:
             return JsonResponse({
                 'status': 'error',
-                'message': f"Could not locate {entity} {pk}"
+                'message': _("Could not locate {entity} {pk}").format(entity=entity, pk=pk)
             }, status=200)
 
         # is key valid?
@@ -409,7 +409,7 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
         else:
             return JsonResponse({
                 'status': 'error',
-                'message': f"Invalid key {key}"
+                'message': _("Invalid key {key}").format(key=key)
             }, status=200)
 
         # set up our metadata
@@ -431,10 +431,10 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
         except Exception as e:      # pylint: disable=broad-except
             return JsonResponse({
                 'status': 'error',
-                'message': f"Error saving template: {str(e)}"
+                'message': _("Error saving template: {(error}").format(error=str(e))
             }, status=200)
 
-        return JsonResponse({'status': 'ok', 'message': 'Template saved successfully' })
+        return JsonResponse({'status': 'ok', 'message': _('Template saved successfully') })
 
     #
     # internal methods
@@ -475,14 +475,14 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
                         tb = traceback.extract_tb(e.__traceback__)
                         last_call = tb[-1]
                         context[self.CONTEXT_KEY] = {
-                                'error': f"Template error for {key} with \"{found_template}\": '{str(e)}' {last_call.filename}:{last_call.lineno}"
+                                'error': _("Template error for {key} with \"{found_template}\": '{error}' {last_call.filename}:{last_call.lineno}").format(key=key, found_template=found_template, error=str(e), last_call=last_call)
                         }
                         return
 
                     # success - add the key with the formatted result to context
                     context[self.CONTEXT_KEY][key] = result
         else:
-            context[self.CONTEXT_KEY] = { 'error', f"Must use Part or StockItem (found {type(instance).__type__})" }
+            context[self.CONTEXT_KEY] = { 'error', _("Must use Part or StockItem (found {type})").format(type=type(instance).__type__) }
 
     def _cast_part(self, instance: Part | StockItem) -> Part | None:
         """

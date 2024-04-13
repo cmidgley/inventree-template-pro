@@ -201,10 +201,6 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
         ctx['part_templates_may_edit'] = self._may_edit_panel(request, view)
         ctx['part_templates_may_view'] = self._may_view_panel(request, view)
 
-        # render the part, if we have one to render
-        if isinstance(view.get_object(), (Part, StockItem)):
-            ctx['rendered'] = "(rendered not implemented)"
-
         return ctx
 
     def get_custom_panels(self, view: UpdateView, request: HttpRequest) -> List[Any]:
@@ -287,7 +283,10 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             # render the part using the context if we have one
             rendered_template = ""
             if isinstance(instance, Part):
-                rendered_template = self._apply_template(instance, None, template if template else inherited_template)
+                try:
+                    rendered_template = self._apply_template(instance, None, template if template else inherited_template)
+                except Exception as e:      # pylint: disable=broad-except
+                    rendered_template = f'(error: {str(e)})'
 
             # if the user has defined a key (context variable name), add to our context
             if key:
@@ -520,11 +519,11 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             'part': part,
             'stock': stock,
             'category': part.category,
-            'parameters': part.get_parameters(),
+            'parameters': part.parameters_map(),
         }
 
         # set up the Django template
-        django_template = Template(template)
+        django_template = Template("{% load barcode report %}" + template)
         # create the template context
         context = Context(template_data)
         # format the template

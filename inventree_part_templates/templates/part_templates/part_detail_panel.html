@@ -59,15 +59,15 @@ panel used on Part and Category detail pages to display and manage part template
                         {% trans "Part templates are Django Template Language templates with the following <a href='https://docs.inventree.org/en/latest/report/context_variables' target='_blank'>context variables</a>:" %}
                         <ul>
                             <li>{% trans "<code>part</code>: The part context associated with the report/label" %}</li>
-                            <li>{% trans "<code>category</code>: The category, short-hand for <code>part.category</code>" %}</li>
-                            <li>{% trans "<code>parameters</code> The parameters associated with the part, short-hand for <code>part.parameters</code>" %}</li>
+                            <li>{% trans "<code>category</code>: The category associated with the part" %}</li>
+                            <li>{% trans "<code>parameters</code> The parameters associated with the part as a dictionary" %}</li>
 			    <li>{% trans "<code>stock</code>: The stock item, when reporting on a stock item" %}</li>
                         </ul>
                         {% trans "Some examples:" %}
                         <ul>
-			    <li><code>{% verbatim %}{% part.name %}{% if part.IPN %} ({{ part.IPN }}){% endif %}{% endverbatim %}</code></li>
-			    <li><code>{% verbatim %}{{ parameters.Resistance }} {{ parameters["Rated Voltage"] }}{% endverbatim %}</code></li>
-			    <li><code>{% verbatim %}{% part.IPN %}{% if stock %} ({{ stock.quantity }} of {{ part.total_stock }} at {{ stock.location.name }}){% endif %}{% endverbatim %}</code></li>
+			    <li><code>{% verbatim %}{{ part.name }}{% if part.IPN %} ({{ part.IPN }}){% endif %}{% endverbatim %}</code></li>
+			    <li><code>{% verbatim %}{{ parameters.Resistance }} {% getkey parameters "Rated Voltage" %}{% endverbatim %}</code></li>
+			    <li><code>{% verbatim %}{{ part.IPN }}{% if stock %} ({{ stock.quantity }} of {{ part.total_stock }} at {{ stock.location.name }}){% endif %}{% endverbatim %}</code></li>
                     </div>`;
 
                 let key = $(this).attr('key');
@@ -140,7 +140,7 @@ panel used on Part and Category detail pages to display and manage part template
                     <tr>
                         <td>{{ item.key }}</td>
                         {% if part_templates_may_view %}
-                        <td>(not implemeted)</td>
+			<td>{{ item.rendered_template }}</td>
                         {% endif %}
                         {% if part_templates_may_edit %}
                             <td>

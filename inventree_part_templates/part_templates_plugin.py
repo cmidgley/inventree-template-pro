@@ -198,8 +198,8 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
 
         # add our context
         ctx['part_templates'] = self._get_panel_context(view.get_object())
-        ctx['mayEdit'] = self._may_edit_panel(request, view)
-        ctx['mayView'] = self._may_view_panel(request, view)
+        ctx['part_templates_may_edit'] = self._may_edit_panel(request, view)
+        ctx['part_templates_may_view'] = self._may_view_panel(request, view)
 
         # render the part, if we have one to render
         if isinstance(view.get_object(), (Part, StockItem)):
@@ -554,11 +554,13 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
         Returns:
             str: The template associated with the category and key, or the default template if not found.
         """
+        # if no category, return default
+        if not category:
+            return default_template
+
         # if we have metadata with our key, use that as the template
         if category.metadata and category.metadata[self.METADATA_PARENT] and category.metadata[self.METADATA_PARENT].get(key):
             return category.metadata[self.METADATA_PARENT][key]
 
         # no template, so walk up the category tree
-        if category.parent:
-            return self._find_category_template(category.parent, key, default_template)
-        return default_template
+        return self._find_category_template(category.parent, key, default_template)

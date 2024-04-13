@@ -1,5 +1,6 @@
 # InvenTree-Part-Templates
 
+
 Have you invested the time and energy to get all your parts with detailed parameters, only to get
 labels (and reports) like this?
 
@@ -10,6 +11,10 @@ With `inventree-part-templates`, you can leverage that work have parametric labe
 `0603 Ceramic Cap 0.1uF 50V 10%`
 `R-10K 0402 1%`
 `MCU STM32: Bin A-32`
+
+## Work in progress
+
+This code base is getting close, but not yet ready for use.  Stay tuned...
 
 ## Introduction
 

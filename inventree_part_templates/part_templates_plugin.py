@@ -255,6 +255,7 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
                 - 'key': The context variable name.
                 - 'template': The template associated with the context variable.
                 - 'inherited_template': The inherited template for the context variable.
+                - 'rendered_template': The template value rendered, if the part is available.
                 - 'entity': the name of the entity being edited (Part, StockItem)
                 - 'pk': The primary key of the entity object
         """
@@ -276,16 +277,25 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             else:
                 metadata_templates = {}
 
+            # get the instance-specific template for this key
+            template = metadata_templates.get(key, '')
+
             # get the inherited template (ignoring our current template, this is what it would be if
             # the template on this instance was not defined)
             inherited_template = self._find_category_template(parent_category, key, default_template)
+
+            # render the part using the context if we have one
+            rendered_template = ""
+            if isinstance(instance, Part):
+                rendered_template = self._apply_template(instance, None, template if template else inherited_template)
 
             # if the user has defined a key (context variable name), add to our context
             if key:
                 context.append({
                     'key': key,
-                    'template': metadata_templates.get(key, ''),
+                    'template': template,
                     'inherited_template': inherited_template,
+                    'rendered_template': rendered_template,
                     'entity': 'part' if isinstance(instance, Part) else 'category',
                     'pk': instance.pk,
                 })

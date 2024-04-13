@@ -133,6 +133,7 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
     # internal settings
     CONTEXT_KEY = 'part_templates'
     METADATA_PARENT = 'part_template_plugin'
+    METADATA_TEMPLATE_KEY = 'templates'
 
     #
     # Report mixin entrypoints
@@ -268,8 +269,8 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
 
             # get the template metadata, which is a dictionary of context_name: template for this instance
             #instance = Part.objects.get(pk=instance.pk)
-            if instance.metadata and instance.metadata.get(self.METADATA_PARENT) and instance.metadata[self.METADATA_PARENT].get('templates'):
-                metadata_templates = instance.metadata[self.METADATA_PARENT]['templates']
+            if instance.metadata and instance.metadata.get(self.METADATA_PARENT) and instance.metadata[self.METADATA_PARENT].get(self.METADATA_TEMPLATE_KEY):
+                metadata_templates = instance.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY]
             else:
                 metadata_templates = {}
 
@@ -416,16 +417,16 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             instance.metadata = {}
         if not instance.metadata.get(self.METADATA_PARENT):
             instance.metadata[self.METADATA_PARENT] = {}
-        if not instance.metadata[self.METADATA_PARENT].get("templates"):
-            instance.metadata[self.METADATA_PARENT]['templates'] = {}
+        if not instance.metadata[self.METADATA_PARENT].get(self.METADATA_TEMPLATE_KEY):
+            instance.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY] = {}
 
         # set or delete the key using template
         try:
             if template:
-                instance.metadata[self.METADATA_PARENT].get("templates")[key] = template
+                instance.metadata[self.METADATA_PARENT].get(self.METADATA_TEMPLATE_KEY)[key] = template
                 instance.save()
-            elif instance.metadata[self.METADATA_PARENT]["templates"].get(key):
-                del instance.metadata[self.METADATA_PARENT]["templates"][key]
+            elif instance.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY].get(key):
+                del instance.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY][key]
                 instance.save()
         except Exception as e:      # pylint: disable=broad-except
             return JsonResponse({
@@ -545,8 +546,8 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             str: The template found for the given part and key, or the default template if not found.
         """
         # does our part have our metadata?
-        if part.metadata and part.metadata[self.METADATA_PARENT] and part.metadata[self.METADATA_PARENT].get(key):
-            return part.metadata[self.METADATA_PARENT][key]
+        if part.metadata and part.metadata.get(self.METADATA_PARENT) and part.metadata[self.METADATA_PARENT].get(self.METADATA_TEMPLATE_KEY) and part.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY].get(key):
+            return part.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY][key]
 
         # not on part, so walk up the category tree
         return self._find_category_template(part.category, key, default_template)
@@ -568,8 +569,8 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
             return default_template
 
         # if we have metadata with our key, use that as the template
-        if category.metadata and category.metadata[self.METADATA_PARENT] and category.metadata[self.METADATA_PARENT].get(key):
-            return category.metadata[self.METADATA_PARENT][key]
+        if category.metadata and category.metadata.get(self.METADATA_PARENT) and category.metadata[self.METADATA_PARENT].get(self.METADATA_TEMPLATE_KEY) and category.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY].get(key):
+            return category.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY][key]
 
         # no template, so walk up the category tree
         return self._find_category_template(category.parent, key, default_template)

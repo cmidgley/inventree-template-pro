@@ -96,7 +96,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         'T2_TEMPLATE': {
             'name': _('Template 2: Default template'),
             'description': _('Template to use when no other templates are inherited'),
-            'default': '{% if part.category.parent %} {{ part.category.parent.name }} / {% endif %}{{ part.category.name }}',
+            'default': '{% if category.parent %} {{ category.parent.name }} / {% endif %}{{ category.name }}',
         },
         'T3_KEY': {
             'name': _('Template 3: Variable Name'),

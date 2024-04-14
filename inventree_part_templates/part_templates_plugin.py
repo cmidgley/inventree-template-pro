@@ -17,7 +17,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Plugin imports
 from plugin import InvenTreePlugin
-from plugin.mixins import ReportMixin, SettingsMixin, PanelMixin, UrlsMixin
+from plugin.mixins import AppMixin, ReportMixin, SettingsMixin, PanelMixin, UrlsMixin
 
 # InvenTree models
 from stock.models import StockItem
@@ -44,7 +44,7 @@ from .version import PLUGIN_VERSION
 from django.contrib.auth.models import User
 from typing import cast
 
-class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, InvenTreePlugin):
+class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, InvenTreePlugin):
     """
     A plugin for InvenTree that extends reporting with customizable part / category templates.
     """
@@ -524,7 +524,7 @@ class PartTemplatesPlugin(PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, Inv
         }
 
         # set up the Django template
-        django_template = Template("{% load barcode report %}" + template)
+        django_template = Template("{% load barcode report part_templates %}" + template)
         # create the template context
         context = Context(template_data)
         # format the template

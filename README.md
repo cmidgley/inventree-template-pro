@@ -175,3 +175,4 @@ error processing the templates.  A best practice for a report/label might be:
 
 * document the 'error' property
 * document a recommend label/report structure to test for existance
+* document the yaml file (and [RegEx tester recommenation](https://regex101.com/))

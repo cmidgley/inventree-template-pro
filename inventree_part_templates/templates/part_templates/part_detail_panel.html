@@ -66,13 +66,13 @@ panel used on Part and Category detail pages to display and manage part template
                         {% trans "The following custom filters are available:" %}
                         <ul>
                             <li>{% trans '<code>item</code>: An item from a dictionary, such as <code>parameters|item:"Rated Voltage"</code>' %}.  It is run through the scrubbing filter if the item name matches a filter in <code>part_templates.yaml</code>.</li>
-                            <li>{% trans '<code>value</code>: An item from a dictionary, such as <code>parameters|value:"Package Type"</code>', but not scrubbed.'%}</li>
+                            <li>{% trans '<code>value</code>: An item from a dictionary, such as <code>parameters|value:"Package Type"</code>, but not scrubbed.'%}</li>
                             <li>{% trans '<code>scrub</code>: A filter that scrubs a value, such as <code>part.Name|scrub:"MPN"</code>' %}</li>
                         </ul>
                         {% trans "Some examples:" %}
                         <ul>
                             <li><code>{% verbatim %}{{ part.name|scrub:"MPN" }}{% if part.IPN %} ({{ part.IPN }}){% endif %}{% endverbatim %}</code></li>
-                            <li><code>{% verbatim %}{{ parameters|item:Resistance }} {% parameters|item:"Package type" %}{% endverbatim %}</code></li>
+                            <li><code>{% verbatim %}{{ parameters|item:"Resistance" }} {% parameters|item:"Package type" %}{% endverbatim %}</code></li>
                             <li><code>{% verbatim %}{{ part.IPN }}{% if stock %} ({{ stock.quantity }} of {{ part.total_stock }} at {{ stock.location.name }}){% endif %}{% endverbatim %}</code></li>
                     </div>`;
 
@@ -118,7 +118,7 @@ panel used on Part and Category detail pages to display and manage part template
                     submitClass: 'danger',
                     preFormContent: html,
                     api_url: api_url,
-                    confirm: true,
+                    // confirm: true,
                     onSubmit: deleteTemplate
                 });
             });

@@ -1,1 +1,2 @@
 recursive-include inventree_part_templates/templates *
+include inventree_part_templates/part_templates.yaml

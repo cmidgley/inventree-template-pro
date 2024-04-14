@@ -1,0 +1,11 @@
+# inventree-part-templates filter configuration file
+#
+# filters are used with the Django "filter" tag to filter content according to a set of rules.
+# Typically these are named after Part properties, such as "Package Type", to refine an improve
+# inconsistencies in naming for reporting / label use.  
+filters:
+  "Package Type":
+    - pattern: "SMT.*"
+      replacement: "SMT"
+    - pattern: "Surface Mount.*"
+      replacement: "SMT"

@@ -5,9 +5,17 @@
 # inconsistencies in naming for reporting / label use.  
 filters:
   "_GLOBAL":
+    # currently, InvenTree does not handle reporting with chinese characters (they
+    # become spaces).  Until that is fixed, this rule removes them
+    - pattern: "[\u4e00-\u9fff\u3400-\u4dbf\uff00-\uffef]"
+      replacement: ""
     # remove extra spaces
     - pattern: "(\\s+)"
       replacement: " "
+  "MPN":
+    # remove everything after a comma
+    - pattern: "^\\s*([^,\\s]*).*"
+      replacement: "\\1"
   "Package Type":
     # 0402 (metric 1234) -> 0402
     - pattern: "^([0-9]+)\\s+\\(.*"
@@ -15,6 +23,9 @@ filters:
     - pattern: "^SMD,(.*)"
       replacement: "\\1"
     - pattern: "^Plugin,(.*)"
+      replacement: "\\1"
+    # reduce to a single segment (first content before a white space)
+    - pattern: "^\\s*([^,\\s]*)(.*)"
       replacement: "\\1"
   "Mounting Type":
     - pattern: "^SMT.*"
@@ -50,18 +61,33 @@ filters:
   "Rated Voltage":
     - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[vV]"
       replacement: "\\1\\3V"
+  "Input Voltage":
+    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[vV]"
+      replacement: "\\1\\3V"
+  "Output Voltage":
+    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[vV]"
+      replacement: "\\1\\3V"
+  "Supply Voltage":
+    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[vV]"
+      replacement: "\\1\\3V"
+    # blank it out if no numbers
+    - pattern: "^[^\\d]*$"
+      replacement: ""
   "Inductance":
     - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[hH]"
       replacement: "\\1\\3H"
   "Rated Current":
     - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[aA]"
       replacement: "\\1\\3A"
-  "Tolerance":
-    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[hH]"
-      replacement: "\\1\\3H"
+  "Output Current":
+    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[aA]"
+      replacement: "\\1\\3A"
   "Trip Current":
     - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[aA]"
       replacement: "\\1\\3A"
+  "Tolerance":
+    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[hH]"
+      replacement: "\\1\\3H"
   "Time to Trip":
     - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[sS]"
       replacement: "\\1\\3S"

@@ -61,13 +61,19 @@ panel used on Part and Category detail pages to display and manage part template
                             <li>{% trans "<code>part</code>: The part context associated with the report/label" %}</li>
                             <li>{% trans "<code>category</code>: The category associated with the part" %}</li>
                             <li>{% trans "<code>parameters</code> The parameters associated with the part as a dictionary" %}</li>
-			    <li>{% trans "<code>stock</code>: The stock item, when reporting on a stock item" %}</li>
+			                <li>{% trans "<code>stock</code>: The stock item, when reporting on a stock item" %}</li>
+                        </ul>
+                        {% trans "The following custom filters are available:" %}
+                        <ul>
+                            <li>{% trans '<code>item</code>: An item from a dictionary, such as <code>parameters|item:"Rated Voltage"</code>' %}</li>
+                            <li>{% trans '<code>scrub</code>: Runs the content through a scrubbing filter (see part_templates.yaml)' %}</li>
+                            <li>{% trans '<code>item_scrub</code>: An item from a dictionary that is also scrubbed, such as <code>parameters|item_scrub:"Package Type"</code>' %}</li>
                         </ul>
                         {% trans "Some examples:" %}
                         <ul>
-			    <li><code>{% verbatim %}{{ part.name }}{% if part.IPN %} ({{ part.IPN }}){% endif %}{% endverbatim %}</code></li>
-			    <li><code>{% verbatim %}{{ parameters.Resistance }} {% getkey parameters "Rated Voltage" %}{% endverbatim %}</code></li>
-			    <li><code>{% verbatim %}{{ part.IPN }}{% if stock %} ({{ stock.quantity }} of {{ part.total_stock }} at {{ stock.location.name }}){% endif %}{% endverbatim %}</code></li>
+                            <li><code>{% verbatim %}{{ part.name }}{% if part.IPN %} ({{ part.IPN }}){% endif %}{% endverbatim %}</code></li>
+                            <li><code>{% verbatim %}{{ parameters.Resistance }} {% parameters|item_scrub:"Package type" %}{% endverbatim %}</code></li>
+                            <li><code>{% verbatim %}{{ part.IPN }}{% if stock %} ({{ stock.quantity }} of {{ part.total_stock }} at {{ stock.location.name }}){% endif %}{% endverbatim %}</code></li>
                     </div>`;
 
                 let key = $(this).attr('key');

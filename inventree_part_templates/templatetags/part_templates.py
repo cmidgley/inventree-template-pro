@@ -103,22 +103,6 @@ def scrub(value: str, name: str) -> str:
     if filters is None:
         return _('["filters" not found in "parts_templates.yaml"]')
     
-    # see if we have a _GLOBAL rule set
-    global_rules = filters.get('_GLOBAL')
-    if global_rules is not None:
-        for rule in global_rules:
-            pattern = rule.get('pattern')
-            if pattern is None:
-                return _('["pattern" not found in "_GLOBAL" in "parts_templates.yaml"]')
-            replacement = rule.get('replacement')
-            if replacement is None:
-                return _('["replacement" not found in "_GLOBAL" in "parts_templates.yaml"]')
-
-            try:
-                value = re.sub(pattern, replacement, value)
-            except re.error as error:
-                return _('["_GLOBAL regex error on {pattern}: {error}]').format(pattern=pattern, error=str(error))
-            
     # see if we have a set of rules for this key
     rules = filters.get(name)
     if rules is None:
@@ -139,6 +123,22 @@ def scrub(value: str, name: str) -> str:
         except re.error as error:
             return _('["{name}" regex error on {pattern}: {error}]').format(name=name, pattern=pattern, error=str(error))
 
+    # see if we have a _GLOBAL rule set
+    global_rules = filters.get('_GLOBAL')
+    if global_rules is not None:
+        for rule in global_rules:
+            pattern = rule.get('pattern')
+            if pattern is None:
+                return _('["pattern" not found in "_GLOBAL" in "parts_templates.yaml"]')
+            replacement = rule.get('replacement')
+            if replacement is None:
+                return _('["replacement" not found in "_GLOBAL" in "parts_templates.yaml"]')
+
+            try:
+                value = re.sub(pattern, replacement, value)
+            except re.error as error:
+                return _('["_GLOBAL regex error on {pattern}: {error}]').format(pattern=pattern, error=str(error))
+            
     return value
 
 @register.filter()

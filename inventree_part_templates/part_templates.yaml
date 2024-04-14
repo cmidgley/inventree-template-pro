@@ -19,13 +19,51 @@ filters:
       replacement: "SMD"
     - pattern: "^Surface Mount.*"
       replacement: "SMD"
+    - pattern: "^Brick .*"
+      replacement: "SMD"
     - pattern: "^Through.*"
       replacement: "TH"
+  "Capacitance":
+    # 1.7 pf -> 1.7pF
+    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[fF]"
+      replacement: "\\1\\3F"
+    - pattern: "uF"
+      replacement: "µF"
+  "Tolerance":
+    # 1.7 pf -> 1.7pF
+    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[fF]"
+      replacement: "\\1\\3F"
+    - pattern: "uF"
+      replacement: "µF"
   "Resistance":
-    # 10K ohm -> 10KΩ
+    # 10.1K ohm -> 10.1KΩ
     - pattern: "(\\s*ohms?)"
       replacement: "Ω"
   "Rated Power":
-    # 10.3 mW -> 10.3mW
-    - pattern: "([0-9]+(\\.[0-9]+))\\s*(.?[wW])"
-      replacement: "\\1\\3"
+    # 10.3 mw -> 10.3mW
+    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[wW]"
+      replacement: "\\1\\3W"
+  "Rated Voltage":
+    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[vV]"
+      replacement: "\\1\\3V"
+  "Inductance":
+    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[hH]"
+      replacement: "\\1\\3H"
+  "Rated Current":
+    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[aA]"
+      replacement: "\\1\\3A"
+  "Tolerance":
+    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[hH]"
+      replacement: "\\1\\3H"
+  "Trip Current":
+    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[aA]"
+      replacement: "\\1\\3A"
+  "Time to Trip":
+    - pattern: "([0-9]+(\\.[0-9]+)?)\\s*(.?)[sS]"
+      replacement: "\\1\\3S"
+  "Number of Contacts":
+    - pattern: "([0-9]+)\\s*[pP]?$"
+      replacement: "\\1P"
+  "Pitch":
+    - pattern: "\\s+"
+      replacement: ""

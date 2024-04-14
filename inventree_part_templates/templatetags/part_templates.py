@@ -45,7 +45,7 @@ def load_filters() -> Config:
         if cfg_filename:
             cfg_filename = Path(cfg_filename.strip()).resolve()
         else:
-            cfg_filename = Path(__file__).parent.joinpath('part_templates.yaml').resolve()
+            cfg_filename = Path(__file__).parent.parent.joinpath('part_templates.yaml').resolve()
 
         # load the config file
         with open(cfg_filename, 'r', encoding='utf-8') as file:
@@ -64,7 +64,7 @@ def prop_filter(name: str) -> str:
     except yaml.YAMLError as error:
         return(_("[Error in configuration file: {error}]").format(error=str(error)))
 
-    filters = config.get('Filters')
+    filters = config.get('filters')
     if filters is None:
         return _('["filters" not found in "parts_templates.yaml"]')
     rules = filters.get(name)

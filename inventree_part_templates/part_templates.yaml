@@ -21,3 +21,11 @@ filters:
       replacement: "SMD"
     - pattern: "^Through.*"
       replacement: "TH"
+  "Resistance":
+    # 10K ohm -> 10KΩ
+    - pattern: "(\\s*ohms?)"
+      replacement: "Ω"
+  "Rated Power":
+    # 10.3 mW -> 10.3mW
+    - pattern: "([0-9]+(\\.[0-9]+))\\s*(.?[wW])"
+      replacement: "\\1\\3"

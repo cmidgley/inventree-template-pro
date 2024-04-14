@@ -123,23 +123,29 @@ def scrub(value: str, name: str) -> str:
     return value
 
 @register.filter()
-def item(properties: dict[str, str], key: str) -> str | None:
+def item(properties: Dict[str, str], key: str) -> str | None:
     """Access to key of supplied dict (typically parameters).
 
     Example:
     {% parameters|item:"Rated Voltage" %}
     """
-    return properties.get(key)
+    try:
+        return properties.get(key)
+    except Exception:       # pylint: disable=broad-except
+        return ""
 
 @register.filter()
-def item_scrub(properties: dict[str, str], key: str) -> str | None:
+def item_scrub(properties: Dict[str, str], key: str) -> str | None:
     """Access to key of supplied dict (parameters), that is then scrubbed (see scrub)
 
     Example:
     {% parameters|item_scrub:"Rated Voltage" %}
     """
-    value = properties.get(key)
+    try:
+        value = properties.get(key)
+    except Exception:       # pylint: disable=broad-except
+        return ""
+
     if value:
         return scrub(value, key)
-    return None
-
+    return ""

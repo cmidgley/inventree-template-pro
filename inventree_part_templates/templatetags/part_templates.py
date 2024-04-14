@@ -78,7 +78,7 @@ def scrub(value: str, name: str) -> str:
 
     Args:
         value (str): The value to be scrubbed.
-        name (str): The name of the rule to be applied.
+        name (str): The name of the filter set in `part_templates.yaml` to be applied.
 
     Returns:
         str: The scrubbed value.
@@ -123,11 +123,11 @@ def scrub(value: str, name: str) -> str:
     return value
 
 @register.filter()
-def item(properties: Dict[str, str], key: str) -> str | None:
-    """Access to key of supplied dict (typically parameters).
+def value(properties: Dict[str, str], key: str) -> str | None:
+    """Access to value of a dictionary by key (no scrubbing)
 
     Example:
-    {% parameters|item:"Rated Voltage" %}
+    {% parameters|value:"Rated Voltage" %}
     """
     try:
         return properties.get(key)
@@ -135,11 +135,11 @@ def item(properties: Dict[str, str], key: str) -> str | None:
         return ""
 
 @register.filter()
-def item_scrub(properties: Dict[str, str], key: str) -> str | None:
-    """Access to key of supplied dict (parameters), that is then scrubbed (see scrub)
+def item(properties: Dict[str, str], key: str) -> str | None:
+    """Access to value of a dictionary by key (with scrubbing)
 
     Example:
-    {% parameters|item_scrub:"Rated Voltage" %}
+    {% parameters|item:"Package Type" %}
     """
     try:
         value = properties.get(key)

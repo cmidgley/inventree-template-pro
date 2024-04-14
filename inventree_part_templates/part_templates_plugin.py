@@ -86,7 +86,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         'T1_TEMPLATE': {
             'name': _('Template 1: Default template'),
             'description': _('Template to use when no other templates are inherited'),
-            'default': '{{ part.name }}{% if part.IPN %} ({{ part.IPN }}){% endif %}',
+            'default': '{{ part.name|scrub:"MPN" }}{% if part.IPN %} ({{ part.IPN }}){% endif %}',
         },
         'T2_KEY': {
             'name': _('Template 2: Variable Name'),

@@ -124,91 +124,135 @@ settings for rights to manage templates:
 <img alt="InvenTree Part Templates Settings page"
 src="https://github.com/cmidgley/inventree-part-templates/raw/main/docs/settings.png">
 
-In here you can specify the name and default template for up to five context properties.
+The first two fields control access rights to seeing and editing the templates on Category and Part
+pages.  If both rights are disabled (edit and view) then the Part Templates panel will not be
+included on the page.
+
+The remaining ten fields are for definining the name and default template for up to five context properties.
+
+## Using in labels and reports
+
+With the plugin installed and some context properties defined, we can now update our reports and
+labels to use them.  At this point they will just have the values from the default template, but as
+category and part specific templates are added, they will automatically change their content
+accordingly.  By adding them to your labels and reports now, you can tune and adjust your context
+property templates to meet your usability and sizing requirements.
+
+It is very simple to adjust a template to use context properties.  Simply open your template in any
+text editor and use the syntax `{{ part_templates.<your_context_property_name> }}` and then upload
+it to your label or report.  
+
+Now you should be able to print your report or label, such as to the InvenTree PDF Label Printer to
+see it on the screen and see the default template for your context property work.
+
+## Context templates
+
+The next step is to adjust the template value so that it is contextually appropriate.  This is
+usually done on Catalog items, but can be done on individual parts as well.  For example, if you
+have the catalog structure `Electronics / Passives / Capacitors / Aluminum`, you might want a
+context template on `Capacitors` so you can have values specific to capacitors, but is shared across
+all the different types of capacitors (Aluminum, Tantalum, MLCC, etc.)
+
+On the Part and Category pages, assuming you have rights to see and edit the Part Templates (see
+[Plugin Settings](#plugin-settings)), you should see a new "Part Templates" panel.  On Part
+templates, you will see the following:
+
+<img alt="InvenTree Part Templates Panel"
+src="https://github.com/cmidgley/inventree-part-templates/raw/main/docs/part-templates-panel.png">
+
+This panel includes the context properties, the value that each property will resolve to when the
+template is applied on this specific part, and the template that is being used (including if
+inherited) for this part.
 
 
+When looking at a Catalog item, you don't have the value, because there is no part directly
+associated with a catalog item:
 
-## Current status
+<img alt="InvenTree Catalog Templates Panel"
+src="https://github.com/cmidgley/inventree-part-templates/raw/main/docs/catalog-templates-panel.png">
 
-__Latest update: this update is as of April 18, 2024.__
+Use the edit buttons on the right (edit, delete) to adjust the templates for this specific catalog /
+part template.
 
-This project is currently operating in production and working well.  The documentation however is
-still in development.  If you try it and find any issues, or have suggestions for improvement,
-please open a GitHub issue to discuss.  It is not currently on PyPI, but does conform to the PIP
-install format so adding this to `plugins.txt` (or via the console) via
-`https://github.com/cmidgley/inventree-part-templates.git`.  
+## Template context variables and filters
 
-Very short set of steps:
-1) Install by adding `https://github.com/cmidgley/inventree-part-templates.git` to `plugins.txt` and
-   restart the server
-2) Visit settings / Plugin settings / InvenTree Part Templates, and add whatever context properties /
-   default templates you want.  
-3) Visit any part or category and there should be a new Part Templates panel.  Use this panel to
-   add/update/remove templates for created context properties.
-4) Update your label / report templates to use the context properties via `{{ part_templates.<your
-   property name> }}`
+The context templates are standard InvenTree/Djago templates, and support several context variables
+and a few new filters. The context variables are:
 
+- `part`: The current report/label [part](https://docs.inventree.org/en/stable/report/context_variables/#part)
+- `category`: The current [part category](https://docs.inventree.org/en/stable/report/context_variables/#part-category)
+- `parameters`: A shorthand for `part.parameters`
+- `stock`: The current [stock
+  item](https://docs.inventree.org/en/stable/report/context_variables/#stock), if being reported on.
+  If not, such as a part report where there is no specific stock, this will be empty.  Use `{% if
+  stock %}` if needing to check for availability.
 
-## Coming soon
+The additional filters are:
 
-- Installation
-- Setup
-- Defining templates
-- Template filters
-- Parameter cleansing
-- Samples and best practices
+- `item:"<name>`: Retreives a property name from a dictionary, and [scrubs](#parameter-scrubbig) it
+  is filters exist.  `{{ parameters|item:"Rated Voltage" }}`
+- `value:"<name>`: Retreives a propery name from a dictionary, without any scrubbing.
+- `scrub:"<name>"`: [Scrubs](#parameter-scrubbing) the prior string using a filter.  `{{
+  part.name|scrub:"MPN" }}`
 
-<!--
+Some examples:
 
-### Defining context properties 
+- Resistor description: `{{ parameters|item:"Resistance" }} {{ parameters|item:"Rated Power" }} {{
+  parameters|item:"Tolerance" }} {{ parameters|item:"Mounting Type" }} {{ parameters|item:"Package
+  Type" }}`
+- Resistor short category: `RES`
+- Capacitor description: `{{ parameters|item:"Capacitance"}} {{parameters|item:"Tolerance"}} {{
+  parameters|item:"Rated Voltage" }} {{ parameters|item:"Mounting Type" }} {{
+  parameters|item:"Package Type" }}`
+- Capacitor short category: `CAP`
+- Capacitor / Tantalum short category: `CAP TANT`
+- Conditional example: `{{ parameters|item:"Supply Voltage" }} {% if not parameters|item:"Supply
+  Voltage" %}{{ parameters|item:"Input Voltage" }} {% endif %} {{ parameters|item:"Type" }}`
 
-### Defining templates on catalog and part
+# Parameter scrubbing
 
-### Template filters
-(also load, and difference in use on context property template vs. label/report template)
+__Coming soon...___
 
-### Filtering parameters with `part_templates.yaml`
+> Latest documentation update: April 18 2024
 
-* document the yaml file (and [RegEx tester recommenation](https://regex101.com/))
-(also env. variable)
+# Example labels
 
-### Errors and best practice
-* document the 'error' property
-* document a recommend label/report structure to test for existance
+See the [example
+labels](https://github.com/cmidgley/inventree-part-templates/tree/main/example_labels) folder for
+some examples labels made for the Brother QL-810W label printer.  These labels are designed to use
+29mm endless tape, and have three sizes:
 
-### Example labels
+- `inventree-label-part-29mm`: A full width label with long descriptions and detailed category
+  names.  Set the label width to 52 and height to 27 in the part label settings.
+- `inventree-label-part-16mm`: A narrow and long label, such as for placing on the edge of a
+  container.  Has a horizontal cut line since it has to be manually cut (if you use 12mm endless
+  tape, it would be a simple change to this label).  Set the label width to 60 and height to 28.
+- `inventree-label-part-smdbox`: A very small label, sized to fit on those small, spring-hinged,
+  modular ["WENTAI"](https://www.adafruit.com/product/427) boxes.  Great example of the need for
+  short category names.  Set the label width to 15 and height to 26.
 
-## Installation
+  > The label width sets the cutting point of the label, and the height affects the scaling of the
+  > label.  A smaller height makes the label larger, and these sizes have been selected for a clean
+  > fit. 
 
+  These labels assume the following context properties are being used:
+  - `description`: A long contextual part description.
+  - `short-desc`: A shorter version of the part description, for the smaller labels.
+  - `category`: A descriptive category name
+  - `short-cat`: A very short category, maximum 6 characters per word, maximum two words.
 
+Notice in these labels the use of another property `part_templates.error`.  This is set whenever the
+templates are unable to be rendered, and makes it easier to debug why some templates are not
+working.  A best practice is to check for `part_templates` and also `part_templates.error` similar
+to the following:
 
-  
+```html
+{% if not part_templates %}
+    <div class="error">Plugin inventree-part-templates required</div>
+{% elif part_templates.error %}
+    <div class="error">{{ part_templates.error }}</div>
+{% else %}
+    ... your label here ...
+{% endif %}
 
-- **Heirarchical templates**: When a label or report is generated, the part that is
-  associated with it is used to locate the "cloest" template for each context variable.  This starts
-  with the part itself, then it follows the category heirarchy until it reaches the top, and finally
-  defaults to a value that you specify when creating the context property.
-
-
-  
-  Adjust the values these context properites use for templates
-  on categories (following the heirarchy) and when needed directly on parts.  Any property can be
-  overridden, with or without changing others, templates used for your context properties 
-  by category and even on the individual part.  For example, have resistors show resistance, wattage
-  and tolerance, whereas an MCU IC might show MHz, Cores and GPIO count.  Templates are inherited
-  following the InvenTree categories, simplifying the effort to configure contextual templates. 
-
-value of these context properties
-  can be built up from any property on `Part`, `Stock`, `Category`, and `Parameters`.  
-
-
-- **Filter and cleanse property values**: It's a fantastic time saver using other plugins that can
-  import parameters from supplies like DigiKey, Mouser and LCSC, but there are no standards on their
-  content.  Sometimes it's "SMD", others it's "Surface Mount", or occasionally ["Brick Nogging"](https://www.eevblog.com/forum/chat/where-does-all-the-weird-chinese-component-terminology-come-from/#msg4313581).
-  You can customize filters per parameter with a YAML file to cleanse these property values for a
-  consistent label/report experience.  No changes are made to the database, these filters are only
-  used for generating labels and reports.
-  
-For information on how to install, configure and use __inventree-part-templates__, see the plugin documentation
-[documentation](https://github.com/cmidgley/inventree-part-templates/blob/main/docs/toc.md).
--->
+```

@@ -1,2 +1,3 @@
-recursive-include inventree_part_templates/templates *
+recursive-include inventree_part_templates/templates/part_templates *
+recursive-include inventree_part_templates/example_labels *
 include inventree_part_templates/part_templates.yaml

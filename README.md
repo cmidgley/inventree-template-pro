@@ -240,7 +240,7 @@ For example:
 # Example Labels
 
 See the [example
-labels](https://github.com/cmidgley/inventree-part-templates/tree/main/example_labels) folder for
+labels](https://github.com/cmidgley/inventree-part-templates/tree/main/inventree_part_templates/example_labels) folder for
 various labels designed for the Brother QL-810W label printer. These labels utilize 29mm endless tape and are available in three sizes:
 
 - `inventree-label-part-29mm`: This is a full-width label that includes long descriptions and detailed category names. Set the label width to 52 and height to 27 in the part label settings.

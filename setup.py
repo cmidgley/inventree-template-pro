@@ -23,7 +23,7 @@ setuptools.setup(
 
     long_description_content_type='text/markdown',
 
-    keywords="inventree label report part category print template",
+    keywords="inventree inventreeplugins plugins label report part category print template",
 
     url="https://github.com/cmidgley/inventree-part-templates",
 
@@ -31,7 +31,11 @@ setuptools.setup(
 
     packages=setuptools.find_packages(),
 
-    include_package_data=True,
+    package_data={
+        'inventree_part_templates': ['templates/part_templates/*', 'part_templates.yaml', 'example_labels/*']
+    },
+    
+    include_package_data=False,
 
     install_requires=[],
 

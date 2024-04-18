@@ -1,12 +1,12 @@
 Have you spent a ton of time and energy managing your parts in [InvenTree](https://inventree.org)
 to have detailed parameters, only to get labels (or lines in your reports) that look like this?
 
-<img alt="C25076 | 0402WGF1000TCE" src="https://github.com/cmidgley/inventree-part-templates/raw/main/docs/default-label-example.png" style="border: black 1px solid" width="200px">
+<img alt="C25076 | 0402WGF1000TCE" src="https://github.com/cmidgley/inventree-part-templates/raw/main/README-images/default-label-example.png" style="border: black 1px solid" width="200px">
 
 Wouldn't you rather have concise, detailed information about the part, specific to each part type,
 using InvenTree parameters?
 
-<img alt="100ohm 62.5mw 1% SMD 0402" src="https://github.com/cmidgley/inventree-part-templates/raw/main/docs/29mm-label-example.png" style="border: black 1px
+<img alt="100ohm 62.5mw 1% SMD 0402" src="https://github.com/cmidgley/inventree-part-templates/raw/main/README-images/29mm-label-example.png" style="border: black 1px
 solid" width="200px">
 
 # InvenTree Part Templates
@@ -119,7 +119,7 @@ Visit the `Settings / Plugin settings / Plugins` page to set up the context prop
 settings for rights to manage templates:
 
 <img alt="InvenTree Part Templates Settings page"
-src="https://github.com/cmidgley/inventree-part-templates/raw/main/docs/settings.png">
+src="https://github.com/cmidgley/inventree-part-templates/raw/main/README-images/settings.png">
 
 The first two fields control access rights to seeing and editing the templates on Category and Part
 pages.  If both rights are disabled (edit and view) then the Part Templates panel will not be
@@ -155,7 +155,7 @@ On the Part and Category pages, assuming you have rights to see and edit the Par
 templates, you will see the following:
 
 <img alt="InvenTree Part Templates Panel"
-src="https://github.com/cmidgley/inventree-part-templates/raw/main/docs/part-templates-panel.png">
+src="https://github.com/cmidgley/inventree-part-templates/raw/main/README-images/part-templates-panel.png">
 
 This panel includes the context properties, the value that each property will resolve to when the
 template is applied on this specific part, and the template that is being used (including if
@@ -166,7 +166,7 @@ When looking at a Catalog item, you don't have the value, because there is no pa
 associated with a catalog item:
 
 <img alt="InvenTree Catalog Templates Panel"
-src="https://github.com/cmidgley/inventree-part-templates/raw/main/docs/catalog-templates-panel.png">
+src="https://github.com/cmidgley/inventree-part-templates/raw/main/README-images/catalog-templates-panel.png">
 
 Use the edit buttons on the right (edit, delete) to adjust the templates for this specific catalog /
 part template.

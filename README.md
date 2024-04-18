@@ -90,12 +90,10 @@ InvenTree Part Templates is [installed](https://docs.inventree.org/en/stable/ext
 
 Then, install the plugin using your preferred method. The easiest methods are:
 
-- Visit the `Settings / Plugin Settings / Plugins` page in the management console and add the package name and path.
-- Alternatively, edit your `inventree_data/plugins.txt` file to add the package path. Restart InvenTree for the package to be downloaded and installed.
-
-> Use the project package name `https://github.com/cmidgley/inventree-part-templates.git`, as this
-> plugin has not yet been released to `PyPI` (the standard Python Repository). The repository is
-> configured such that this link is fully compatible with `PIP` and `plugins.txt`.
+- The best approach, especially when using Docker, is to edit your `inventree_data/plugins.txt` file
+  to add the package name (`inventree-part-templates`). Restart InvenTree for the package to be downloaded and installed.
+- Visit the `Settings / Plugin Settings / Plugins` page in the management console and install it
+  from there.
 
 Once installed, verify the installation by checking the `Settings / Plugin Settings / Plugins` page. There should be no errors from plugins at the bottom of the page, and the `PartTemplatesPlugin` should be listed.
 

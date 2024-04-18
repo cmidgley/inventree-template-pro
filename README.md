@@ -8,7 +8,7 @@ to have detailed parameters, only to get labels (or lines in your reports) that 
 Wouldn't you rather have concise, detailed information about the part, specific to each part type,
 using InvenTree parameters?
 
-<img alt="100ohm 62.5mw 1% SMD 0402" src="[docs](https://github.com/cmidgley/inventree-part-templates/blob/main/docs)/29mm-label-example.png" style="border: black 1px
+<img alt="100ohm 62.5mw 1% SMD 0402" src="https://github.com/cmidgley/inventree-part-templates/blob/main/docs/29mm-label-example.png" style="border: black 1px
 solid" width="200px">
 
 ## Using InvenTree Part Templates

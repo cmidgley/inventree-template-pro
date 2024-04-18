@@ -1,6 +1,6 @@
 """ 
-    InvenTree-Part-Templates: A plugin for InvenTree that extends reporting (including label reports) with context variables
-    that are built from category and part templates.  
+    InvenTree-Part-Templates: A plugin for InvenTree that extends reporting (including label reports) with context properties
+    that are built from category and part context templates.  
 
     Copyright (c) 2024 Chris Midgley
     License: MIT (see LICENSE file)
@@ -71,7 +71,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         },
         'VIEWING': {
             'name': _('Panel viewing'),
-            'description': _('Rules for when rendered context variables are shown in a Part Templates panel.'),
+            'description': _('Rules for when rendered context templates are shown in a Part Templates panel.'),
             'choices': [
                 ('superuser',_('Only if user is Superuser')),
                 ('always',_('Always allow Part Template viewing')),
@@ -79,53 +79,53 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
             'default': 'superuser',
         },
         'T1_KEY': {
-            'name': _('Template 1: Variable Name'),
-            'description': _('Context variable name'),
+            'name': _('Template 1: Context property name'),
+            'description': _('Name of the context property (used in templates such as "part_templates.my_name.")'),
             'default': 'description',
         },
         'T1_TEMPLATE': {
             'name': _('Template 1: Default template'),
-            'description': _('Template to use when no other templates are inherited'),
+            'description': _('Default template used when no other part of category template is found.'),
             'default': '{{ part.name|scrub:"MPN" }}{% if part.IPN %} ({{ part.IPN }}){% endif %}',
         },
         'T2_KEY': {
-            'name': _('Template 2: Variable Name'),
-            'description': _('Context variable name'),
+            'name': _('Template 2: Context property name'),
+            'description': _('Name of the context property (used in templates such as "part_templates.my_name.")'),
             'default': 'category',
         },
         'T2_TEMPLATE': {
             'name': _('Template 2: Default template'),
-            'description': _('Template to use when no other templates are inherited'),
+            'description': _('Default template used when no other part of category template is found.'),
             'default': '{% if category.parent %} {{ category.parent.name }} / {% endif %}{{ category.name }}',
         },
         'T3_KEY': {
-            'name': _('Template 3: Variable Name'),
-            'description': _('Context variable name'),
+            'name': _('Template 3: Context property name'),
+            'description': _('Name of the context property (used in templates such as "part_templates.my_name.")'),
             'default': '',
         },
         'T3_TEMPLATE': {
             'name': _('Template 3: Default template'),
-            'description': _('Template to use when no other templates are inherited'),
+            'description': _('Default template used when no other part of category template is found.'),
             'default': '',
         },
         'T4_KEY': {
-            'name': _('Template 4: Variable Name'),
-            'description': _('Context variable name'),
+            'name': _('Template 4: Context property name'),
+            'description': _('Name of the context property (used in templates such as "part_templates.my_name.")'),
             'default': '',
         },
         'T4_TEMPLATE': {
             'name': _('Template 4: Default template'),
-            'description': _('Template to use when no other templates are inherited'),
+            'description': _('Default template used when no other part of category template is found.'),
             'default': '',
         },
         'T5_KEY': {
-            'name': _('Template 5: Variable Name'),
-            'description': _('Context variable name'),
+            'name': _('Template 5: Context property name'),
+            'description': _('Name of the context property (used in templates such as "part_templates.my_name.")'),
             'default': '',
         },
         'T5_TEMPLATE': {
             'name': _('Template 5: Default template'),
-            'description': _('Template to use when no other templates are inherited'),
+            'description': _('Default template used when no other part of category template is found.'),
             'default': '',
         },
     }

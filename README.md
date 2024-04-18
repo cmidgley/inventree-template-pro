@@ -3,12 +3,12 @@
 Have you spent a ton of time and energy to get all your parts in [InvenTree](https://inventree.org)
 to have detailed parameters, only to get labels (or lines in your reports) that look like this?
 
-<img alt="C25076 | 0402WGF1000TCE" src="https://github.com/cmidgley/inventree-part-templates/blob/main/docs/default-label-example.png" style="border: black 1px solid" width="200px">
+<img alt="C25076 | 0402WGF1000TCE" src="https://github.com/cmidgley/inventree-part-templates/raw/main/docs/default-label-example.png" style="border: black 1px solid" width="200px">
 
 Wouldn't you rather have concise, detailed information about the part, specific to each part type,
 using InvenTree parameters?
 
-<img alt="100ohm 62.5mw 1% SMD 0402" src="https://github.com/cmidgley/inventree-part-templates/blob/main/docs/29mm-label-example.png" style="border: black 1px
+<img alt="100ohm 62.5mw 1% SMD 0402" src="https://github.com/cmidgley/inventree-part-templates/raw/main/docs/29mm-label-example.png" style="border: black 1px
 solid" width="200px">
 
 ## Using InvenTree Part Templates
@@ -82,16 +82,64 @@ Similar to other template usage, any value that isn't found (such as a property 
 be ignored (blank result).  This makes it nice for defining templates higher up in the catalog
 heirarchy that might reference properties that don't existing on all the children.
 
+## Installation
+
+You install Inventree Part Templates [like most
+plugins](https://docs.inventree.org/en/stable/extend/plugins/install/).  First verify that plugins
+are correctly enabled by visiting the `Settings / PluginS settings /
+Plugins` page.  Make sure at the settings for `Enable URL integration`, `Enable app
+integration`, and `Check plugins on startup` (if using Docker containers) are all enabled.
+
+Then install using your preferred method.  The easiest methods are:
+
+- Visit `Settings / Plugin Settings / Plugins` page in the management console and add the package
+  name and path.
+- Or, edit your `inventree_data/plugins.txt` file and add the package path.  Restart InvenTree for the
+  package to be downloaded and installed.
+
+> Use the project package name `https://github.com/cmidgley/inventree-part-templates.git`.  Once the
+> documentation is complete the project will be released to the Python Repository `PyPI`, allowing the simple
+> `inventree-part-templates` name to be used.  Until then, the GitHub link should be used, which
+> is fully compatible with `PIP` and `plugins.txt`.
+
+Once installed, verify that installation worked by checking the `Settings / Plugin settings /
+Plugins` page.  There should be no errors from plugins at the bottom of the page, and the plugin 
+`PartTemplatesPlugins` should be listed.  
+
+# Plugin settings
+
+The first step is to figure out what context properties you would like to start with.  You can have
+up to five context properties (if you need more, open a GitHub issue).  It is common to have a part
+description and a category property, and it comes with both of these defaulted.  You can remove or
+edit these as you wish.  
+
+> The reason a category context property is commonly used is because sometimes the category name needs to show
+> the parent for it to make sense, such as "Capacitor / Aluminum" but other times it is unnecessary
+> such as "Passive / Resistor".  The default category context property is `<parent category> / <part
+> category>`.
+
+Visit the `Settings / Plugin settings / Plugins` page to set up the context properties as well as
+settings for rights to manage templates:
+
+<img alt="InvenTree Part Templates Settings page"
+src="https://github.com/cmidgley/inventree-part-templates/raw/main/docs/settings.png">
+
+In here you can specify the name and default template for up to five context properties.
+
+
+
 ## Current status
 
+__Latest update: this update is as of April 18, 2024.__
+
 This project is currently operating in production and working well.  The documentation however is
-still in development (this update is as of April 17, 2024).  If you try it and find any issues, or
-have suggestions for improvement, please open a GitHub issue to discuss.  It is not currently on
-PyPl, but does conform to the PIP install format so adding this to `plugins.txt` (or via the
-console) via `https://github.com/cmidgley/inventree-part-templates.git`.  
+still in development.  If you try it and find any issues, or have suggestions for improvement,
+please open a GitHub issue to discuss.  It is not currently on PyPI, but does conform to the PIP
+install format so adding this to `plugins.txt` (or via the console) via
+`https://github.com/cmidgley/inventree-part-templates.git`.  
 
 Very short set of steps:
-1) Install by adding `https://github.com/cmidgley/inventree-part-templates` to `plugins.txt` and
+1) Install by adding `https://github.com/cmidgley/inventree-part-templates.git` to `plugins.txt` and
    restart the server
 2) Visit settings / Plugin settings / InvenTree Part Templates, and add whatever context properties /
    default templates you want.  
@@ -103,15 +151,16 @@ Very short set of steps:
 
 ## Coming soon
 
-- Initial setup
+- Installation
+- Setup
 - Defining templates
 - Template filters
 - Parameter cleansing
 - Samples and best practices
-- Installation
 
 <!--
-### Initial setup
+
+### Defining context properties 
 
 ### Defining templates on catalog and part
 

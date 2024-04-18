@@ -29,13 +29,10 @@ panel used on Part and Category detail pages to display and manage part template
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.includes("application/json")) {
                     const data = await response.json();
-                    if (data.status === 'ok') {
-                        showMessage(`{% trans "Template saved: " %}${data.message}`, { style: 'success' });
-                    } else {
+                    if (data.status !== 'ok')
                         showMessage(`{% trans "Unable to save; Server returned error: " %}${data.message ?? '{% trans "(no message)" %}'}`, { style: 'danger' });
-                    }
                 } else
-		    showMessage(`{% trans "Unable to save; Server returned non-JSON response" %}`, { style: 'danger' });
+		            showMessage(`{% trans "Unable to save; Server returned non-JSON response" %}`, { style: 'danger' });
             } else
                 showMessage(`{% trans "Unable to save; HTTP error " %}${response.status}`, { style: 'danger' });
         } catch (e) {
@@ -56,7 +53,7 @@ panel used on Part and Category detail pages to display and manage part template
             .click(function () {
                 let html = `
                     <div>
-                        {% trans "Part templates are Django Template Language templates with the following <a href='https://docs.inventree.org/en/latest/report/context_variables' target='_blank'>context variables</a>:" %}
+                        {% trans "Context Property Templates are Django Template Language templates with the following <a href='https://docs.inventree.org/en/latest/report/context_variables' target='_blank'>context variables</a>:" %}
                         <ul>
                             <li>{% trans "<code>part</code>: The part context associated with the report/label" %}</li>
                             <li>{% trans "<code>category</code>: The category associated with the part" %}</li>
@@ -81,14 +78,14 @@ panel used on Part and Category detail pages to display and manage part template
                 let api_url = $(this).attr('api_url');
 
                 constructForm(null, {
-                    title: '{% trans "Edit Part Template" %}',
+                    title: '{% trans "Edit Context Property Template" %}',
                     submitText: `{% trans "Save" %}`,
                     submitClass: 'success',
                     preFormContent: html,
                     api_url: api_url,
                     fields: {
                         template: {
-                            label: `{% trans "Part template" %}`,
+                            label: `{% trans "Context property template" %}`,
                             type: 'string',
                             localOnly: true,
                             value: template,
@@ -106,14 +103,14 @@ panel used on Part and Category detail pages to display and manage part template
 
                 let html = `
                     <div class='alert alert-block alert-danger'>
-                        {% trans "Deleting this template will revert to using any inherited templates." %}
+                        {% trans "Deleting this template will revert to using inherited templates for the context property." %}
                     </div>`;
 
                 let key = $(this).attr('key');
                 let api_url = $(this).attr('api_url');
 
                 constructForm(null, {
-                    title: '{% trans "Delete Part Template" %}',
+                    title: '{% trans "Delete Context Property Template" %}',
                     submitText: `{% trans "Delete" %}`,
                     submitClass: 'danger',
                     preFormContent: html,
@@ -131,12 +128,12 @@ panel used on Part and Category detail pages to display and manage part template
             <table class="table table-condensed table-striped table-bordered table-hover" id="part-template-table">
                 <thead>
                     <tr>
-                        <th><div class="th-inner">{% trans "Variable Name" %}</div></th>
+                        <th><div class="th-inner">{% trans "Context property" %}</div></th>
                         {% if part_templates_may_view %}
                             <th><div class="th-inner">{% trans "Value" %}</div></th>
                         {% endif %}
                         {% if part_templates_may_edit %}
-                            <th><div class="th-inner">{% trans "Active Template" %}</div></th>
+                            <th><div class="th-inner">{% trans "Context template " %}</div></th>
                             <th></th>
                         {% endif %}
                     </tr>

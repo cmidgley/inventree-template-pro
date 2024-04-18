@@ -31,20 +31,22 @@ jobs:
         run: |
           pylint --exit-zero inventree-part-templates/
 
-      - name: Publish to Test PyPI (if tag starts with 'test')
-        if: startsWith(github.event.release.tag_name, 'test')
+      - name: Publish to Test PyPI (for tags 'test-v*' or 'dev-v*')
+        if: |
+          startsWith(github.event.release.tag_name, 'test-v') ||
+          startsWith(github.event.release.tag_name, 'dev-v')
         uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           user: __token__
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
 
-      - name: Publish to PyPI (for tags v*, alpha-*, beta-*, rc-*)
+      - name: Publish to PyPI (for tags v*, alpha-v*, beta-v*, rc-v*)
         if: |
           startsWith(github.event.release.tag_name, 'v') ||
-          startsWith(github.event.release.tag_name, 'alpha-') ||
-          startsWith(github.event.release.tag_name, 'beta-') ||
-          startsWith(github.event.release.tag_name, 'rc-')
+          startsWith(github.event.release.tag_name, 'alpha-v') ||
+          startsWith(github.event.release.tag_name, 'beta-v') ||
+          startsWith(github.event.release.tag_name, 'rcv-')
         uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           user: __token__

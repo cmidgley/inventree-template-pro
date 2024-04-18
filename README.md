@@ -1,10 +1,18 @@
-Have you spent a ton of time and energy managing your parts in [InvenTree](https://inventree.org)
-to have detailed parameters, only to get labels (or lines in your reports) that look like this?
+Have you carefully crafted your [InvenTree](https://inventree.org) deployment only to get labels and
+reports that appear meaningless:
 
-<img alt="C25076 | 0402WGF1000TCE" src="https://github.com/cmidgley/inventree-part-templates/raw/main/README-images/default-label-example.png" style="border: black 1px solid" width="200px">
+<img alt="C25076 | 0402WGF1000TCE"
+src="https://github.com/cmidgley/inventree-part-templates/raw/main/README-images/default-label-example.png"
+style="border: black 1px solid" width="200px">
 
-Wouldn't you rather have concise, detailed information about the part, specific to each part type,
-using InvenTree parameters?
+Or have wordy and inconsistent descriptions:
+
+<img alt="0402WGF1000TCE Passives / Resistors 62.5mW 100Ω 50V Thick Film Resistors ±200ppm/℃ ±1% 0402 Chip Resistor - Surface Mount ROHS"
+src="https://github.com/cmidgley/inventree-part-templates/raw/main/README-images/detailed-label-example.png"
+style="border: black 1px solid" width="200px">
+
+Wouldn't you rather have concise, detailed information, specific to the part type using InvenTree
+parameters?
 
 <img alt="100ohm 62.5mw 1% SMD 0402" src="https://github.com/cmidgley/inventree-part-templates/raw/main/README-images/29mm-label-example.png" style="border: black 1px
 solid" width="200px">

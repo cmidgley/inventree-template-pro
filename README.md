@@ -1,6 +1,4 @@
-# InvenTree-Part-Templates
-
-Have you spent a ton of time and energy to get all your parts in [InvenTree](https://inventree.org)
+Have you spent a ton of time and energy managing your parts in [InvenTree](https://inventree.org)
 to have detailed parameters, only to get labels (or lines in your reports) that look like this?
 
 <img alt="C25076 | 0402WGF1000TCE" src="https://github.com/cmidgley/inventree-part-templates/raw/main/docs/default-label-example.png" style="border: black 1px solid" width="200px">
@@ -11,7 +9,7 @@ using InvenTree parameters?
 <img alt="100ohm 62.5mw 1% SMD 0402" src="https://github.com/cmidgley/inventree-part-templates/raw/main/docs/29mm-label-example.png" style="border: black 1px
 solid" width="200px">
 
-## Using InvenTree Part Templates
+# InvenTree Part Templates
 
 **InvenTree-Part-Templates** is a plugin for InvenTree that extends InvenTree label and reporting
 templates.  You create new custom context properties, adjust template values for those properties as
@@ -19,10 +17,10 @@ desired based on the category of the parts, and use the `part_templates` context
 report/label templates to reference them.  You can also clean up inconsistencies in your parameter
 values to improve the quality of your labels and reports.  
 
-### Context properties
+## Introducing Context Properties
 
-Context properties are a feature of Inventree Part Templates that provide a simple way to include
-contextual information about a part in a report.  A single context property may have different
+Context Properties are a feature of Inventree Part Templates that provide a simple way to include
+contextual information about a part in a report.  A single Context Property may have different
 values depending on the context (primarly, the category) of the part.  This is accomplished by
 defining templates for the context property on catalog items (or even directly on a part) that
 determine the various values desired.  For example, a part that is a resistor might include
@@ -84,11 +82,10 @@ heirarchy that might reference properties that don't existing on all the childre
 
 ## Installation
 
-You install Inventree Part Templates [like most
-plugins](https://docs.inventree.org/en/stable/extend/plugins/install/).  First verify that plugins
-are correctly enabled by visiting the `Settings / PluginS settings /
-Plugins` page.  Make sure at the settings for `Enable URL integration`, `Enable app
-integration`, and `Check plugins on startup` (if using Docker containers) are all enabled.
+Inventree Part Templates is
+[installed](https://docs.inventree.org/en/stable/extend/plugins/install/) like most plugins.  Verify that plugins are enabled by visiting the `Settings / PluginS settings / Plugins`
+page, and make sure the settings for `Enable URL integration`, `Enable app integration`, and `Check
+plugins on startup` (if using Docker containers) are all enabled.
 
 Then install using your preferred method.  The easiest methods are:
 

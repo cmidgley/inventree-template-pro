@@ -246,8 +246,8 @@ various labels designed for the Brother QL-810W label printer. These labels have
 
 - `inventree-label-part-large`: This is a full-size label with QR code, long descriptions and
   detailed category names across multiple lines.  The label width likely should be 50mm or wider.
-- `inventree-label-part-narrow-17mm`: This narrow and long label is ideal for placing on the edge of a
-  container. It has a QR-code on the left and descriptive details on the right, and features a horizontal cut line for manual cutting. Try a label width to 60mm.
+- `inventree-label-part-narrow-16mm`: This narrow and long label is ideal for placing on the edge of a
+  container. It has a QR-code on the left and descriptive details on the right, and features a horizontal cut line for manual cutting. Try a label width to 50+mm.
 - `inventree-label-part-smdbox`: A very small label, perfectly sized for small, spring-hinged,
   modular ["WENTAI"](https://www.adafruit.com/product/427) boxes. This label is an excellent example
   of the need for short category names. Set the label width to 15 to fit the boxes, and cut them
@@ -256,10 +256,18 @@ various labels designed for the Brother QL-810W label printer. These labels have
   [Gridfinity](https://gridfinity.xyz/) single-unit 12mm labels (such as those generated using the
   [Fusion 360 Gridfinity Generator](https://apps.autodesk.com/FUSION/en/Detail/Index?id=7197558650811789)).
 
-> Brother labels have about a 3mm margin top and bottom so when setting the label height use 23 (or,
-> 29mm label - 6 margins).  Changing height won't change the size of the label, as it always prints
-> to the size of the paper, but it will scale it up or down.  Changing width will change the cut
-> length (without scaling) and the these templates dynamically size to width.
+> Brother labels have margins of about 3mm on the left and right edges, and 1.5mm on the top and
+> bottom.  When setting the label size in settings, the width will control the cutting length (not
+> including margins, so 50mm will be 56mm cut), but height changes scaling of the content, not the
+> size!  Given the 1.5mm per top/bottom margin, assuming a label size of 29mm, set the label height
+> in settings to to 26mm (29mm - 3mm margins).
+
+> When designing labels to a particular height (such as when using borders as cut-lines to cut the
+> label), set your label height correctly (see prior paragrap), and in your label template set the
+> containing DIV to a height of your desired height, less 1.5mm (for the top margin) and use a thin
+> border on the bottom to draw a cut line.  The distance from the factory-edge to the cut-line will
+> then match your desired height.  For example, for a 29mm label that wants to be used for a 12mm
+> cut label will set the label height in settings to 26mm, and the DIV height to 10.5mm.
 
   These labels utilize the following context properties:
 

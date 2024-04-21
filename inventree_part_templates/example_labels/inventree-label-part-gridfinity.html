@@ -7,16 +7,15 @@
 {% block style %}
 {% localize off %}
 
-{% add 12 0 as narrow_height %}
+{% subtract 12 1.5 as narrow_height %}
 
-{% subtract narrow_height 1 as qr_size %}
-
-{% subtract width 2 as width %}
+{% subtract narrow_height 0 as qr_size %}
+{% subtract width 1 as width %}
 
 {% subtract width qr_size as right_width %}
 
 {% add 1 0 as qr_to_right_margin %}
-{% subtract right_width qr_to_right_margin %}
+{% subtract right_width qr_to_right_margin as right_width %}
 
 {% add 2.4 0 as font_size %}
 

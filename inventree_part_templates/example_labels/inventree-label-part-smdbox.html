@@ -10,12 +10,10 @@
 {% block style %}
 {% localize off %}
 
-{% add 21 0 as smd_width %}
-{% add 18 0 as smd_height %}
+{% subtract 21 6 as smd_width %}
+{% subtract 18 1.5 as smd_height %}
 
 {% add 7 0 as qr_size %}
-
-{% subtract width 2 as width %}
 
 {% subtract width qr_size as right_width %}
 
@@ -26,7 +24,7 @@
 {% subtract height qr_size as bottom_height %}
 {% subtract bottom_height qr_to_bottom_margin as bottom_height %}
 
-{% add 3 0 as font_size %}
+{% add 2 0 as font_size %}
 
 .label {
     font-family: Verdana, Arial, Helvetica, sans-serif;
@@ -39,7 +37,9 @@
 
 .smd {
     height: {{ smd_height }}mm;
+    width: {{ smd_width }}mm;
     border-bottom: 0.5pt solid black;
+    overflow: hidden;
 }
 
 .qr {
@@ -89,6 +89,8 @@
     overflow-wrap: break-word;
     font-weight: bold;
     border-top: 0.5pt solid black;
+    padding-top: 0.3mm;
+    margin-top: 0.3mm;
     line-height: 1.05;
 }
 
@@ -110,15 +112,17 @@
     <div class="error">{{ part_templates.error }}</div>
 {% else %}
     <div class="label">
-        <img class='qr' alt="{% trans 'QR Code' %}" src='{% qrcode qr_data %}'>
+        <div class="smd">
+            <img class='qr' alt="{% trans 'QR Code' %}" src='{% qrcode qr_data %}'>
 
-        <div class='right-section'>
-            <div class='category'>{{ part_templates.short_cat }}</div>
+            <div class='right-section'>
+                <div class='category'>{{ part_templates.short_cat }}</div>
+            </div>
+            <div class='bottom-section'>
+                <div class='name'>{{ part.name|scrub:"MPN" }}</div>
+                <div class='description'>{{ part_templates.short_desc }}</div>
+            </div>  
         </div>
-        <div class='bottom-section'>
-            <div class='name'>{{ part.name|scrub:"MPN" }}</div>
-            <div class='description'>{{ part_templates.short_desc }}</div>
-        </div>  
     </div>
 {% endif %}
 {% endblock content %}

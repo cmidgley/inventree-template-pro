@@ -241,16 +241,25 @@ For example:
 
 See the [example
 labels](https://github.com/cmidgley/inventree-part-templates/tree/main/inventree_part_templates/example_labels) folder for
-various labels designed for the Brother QL-810W label printer. These labels utilize 29mm endless tape and are available in three sizes:
+various labels designed for the Brother QL-810W label printer. These labels have been tested using
+29mm endless tape.
 
-- `inventree-label-part-29mm`: This is a full-width label that includes long descriptions and detailed category names. Set the label width to 52 and height to 27 in the part label settings.
-- `inventree-label-part-16mm`: This narrow and long label is ideal for placing on the edge of a container. It features a horizontal cut line for manual cutting (easily adaptable for 12mm endless tape). Set the label width to 60 and height to 28.
+- `inventree-label-part-large`: This is a full-size label with QR code, long descriptions and
+  detailed category names across multiple lines.  The label width likely should be 50mm or wider.
+- `inventree-label-part-narrow-17mm`: This narrow and long label is ideal for placing on the edge of a
+  container. It has a QR-code on the left and descriptive details on the right, and features a horizontal cut line for manual cutting. Try a label width to 60mm.
 - `inventree-label-part-smdbox`: A very small label, perfectly sized for small, spring-hinged,
-  modular ["WENTAI"](https://www.adafruit.com/product/427) boxes. This label is an excellent example of the need for short category names. Set the label width to 15 and height to 26.
+  modular ["WENTAI"](https://www.adafruit.com/product/427) boxes. This label is an excellent example
+  of the need for short category names. Set the label width to 15 to fit the boxes, and cut them
+  using the printed cut-line.
+- `inventree-label-part-gridfinity`: A 12mm x 36mm label sized to fit
+  [Gridfinity](https://gridfinity.xyz/) single-unit 12mm labels (such as those generated using the
+  [Fusion 360 Gridfinity Generator](https://apps.autodesk.com/FUSION/en/Detail/Index?id=7197558650811789)).
 
- > The label width determines the cutting point of the label, and the height influences the scaling.
- > A smaller height results in a larger label appearance, and these dimensions have been selected to
- > ensure a clean fit.
+> Brother labels have about a 3mm margin top and bottom so when setting the label height use 23 (or,
+> 29mm label - 6 margins).  Changing height won't change the size of the label, as it always prints
+> to the size of the paper, but it will scale it up or down.  Changing width will change the cut
+> length (without scaling) and the these templates dynamically size to width.
 
   These labels utilize the following context properties:
 

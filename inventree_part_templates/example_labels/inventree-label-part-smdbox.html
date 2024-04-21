@@ -8,22 +8,44 @@
 {% load l10n i18n barcode report part_templates %}
 
 {% block style %}
+{% localize off %}
+
+{% add 21 0 as smd_width %}
+{% add 18 0 as smd_height %}
+
+{% add 7 0 as qr_size %}
+
+{% subtract width 2 as width %}
+
+{% subtract width qr_size as right_width %}
+
+{% add 1 0 as qr_to_right_margin %}
+{% subtract right_width qr_to_right_margin as right_width %}
+
+{% add 0.5 0 as qr_to_bottom_margin %}
+{% subtract height qr_size as bottom_height %}
+{% subtract bottom_height qr_to_bottom_margin as bottom_height %}
+
+{% add 3 0 as font_size %}
 
 .label {
     font-family: Verdana, Arial, Helvetica, sans-serif;
     width: 100%;
     position: absolute;
-    height: 18mm;
-    width: 21mm;
+    height: {{ height }}mm;
+    font-size: {{ font_size }}mm;
+    line-height: 1.05;
+}
+
+.smd {
+    height: {{ smd_height }}mm;
     border-bottom: 0.5pt solid black;
-    font-size: 6pt;
-    line-height: 1.1;
 }
 
 .qr {
     display: block;
-    height: 7mm;
-    width: 7mm;
+    height: {{ qr_size }}mm;
+    width: {{ qr_size }}mm;
     position: fixed;
     left: 0mm;
     top: 0mm;
@@ -32,9 +54,9 @@
 .right-section {
     display: block;
     position: absolute;
-    height: 7mm;
-    width: 8mm;
-    left: 7.25mm;
+    height: {{ right_height }}mm;
+    width: {{ right_width }}mm;
+    left: {% add qr_size qr_to_right_margin %}mm;
     top: 0mm;
 }
 
@@ -42,21 +64,23 @@
     position: fixed;
     display: block;
     width: 100%;
-    height: 16mm;
-    top: 7mm;
+    height: {{ bottom_height }}mm;
+    top: {% add qr_size qr_to_bottom_margin %}mm;
     left: 0mm;
 }
 
 .name {
-    padding-top: 0.1mm;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap; 
+    line-height: 1.05;
 }
 
 .category {
     font-style: italic;
     word-wrap: break-word;
+    font-weight: bold;
+    line-height: 1.05;
     overflow-wrap: break-word;
 }
 
@@ -64,9 +88,8 @@
     word-wrap: break-word;
     overflow-wrap: break-word;
     font-weight: bold;
-    border-TOP: 0.5pt solid black;
-    padding-top: 0.5mm;
-    margin-top: 0.5mm;
+    border-top: 0.5pt solid black;
+    line-height: 1.05;
 }
 
 .error {
@@ -76,6 +99,7 @@
     word-wrap: break-word;
     overflow-wrap: break-word;
 }
+{% endlocalize %}
 {% endblock style %}
 
 

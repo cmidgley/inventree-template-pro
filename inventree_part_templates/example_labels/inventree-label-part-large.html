@@ -5,19 +5,38 @@
 {% load l10n i18n barcode report part_templates %}
 
 {% block style %}
+{% localize off %}
+
+{% add 12 0 as qr_size %}
+
+{% subtract width 2 as width %}
+
+{% subtract width qr_size as right_width %}
+
+{% add 1 0 as qr_to_right_margin %}
+{% subtract right_width qr_to_right_margin %}
+
+{% add 0.5 0 as qr_to_bottom_margin %}
+{% subtract height qr_size as bottom_height %}
+{% subtract bottom_height qr_to_bottom_margin as bottom_height %}
+
+{% add 3.5 0 as font_size %}
 
 .label {
+    display: block;
+    position: absolute;
     font-family: Verdana, Arial, Helvetica, sans-serif;
-    font-size: 10pt;
-    width: 100%;
-    height: 26mm;
-    line-height: 1.1;
+    font-size: {{ front_size }}mm;
+    height: {{ height }}mm;
+    width: {{ width }}mm;
+    left: {{ height }}mm;
+    line-height: 1.05;
 }
 
 .qr {
     display: block;
-    height: 15mm;
-    width: 15mm;
+    height: {{ qr_size }}mm;
+    width: {{ qr_size }}mm;
     position: fixed;
     left: 0mm;
     top: 0mm;
@@ -27,53 +46,68 @@
     display: block;
     overflow: hidden;
     position: absolute;
-    height: 14mm;
-    left: 16mm;
+    height: {{ qr_size }}mm;
+    left: {% add qr_size qr_to_right_margin %}mm;
     top: 0mm;
-    width: 38mm;
+    width: {{ right_width }}mm;
     border-bottom: 0.5pt solid black;
+    line-height: 1.05;
 }
 
-
 .ipn {
-    display: inline-block;
     padding: 0 2pt;
     border: 0.5pt solid black;
+    font-size: {{ font_size }}mm;
     border-radius: 2pt;
-    font-weight: bold;
+    position: absolute;
+    line-height: 1.05;
+}
+
+.name-category {
+    display: block;
+    position: relative;
+    padding-top: {% add font_size 0.5 %}mm;
+    line-height: 1.05;
 }
 
 .name {
-    padding-top: 0.5mm;
+    font-size: {{ font_size }}mm;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap; 
+    line-height: 1.05;
 }
 
 .category {
+    font-size: {{ font_size }}mm;
     font-style: italic;
     text-overflow: ellipsis;
+    font-weight: bold;
     overflow: hidden;
     white-space: nowrap; 
+    line-height: 1.05;
 }
 
 .bottom-section {
     position: fixed;
     display: block;
     width: 100%;
-    height: 10.5mm;
-    top: 15.5mm;
+    height: {{ bottom_height }}mm;
+    top: {% add qr_size qr_to_bottom_margin %}mm;
     overflow: hidden;
     left: 0mm;
+    line-height: 1.05;
 }
 
 .description {
+    font-size: {{ font_size }}mm;
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
     font-weight: bold;
     word-wrap: break-word;
+    line-height: 1.05;
     overflow-wrap: break-word;
 }
 
@@ -82,6 +116,7 @@
     font-size: 10pt;
     color: red;
 }
+{% endlocalize %}
 {% endblock style %}
 
 
@@ -98,8 +133,10 @@
             {% if part.IPN %}
                 <div><span class='ipn'>{{ part.IPN }}</span></div>
             {% endif %}
-            <div class='name'>{{ part.name|scrub:"MPN" }}</div>
-            <div class='category'>{{ part_templates.category }}</div>
+            <div class='name-category'>
+                <div class='name'>{{ part.name|scrub:"MPN" }}</div>
+                <div class='category'>{{ part_templates.category }}</div>
+            </div>
         </div>
         <div class='bottom-section'>
             <div class='description'>{{ part_templates.description }}</div>

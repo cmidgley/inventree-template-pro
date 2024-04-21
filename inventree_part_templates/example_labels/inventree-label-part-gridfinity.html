@@ -1,0 +1,135 @@
+{# inventree-label-part-16mm.html #}
+
+{% extends "label/label_base.html" %}
+
+{% load l10n i18n barcode report part_templates %}
+
+{% block style %}
+{% localize off %}
+
+{% add 12 0 as narrow_height %}
+
+{% subtract narrow_height 1 as qr_size %}
+
+{% subtract width 2 as width %}
+
+{% subtract width qr_size as right_width %}
+
+{% add 1 0 as qr_to_right_margin %}
+{% subtract right_width qr_to_right_margin %}
+
+{% add 2.4 0 as font_size %}
+
+.label {
+    display: block;
+    position: absolute;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: {{ front_size }}mm;
+    height: {{ height }}mm;
+    width: {{ width }}mm;
+    line-height: 1.05;
+}
+
+.narrow {
+    height: {{ narrow_height }}mm;
+    border-bottom: 0.5pt solid black;
+}
+
+.qr {
+    display: block;
+    height: {{ qr_size }}mm;
+    width: {{ qr_size }}mm;
+    position: fixed;
+    left: 0mm;
+    top: 0mm;
+}
+
+.right-section {
+    display: block;
+    overflow: hidden;
+    position: absolute;
+    height: {{ narrow_height }}mm;
+    left: {% add qr_size qr_to_right_margin %}mm;
+    top: 0mm;
+    width: {{ right_width }}mm;
+    line-height: 1.05;
+}
+
+.category-ipn {
+    display: block;
+    position: relative;
+    line-height: 1.05;
+}
+
+.ipn {
+    padding: 0 2pt;
+    border: 0.5pt solid black;
+    font-size: {{ font_size }}mm;
+    border-radius: 2pt;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.category {
+    font-size: {{ font_size }}mm;
+    font-style: italic;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap; 
+    font-weight: bold;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.name {
+    font-size: {{ font_size }}mm;
+    padding-top: {% add font_size 0.5 %}mm;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap; 
+    line-height: 1.05;
+}
+
+.description {
+    font-size: {{ font_size }}mm;
+    font-weight: bold;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.05;
+}
+
+.error {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    color: red;
+}
+{% endlocalize %}
+{% endblock style %}
+
+
+{% block content %}
+{% if not part_templates %}
+    <div class="error">Plugin inventree-part-templates required</div>
+{% elif part_templates.error %}
+    <div class="error">{{ part_templates.error }}</div>
+{% else %}
+    <div class="label">
+        <div class="narrow">
+            <img class='qr' alt="{% trans 'QR Code' %}" src='{% qrcode qr_data %}'>
+
+            <div class='right-section'>
+                <div class="'category-ipn">
+                    <span class='category'>{{ part_templates.short_cat }}</span>
+                    {% if part.IPN %}
+                        <span class='ipn'>{{ part.IPN }}</span>
+                    {% endif %}
+                </div>
+                <div class='name'>{{ part.name|scrub:"MPN" }}</div>
+                <div class='description'>{{ part_templates.description }}</div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock content %}

@@ -21,7 +21,6 @@ content: "{% inventree_version shortstring=True %}";
 {% endblock bottom_center %}
 
 {% block style %}
-
 .header-right {
     text-align: right;
     float: right;
@@ -34,7 +33,9 @@ content: "{% inventree_version shortstring=True %}";
 
 .thumb-container {
     width: 32px;
-    display: inline;
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 10px;
 }
 
 .part-thumb {
@@ -43,14 +44,31 @@ content: "{% inventree_version shortstring=True %}";
     display: inline;
 }
 
+.part-info {
+    display: inline-block;
+    vertical-align: top;
+    width: calc(100% - 32px + 10px)
+}
+
 .part-text {
-    display: inline;
+    display: block;
+}
+
+.part-description {
+    display: block;
+    font-weight: bold;
 }
 
 .part-logo {
-    max-width: 60px;
-    max-height: 60px;
+    max-width: 120px;
+    max-height: 120px;
     display: inline;
+}
+
+.part-reference {
+    width: 20%;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 
 table {
@@ -82,6 +100,7 @@ table td.expand {
 
 .invisible-table td {
     border: 0px solid transparent;
+    vertical-align: top;
 }
 
 .main-part-text {
@@ -120,14 +139,10 @@ table td.expand {
         <div class="error">{{ part_templates.error }}</div>
     {% else %}
         <table class="invisible-table">
-            <thead>
-                <tr>
-                    <th colspan="2"><h3>{% trans "Part" %}</h3></th>
-                </tr>
-            </thead>
             <tbody>
                 <tr>
                     <td>
+                        <h3>{% trans "Assembly for Part:" %}</h3>
                         <div class='main-part-text'>
                             {{ part.full_name }}
                         </div>
@@ -152,33 +167,40 @@ table td.expand {
                     <th>{% trans "Quantity" %}</th>
                     <th>{% trans "Part" %}</th>
                     <th>{% trans "Category" %}</th>
-                    <th>{% trans "Reference" %}</th>
-                </tr>
-                <tr>
-                    <th></th>
-                    <th colspan="3">{% trans "Description" %}</th>
+                    <th class="part-reference">{% trans "Reference" %}</th>
                 </tr>
             </thead>
             <tbody>
                 {% for line in bom_items.all %}
-                <tr>
                     {% get_context line.sub_part.pk as part_context %}
-                    <td>{% decimal line.quantity %}</td>
-                    <td>
-                        <div class='thumb-container'>
-                            <img src='{% part_image line.sub_part height=240 %}' alt='{% trans "Image" %}' class='part-thumb'>
-                        </div>
-                        <div class='part-text'>
-                            {{ line.sub_part.full_name }}
-                        </div>
-                    </td>
-                    <td>{{ part_context.category }}</td>
-                    <td>{{ line.reference }}</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td colspan="3">{% part_context.description %}</td>
-                </tr>
+                    {% if not part_context %}
+                        <tr>
+                            <td colspan="4" class="error">Plugin inventree-part-templates did not locate part {{line.sub_part.pk }}</td>
+                        </tr>
+                    {% elif part_context.error %}
+                        <tr>
+                            <td colspan="4" class="error">{{ part_context.error }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td>{% decimal line.quantity %}</td>
+                            <td>
+                                <div class='thumb-container'>
+                                    <img src='{% part_image line.sub_part height=240 %}' alt='{% trans "Image" %}' class='part-thumb'>
+                                </div>
+                                <div class="part-info">
+                                    <div class='part-text'>
+                                        {{ line.sub_part.full_name }}
+                                    </div>
+                                    <div class='part-description'>
+                                        {{ part_context.description }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ part_context.category }}</td>
+                            <td class="part-reference">{{ line.reference|replace:",|, " }}</td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
             </tbody>
         </table>

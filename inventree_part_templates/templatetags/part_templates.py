@@ -8,6 +8,9 @@
 # for regex
 import re
 
+# for html safety
+import html
+
 # for debugging
 import pprint
 
@@ -184,7 +187,8 @@ def scrub(scrub_string: str, name: str) -> str:
 
 @register.filter()
 def value(properties: Dict[str, str], key: str) -> str | None:
-    """Access to value of a dictionary by key (no scrubbing)
+    """
+    Access to value of a dictionary by key (no scrubbing)
 
     Example:
     {% parameters|value:"Rated Voltage" %}
@@ -196,7 +200,8 @@ def value(properties: Dict[str, str], key: str) -> str | None:
 
 @register.filter()
 def item(properties: Dict[str, str], key: str) -> str | None:
-    """Access to value of a dictionary by key (with scrubbing)
+    """
+    Access to value of a dictionary by key (with scrubbing)
 
     Example:
     {% parameters|item:"Package Type" %}
@@ -209,3 +214,36 @@ def item(properties: Dict[str, str], key: str) -> str | None:
     if item_value:
         return scrub(item_value, key)
     return ""
+
+@register.filter()
+def replace(value: str, arg: str):
+    """
+    Replaces a string value with another, with the filter parameter having two values (match and replace) 
+    being separated by the "|" character.  If the "match" side starts with "regex:" then the match and replace
+    are processed as regular expressions.  The "|" can be espaped with "\|" if it is needed as a character
+    in the string.  
+
+    Examples that all add a space following a separator character:
+    {% "a,b,c"|substitute:",|, " %}
+    {% "A|B|C"|substitute:"\||\|, " %}
+    {% ",\s*(?![,])|, " %}
+    """
+    """ Replaces occurrences of a substring with another substring, with optional regex support. """
+
+    # Handle escaped pipe characters and split the arguments
+    parts = re.split(r'(?<!\\)\|', arg)
+    parts = [part.replace('\\|', '|') for part in parts]
+ 
+    if len(parts) != 2:
+        return _('[replace:"{arg}" must have two parameters separated by "|"]').format(arg=html.escape(arg))
+
+    if parts[0].startswith('regex:'):
+        # Regex replacement
+        pattern = parts[0][6:]
+        repl = parts[1]
+        return re.sub(pattern, repl, value)
+
+    # Simple replacement
+    match = parts[0]
+    repl = parts[1]
+    return value.replace(match, repl)

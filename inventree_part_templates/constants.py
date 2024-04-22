@@ -10,3 +10,4 @@ CONTEXT_KEY = 'part_templates'
 METADATA_PARENT = 'part_template_plugin'
 METADATA_TEMPLATE_KEY = 'templates'
 MAX_TEMPLATES = 5
+TEMPLATETAGS_CONTEXT_PLUGIN = 'plugin-instance'

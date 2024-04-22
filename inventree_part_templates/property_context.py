@@ -84,6 +84,15 @@ class PropertyContext:
         else:
             context[CONTEXT_KEY] = { 'error', _("Must use Part or StockItem (found {type})").format(type=self._entity if isinstance(self._entity, int) else type(self._entity).__type__) }
 
+    def get_part(self) -> Part | None:
+        """
+        Returns the part associated with this context, or None if no part found.
+
+        Returns:
+            Part | None: The part located (as provided to the constructor and located) or None if no part found.
+        """
+        return self._part
+
     def apply_template(self, template: str) -> str:
         """
         Apply a template to a part.  Sets up the data for the Django template, and asks

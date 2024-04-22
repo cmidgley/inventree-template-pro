@@ -6,6 +6,9 @@
     License: MIT (see LICENSE file)
 """
 
+# forward class references
+from __future__ import annotations
+
 # Typing
 from typing import Dict, Any, List
 
@@ -32,7 +35,7 @@ from django.urls import path
 from django.http import HttpResponse, HttpRequest, JsonResponse
 
 # constants
-from inventree_part_templates.constants import METADATA_PARENT, METADATA_TEMPLATE_KEY, MAX_TEMPLATES
+from inventree_part_templates.constants import METADATA_PARENT, METADATA_TEMPLATE_KEY, MAX_TEMPLATES, TEMPLATETAGS_CONTEXT_PLUGIN
 
 # Plugin version number
 from .version import PLUGIN_VERSION
@@ -41,11 +44,8 @@ from .version import PLUGIN_VERSION
 from django.contrib.auth.models import User
 from typing import cast
 
-# forward class references
-from __future__ import annotations
-
 # property context support
-from property_context import PropertyContext
+from .property_context import PropertyContext
 
 class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, InvenTreePlugin):
     """
@@ -152,7 +152,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         # add the rendered context properties based on model_instance to our context
         PropertyContext(model_instance).get_context(context, self)
         # add ourselves to the context so the templatetag can access our SettingsMixin
-        context["plugin_instance"] = self
+        context[TEMPLATETAGS_CONTEXT_PLUGIN] = self
 
     def add_label_context(self, _label_instance, model_instance: Part | StockItem, _request: HttpRequest, context: Dict[str, Any]) -> None:
         """
@@ -170,7 +170,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         # add the rendered context properties based on model_instance to our context
         PropertyContext(model_instance).get_context(context, self)
         # add ourselves to the context so the templatetag can access our SettingsMixin
-        context["plugin_instance"] = self
+        context[TEMPLATETAGS_CONTEXT_PLUGIN] = self
 
     #
     # Panel mixin entrypoints

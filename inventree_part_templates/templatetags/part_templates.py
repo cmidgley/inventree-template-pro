@@ -8,6 +8,9 @@
 # for regex
 import re
 
+# for debugging
+import pprint
+
 # for reading YAML config file
 import os
 import yaml
@@ -31,6 +34,9 @@ from typing import Dict, List
 
 # class to manage the property context
 from inventree_part_templates.property_context import PropertyContext
+
+# constants
+from inventree_part_templates.constants import TEMPLATETAGS_CONTEXT_PLUGIN
 
 # set how long we cache the config data (in seconds), to allow users to edit it without restarting the server
 CACHE_TIMEOUT = 3
@@ -69,7 +75,7 @@ def load_filters() -> Config:
         with open(cfg_filename, 'r', encoding='utf-8') as file:
             loaded_data = yaml.safe_load(file)
             if (loaded_data is None) or (not isinstance(loaded_data, dict)):
-                raise FileNotFoundError(_("File found but contents missing or not dictionary: {cfg_filename}"))
+                raise FileNotFoundError(_("File found but contents missing or not dictionary: {cfg_filename}").format(cfg_filename=cfg_filename))
             filters = loaded_data
 
         # cache the config data
@@ -77,7 +83,7 @@ def load_filters() -> Config:
     return filters
 
 @register.simple_tag(takes_context=True)
-def get_context(tag_context: Context, pk: str) -> Dict[str, str]:
+def get_context(context: Context, pk: str) -> Dict[str, str]:
     """
     Takes a primary key for a part (the part ID) and renders the various context templates for the
     part, providing them in a Django context dictionary for access from reports or labels.  Used for
@@ -85,22 +91,27 @@ def get_context(tag_context: Context, pk: str) -> Dict[str, str]:
     collection of parts and wants to access the context properties for each part.
 
     Args:
+        context (Context): Context from `takes_context=True`, to get the plugin `SettingsMixin`
         pk (str): The primary key of the part.
 
     Returns:
         Dict[str, str]: The context for the part properties.
     """
     # make sure we have the plugin in context
-    plugin = tag_context.get('part_template_plugin')
+    plugin = context.get(TEMPLATETAGS_CONTEXT_PLUGIN)
     if not plugin:
         return { 'error': _("[Internal error: inventree_part_templates unable to locate plugin inside context]") }
 
     # instantiate the plugin class to so we can get the property context for this part
     property_context = PropertyContext(pk)
-    context: Dict[str, str] = {}
-    property_context.get_context(context, plugin)
+    if not property_context.get_part():
+        return { 'error': _('[get_context "{pk}": part not found').format(pk=pk) }
+ 
+    # get the context for this part
+    template_context: Dict[str, str] = {}
+    property_context.get_context(template_context, plugin)
 
-    return context
+    return template_context.get('part_templates')
 
 @register.filter()
 def scrub(scrub_string: str, name: str) -> str:

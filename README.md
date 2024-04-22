@@ -172,6 +172,17 @@ __Filters:__
 - `value:"<name>"`: Retrieves a property name from a dictionary without any scrubbing.
 - `scrub:"<name>"`: [Scrubs](#parameter-scrubbing) the associated string using a filter. Example:
   `{{ part.name|scrub:"MPN" }}`
+- `replace:"<match>|<replace>"`: Replaces any matching characters in the string with the replacement
+  string.  For example, to allow word breaks on a string like "R100,R103,R202,R208" you can use
+  `replace:",|, "` to get "R100, R103, R202, R208".  You can escape `|` with `\|` if a vertical bar
+  is needed.  Optionally can use regular expressions with `replace:"regex:<match>|<replace>`.  For
+  example, using `{% ",\s*(?![,])|, " %}` will replace all "," followed by any number of space with
+  ", ".
+- `show_properties|<optional-depth>`: Will output any value, such as an object like `Part`, as
+  nicely formatted HTML to make it easier to find and understand available properties on any
+  template variable.  If a number is specified for `<optional-depth>` then it will limit the depth
+  of the output to the specified amount (defaults to 2 to limit output).  Can specify `*` to output
+  everything (`part|show_properties|*`).
 
 The following are some examples of using context parameter templates with filters:
 

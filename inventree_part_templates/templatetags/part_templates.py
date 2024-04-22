@@ -8,11 +8,9 @@
 # for regex
 import re
 
-# for html safety
+# for html formatting and safety
 import html
-
-# for debugging
-import pprint
+from django.utils.html import format_html
 
 # for reading YAML config file
 import os
@@ -33,7 +31,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.cache import cache
 
 # type hinting
-from typing import Dict, List
+from typing import Dict, List, Any
 
 # class to manage the property context
 from inventree_part_templates.property_context import PropertyContext
@@ -247,3 +245,57 @@ def replace(value: str, arg: str):
     match = parts[0]
     repl = parts[1]
     return value.replace(match, repl)
+
+def _format_object(obj: Any, depth: int, level: int = 0) -> str:
+    """
+    Recursively format an object into HTML with a given depth.
+    
+    Args:
+        obj: The object to format.
+        depth (int): The maximum depth to format.
+        level (int): The current level of recursion.
+    """
+    indent = '&nbsp;&nbsp;' * level  # HTML space for indentation
+
+    # simple types are displayed directly.
+    if isinstance(obj, (str, int, float, bool)) or obj is None:
+        return f'{indent}{repr(obj)}'
+
+    # handle dictionaries by recursing into key-value pairs.
+    if isinstance(obj, dict):
+        items = [f"{indent}{key}: {_format_object(value, depth - 1, level + 1)}"
+                 for key, value in obj.items() if depth > 1]
+        return '<br>'.join(items) if depth > 1 else f'{indent}{{...}}'
+
+    # handle lists and tuples by recursing into each element.
+    if isinstance(obj, (list, tuple)):
+        items = [_format_object(item, depth - 1, level + 1) for item in obj]
+        return f"{indent}[" + ', '.join(items) + ']'
+
+    # for custom objects, show the object type and its attributes.
+    if depth > 1:
+        # Using dir() to list attributes, filter out private and special methods
+        attributes = {attr: getattr(obj, attr) for attr in dir(obj)
+                      if not attr.startswith('__') and not callable(getattr(obj, attr))}
+        items = [f"{indent}{attr}: {_format_object(value, depth - 1, level + 1)}"
+                 for attr, value in attributes.items()]
+        return f"{indent}{obj.__class__.__name__}<br>" + '<br>'.join(items)
+    else:
+        return f'{indent}{obj.__class__.__name__} {{...}}'
+
+@register.filter
+def show_properties(obj, depth='2'):
+    """
+    Filter to display properties of an object for finding and understanding properties
+    on various objects.  By default shows the first two levels of the object, but the
+    parameter can specify a specific depth or `*` to indicate all depths.
+
+    Example:
+    part|show_properties:3    
+    """
+    try:
+        int_depth = int(depth) if depth != '*' else 9999
+    except ValueError:
+        int_depth = 2
+    formatted_html = _format_object(obj, int_depth)
+    return format_html(formatted_html)

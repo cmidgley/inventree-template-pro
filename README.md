@@ -20,9 +20,10 @@ solid" width="200px">
 
 **InvenTree-Part-Templates** is a plugin for InvenTree that enhances InvenTree's label and reporting
 templates. You can create new custom context properties, adjust template values for those properties
-based on the parts' category, and utilize the `part_templates` context variable in your report and
-label templates for easy, consistent reporting. Additionally, this plugin allows you to clean up
-inconsistencies in parameter values, significantly improving the quality of your labels and reports.
+based on the parts' category, and access them using standard Django template language (`{{
+part_templates.my_new_property }}`) in your report and label templates for easy, consistent
+reporting. Additionally, this plugin allows you to clean up inconsistencies in parameter values,
+significantly improving the quality of your labels and reports.
 
 ## Introducing Context Properties
 
@@ -125,7 +126,12 @@ your context property templates to meet your usability and size requirements.
 
 Adjusting a template to use context properties is straightforward. Simply open your template in any text editor and incorporate the syntax `{{ part_templates.<your_context_property_name> }}`. Afterward, upload it to your label or report system.
 
-You can then print your report or label, for instance, using the InvenTree PDF Label Printer, to view how the default template for your context property functions on the screen.
+You can then print your report or label, for instance, using the InvenTree PDF Label Printer, to
+view how the default template for your context property functions on the screen.
+
+> When accessing multiple parts in your reports, such as looping through all items of a BOM, you
+> must request the context for each child part to access the Context Properties on it.  See the
+> [`get_context`](#context-property-template-tags-and-filters) tag for additional information.
 
 ## Context Templates
 
@@ -155,13 +161,17 @@ The context templates are standard InvenTree/Django templates and support severa
 
 These variables facilitate dynamic content generation in templates, enhancing the adaptability and relevance of your reports and labels.
 
-### Context Property Template Filters
+### Context Property Template Tags and Filters
 
-The following filters are available on context property templates and can be accessed by loading with `{% load part_templates %}` in your labels/reports:
+The following tags and filters are available on context property templates and can be accessed by
+loading with `{% load part_templates %}` in your labels/reports:
+
+__Filters:__
 
 - `item:"<name>"`: Retrieves a property name from a dictionary and [scrubs](#parameter-scrubbing) it if filters exist. Example: `{{ parameters|item:"Rated Voltage" }}`
 - `value:"<name>"`: Retrieves a property name from a dictionary without any scrubbing.
-- `scrub:"<name>"`: [Scrubs](#parameter-scrubbing) the associated string using a filter. Example: `{{ part.name|scrub:"MPN" }}`
+- `scrub:"<name>"`: [Scrubs](#parameter-scrubbing) the associated string using a filter. Example:
+  `{{ part.name|scrub:"MPN" }}`
 
 The following are some examples of using context parameter templates with filters:
 
@@ -170,7 +180,26 @@ The following are some examples of using context parameter templates with filter
 - **Capacitor description**: `{{ parameters|item:"Capacitance" }} {{ parameters|item:"Tolerance" }} {{ parameters|item:"Rated Voltage" }} {{ parameters|item:"Mounting Type" }} {{ parameters|item:"Package Type" }}`
 - **Capacitor short category**: `CAP`
 - **Capacitor/Tantalum short category**: `CAP TANT`
-- **Conditional example**: `{{ parameters|item:"Supply Voltage" }} {% if not parameters|item:"Supply Voltage" %}{{ parameters|item:"Input Voltage" }} {% endif %} {{ parameters|item:"Type" }}`
+- **Conditional example**: `{{ parameters|item:"Supply Voltage" }} {% if not parameters|item:"Supply
+  Voltage" %}{{ parameters|item:"Input Voltage" }} {% endif %} {{ parameters|item:"Type" }}`
+
+__Tags:__
+
+- `get_context <part ID> as <variable>`: Gets the context properties for part based on the part `pk`
+  (primary key, or ID).  For example, when looping through parts in a BOM report, you might use a
+  template section like this:
+
+  ```
+  {% for line in bom_items.all %}
+  <tr>
+      {% get_context line.sub_part.pk as part_context %}
+      <td>{{ line.sub_part.full_name }}</td>
+      <td>{% decimal line.quantity %}</td>
+      <td>{% part_context.description %}</td>
+      <td>{% part_context.category %}</td>
+  </tr>
+  {% endfor %}
+  ```
 
 # Parameter Scrubbing
 
@@ -239,10 +268,12 @@ For example:
 
 # Example Labels
 
-See the [example
-labels](https://github.com/cmidgley/inventree-part-templates/tree/main/inventree_part_templates/example_labels) folder for
-various labels designed for the Brother QL-810W label printer. These labels have been tested using
-29mm endless tape.
+See the 
+[example labels](https://github.com/cmidgley/inventree-part-templates/tree/main/inventree_part_templates/example_labels)
+folder for
+various labels, designed for the Brother QL-810W label printer wiht 29mm endless tape.  They all
+inherit the size of the label from settings, so to some degree will auto-scale to other printers and
+tape sizes.
 
 - `inventree-label-part-large`: This is a full-size label with QR code, long descriptions and
   detailed category names across multiple lines.  The label width likely should be 50mm or wider.
@@ -254,7 +285,9 @@ various labels designed for the Brother QL-810W label printer. These labels have
   using the printed cut-line.
 - `inventree-label-part-gridfinity`: A 12mm x 36mm label sized to fit
   [Gridfinity](https://gridfinity.xyz/) single-unit 12mm labels (such as those generated using the
-  [Fusion 360 Gridfinity Generator](https://apps.autodesk.com/FUSION/en/Detail/Index?id=7197558650811789)).
+  [Fusion 360 Gridfinity
+  Generator](https://apps.autodesk.com/FUSION/en/Detail/Index?id=7197558650811789)).  Gridfinity
+  uses about 40mm width for labels (34mm in settings).
 
 > Brother labels have margins of about 3mm on the left and right edges, and 1.5mm on the top and
 > bottom.  When setting the label size in settings, the width will control the cutting length (not
@@ -276,9 +309,22 @@ various labels designed for the Brother QL-810W label printer. These labels have
   - `category`: A descriptive category name.
   - `short-cat`: A very short category, limited to a maximum of 6 characters per word and up to two words.
 
-Also, note the use of another property, `part_templates.error`.  This is set whenever the templates
-fail to render, facilitating easier debugging of template issues. It is a best practice to check for
-both `part_templates` and `part_templates.error` as shown below:
+
+# Example reports
+
+See the 
+[example reports](https://github.com/cmidgley/inventree-part-templates/tree/main/inventree_part_templates/example_reports)
+folder for example reports.  These reports use the `{% get_context %}` tag lookup context
+information on the child parts in order to display detailed information about multiple parts in a
+single report.
+
+
+# Best practice for template error detection
+
+A best practice is to check for errors in the template, so that you can see descriptive errors in your
+report/labels when there is a problem with a template.  This is accompished by using the
+`part_templates.error` context property.  See the example labels and reports, where you will find
+logic similar to the following:
 
 ```html
 {% if not part_templates %}
@@ -286,7 +332,6 @@ both `part_templates` and `part_templates.error` as shown below:
 {% elif part_templates.error %}
     <div class="error">{{ part_templates.error }}</div>
 {% else %}
-    ... your label here ...
+    ... your report/label template here ...
 {% endif %}
-
 ```

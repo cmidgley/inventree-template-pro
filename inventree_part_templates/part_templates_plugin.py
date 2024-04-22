@@ -9,9 +9,6 @@
 # Typing
 from typing import Dict, Any, List
 
-# Error reporting assistance
-import traceback
-
 # Translation support
 from django.utils.translation import gettext_lazy as _
 
@@ -22,9 +19,6 @@ from plugin.mixins import AppMixin, ReportMixin, SettingsMixin, PanelMixin, Urls
 # InvenTree models
 from stock.models import StockItem
 from part.models import Part, PartCategory
-
-# Django templates
-from django.template import Context, Template
 
 # InvenTree views
 from part.views import PartDetail, CategoryDetail
@@ -37,12 +31,21 @@ from django.views.generic import UpdateView
 from django.urls import path
 from django.http import HttpResponse, HttpRequest, JsonResponse
 
+# constants
+from inventree_part_templates.constants import METADATA_PARENT, METADATA_TEMPLATE_KEY, MAX_TEMPLATES
+
 # Plugin version number
 from .version import PLUGIN_VERSION
 
 # User support
 from django.contrib.auth.models import User
 from typing import cast
+
+# forward class references
+from __future__ import annotations
+
+# property context support
+from property_context import PropertyContext
 
 class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, InvenTreePlugin):
     """
@@ -58,7 +61,6 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
     AUTHOR = "Chris Midgley"
 
     # plugin custom settings
-    MAX_TEMPLATES = 5
     SETTINGS = {
         'EDITING': {
             'name': _('Panel editing'),
@@ -130,11 +132,6 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         },
     }
 
-    # internal settings
-    CONTEXT_KEY = 'part_templates'
-    METADATA_PARENT = 'part_template_plugin'
-    METADATA_TEMPLATE_KEY = 'templates'
-
     #
     # Report mixin entrypoints
     #
@@ -152,7 +149,10 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         Returns:
             None
         """
-        self._add_context(model_instance, context)
+        # add the rendered context properties based on model_instance to our context
+        PropertyContext(model_instance).get_context(context, self)
+        # add ourselves to the context so the templatetag can access our SettingsMixin
+        context["plugin_instance"] = self
 
     def add_label_context(self, _label_instance, model_instance: Part | StockItem, _request: HttpRequest, context: Dict[str, Any]) -> None:
         """
@@ -167,7 +167,10 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         Returns:
             None
         """
-        self._add_context(model_instance, context)
+        # add the rendered context properties based on model_instance to our context
+        PropertyContext(model_instance).get_context(context, self)
+        # add ourselves to the context so the templatetag can access our SettingsMixin
+        context["plugin_instance"] = self
 
     #
     # Panel mixin entrypoints
@@ -183,8 +186,9 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         template is the template that would be used if the template on the instance was not defined.
 
         Args:
-            view (UpdateView): The view object.  request (HtpRequest): The request object.  context
-            (Dict[str, Any]): The context dictionary.
+            view (UpdateView): The view object (PartDetail or CategoryDetail)
+            request (HtpRequest): The request object.  
+            context (Dict[str, Any]): The context dictionary.
 
         Returns:
             Dict[str, Any]: The updated context dictionary.
@@ -259,7 +263,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         context: List[Dict[str, str]] = []
 
         # process each possible key from settings
-        for key_number in range(1, self.MAX_TEMPLATES + 1):
+        for key_number in range(1, MAX_TEMPLATES + 1):
             key: str = self.get_setting(f'T{key_number}_KEY')
             default_template: str = self.get_setting(f'T{key_number}_TEMPLATE')
 
@@ -269,8 +273,8 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
 
             # get the template metadata, which is a dictionary of context_name: template for this instance
             #instance = Part.objects.get(pk=instance.pk)
-            if instance.metadata and instance.metadata.get(self.METADATA_PARENT) and instance.metadata[self.METADATA_PARENT].get(self.METADATA_TEMPLATE_KEY):
-                metadata_templates = instance.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY]
+            if instance.metadata and instance.metadata.get(METADATA_PARENT) and instance.metadata[METADATA_PARENT].get(METADATA_TEMPLATE_KEY):
+                metadata_templates = instance.metadata[METADATA_PARENT][METADATA_TEMPLATE_KEY]
             else:
                 metadata_templates = {}
 
@@ -279,13 +283,13 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
 
             # get the inherited template (ignoring our current template, this is what it would be if
             # the template on this instance was not defined)
-            inherited_template = self._find_category_template(parent_category, key, default_template)
+            inherited_template = PropertyContext.find_category_template(parent_category, key, default_template)
 
             # render the part using the context if we have one
             rendered_template = ""
             if isinstance(instance, Part):
                 try:
-                    rendered_template = self._apply_template(instance, None, template if template else inherited_template)
+                    rendered_template = PropertyContext(instance).apply_template(template if template else inherited_template)
                 except Exception as e:      # pylint: disable=broad-except
                     rendered_template = f'({_("error")}: {str(e)})'
 
@@ -402,7 +406,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
             }, status=200)
 
         # is key valid?
-        for key_number in range(1, self.MAX_TEMPLATES + 1):
+        for key_number in range(1, MAX_TEMPLATES + 1):
             setup_key: str = self.get_setting(f'T{key_number}_KEY')
             if key == setup_key:
                 break
@@ -415,18 +419,18 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         # set up our metadata
         if not instance.metadata:
             instance.metadata = {}
-        if not instance.metadata.get(self.METADATA_PARENT):
-            instance.metadata[self.METADATA_PARENT] = {}
-        if not instance.metadata[self.METADATA_PARENT].get(self.METADATA_TEMPLATE_KEY):
-            instance.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY] = {}
+        if not instance.metadata.get(METADATA_PARENT):
+            instance.metadata[METADATA_PARENT] = {}
+        if not instance.metadata[METADATA_PARENT].get(METADATA_TEMPLATE_KEY):
+            instance.metadata[METADATA_PARENT][METADATA_TEMPLATE_KEY] = {}
 
         # set or delete the key using template
         try:
             if template:
-                instance.metadata[self.METADATA_PARENT].get(self.METADATA_TEMPLATE_KEY)[key] = template
+                instance.metadata[METADATA_PARENT].get(METADATA_TEMPLATE_KEY)[key] = template
                 instance.save()
-            elif instance.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY].get(key):
-                del instance.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY][key]
+            elif instance.metadata[METADATA_PARENT][METADATA_TEMPLATE_KEY].get(key):
+                del instance.metadata[METADATA_PARENT][METADATA_TEMPLATE_KEY][key]
                 instance.save()
         except Exception as e:      # pylint: disable=broad-except
             return JsonResponse({
@@ -435,142 +439,3 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
             }, status=200)
 
         return JsonResponse({'status': 'ok', 'message': _('Template saved successfully') })
-
-    #
-    # internal methods
-    #
-
-    def _add_context(self, instance: Part | StockItem, context: Dict[str, Any]) -> None:
-        """
-        Common handler for the InvenTree add context callbacks.  Locate the part from the instance,
-        processes all context templates set up by the user, and attaches the results to the
-        Django context.
-
-        Args:
-            instance (Part | StockItem): The instance for which the context variables are being added.
-            context (Dict[str, Any]): The dictionary to which the context variables are being added.
-
-        Returns:
-            None
-        """
-
-        # make sure our instance has a part (Part and Stock)
-        part = self._cast_part(instance)
-        if part:
-            # set up an empty context
-            context[self.CONTEXT_KEY] = {}
-
-            # process each possible key from settings
-            for key_number in range(1, self.MAX_TEMPLATES + 1):
-                key: str = self.get_setting(f'T{key_number}_KEY')
-                default_template: str = self.get_setting(f'T{key_number}_TEMPLATE')
-                # if the user has defined a key (context variable name), process this template
-                if key:
-                    # find the best template between part and the category metadata heirarchy
-                    found_template = self._find_template(part, key, default_template)
-                    stock: StockItem | None = instance if isinstance(instance, StockItem) else None
-                    try:
-                        result = self._apply_template(part, stock, found_template)
-                    except Exception as e:      # pylint: disable=broad-except
-                        tb = traceback.extract_tb(e.__traceback__)
-                        last_call = tb[-1]
-                        context[self.CONTEXT_KEY] = {
-                                'error': _("Template error for {key} with \"{found_template}\": '{error}' {last_call.filename}:{last_call.lineno}").format(key=key, found_template=found_template, error=str(e), last_call=last_call)
-                        }
-                        return
-
-                    # success - add the key with the formatted result to context
-                    context[self.CONTEXT_KEY][key] = result
-        else:
-            context[self.CONTEXT_KEY] = { 'error', _("Must use Part or StockItem (found {type})").format(type=type(instance).__type__) }
-
-    def _cast_part(self, instance: Part | StockItem) -> Part | None:
-        """
-        Casts the given instance to a Part object if it is an instance of Part or a StockItem.
-
-        Args:
-            instance (Part | StockItem): The instance to cast or retrieve the Part object from.
-
-        Returns:
-            Part | None: The casted Part object if the instance is an instance of Part or StockItem,
-            None otherwise.
-        """
-        if isinstance(instance, Part):
-            return instance
-        if isinstance(instance, StockItem):
-            return instance.part
-        return None
-
-
-    def _apply_template(self, part: Part, stock: StockItem | None, template: str) -> str:
-        """
-        Apply a template to a part.  Sets up the data for the Django template, and asks
-        for it to do the template formatting.
-
-        Args:
-            part (Part): The part object to apply the template to.
-            stock (StockItem | None): If reporting on a stock item, the stock item this is for.
-            template (str): The template string to apply.
-
-        Returns:
-            str: The formatted string after applying the template.
-        """
-
-        template_data = {
-            'part': part,
-            'stock': stock,
-            'category': part.category,
-            'parameters': part.parameters_map(),
-        }
-
-        # set up the Django template
-        django_template = Template("{% load barcode report part_templates %}" + template)
-        # create the template context
-        context = Context(template_data)
-        # format the template
-        return django_template.render(context)
-
-    def _find_template(self, part: Part, key: str, default_template: str) -> str:
-        """
-        Find the template for a given part and key.  Starts by checking if the part has
-        metadata and specifically this key.  If not, it walks up the category tree to find
-        the first category with metadata and this key.  If none found, it uses the default
-        template.
-
-        Args:
-            part (Part): The part for which to find the template.
-            key (str): The key to search for in the part's metadata.
-            default_template (str): The default template to use if the key is not found.
-
-        Returns:
-            str: The template found for the given part and key, or the default template if not found.
-        """
-        # does our part have our metadata?
-        if part.metadata and part.metadata.get(self.METADATA_PARENT) and part.metadata[self.METADATA_PARENT].get(self.METADATA_TEMPLATE_KEY) and part.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY].get(key):
-            return part.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY][key]
-
-        # not on part, so walk up the category tree
-        return self._find_category_template(part.category, key, default_template)
-
-    def _find_category_template(self, category: PartCategory, key: str, default_template: str) -> str:
-        """
-        Recursively searches for a template associated with a given category and key.
-
-        Args:
-            category (PartCategory): The category to start the search from.
-            key (str): The key to search for in the category's metadata.
-            default_template (str): The default template to return if no template is found.
-
-        Returns:
-            str: The template associated with the category and key, or the default template if not found.
-        """
-        # if no category, return default
-        if not category:
-            return default_template
-
-        # if we have metadata with our key, use that as the template
-        if category.metadata and category.metadata.get(self.METADATA_PARENT) and category.metadata[self.METADATA_PARENT].get(self.METADATA_TEMPLATE_KEY) and category.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY].get(key):
-            return category.metadata[self.METADATA_PARENT][self.METADATA_TEMPLATE_KEY][key]
-
-        # no template, so walk up the category tree
-        return self._find_category_template(category.parent, key, default_template)

@@ -8,25 +8,29 @@
 # for regex
 import re
 
-# For reading YAML config file
+# for reading YAML config file
 import os
 import yaml
 from pathlib import Path
 
-# To add Django filters / tags
+# to add Django filters / tags
 from django import template
+from django.template import Context
 
-# Translation support
+# for locating parts using the primary key
+from part.models import Part
+
+# translation support
 from django.utils.translation import gettext_lazy as _
 
 # caching of the YAML data
 from django.core.cache import cache
 
-# for context in filters
-from django.template import Context
-
 # type hinting
-from typing import Dict, List, Union
+from typing import Dict, List
+
+# class to manage the property context
+from inventree_part_templates.property_context import PropertyContext
 
 # set how long we cache the config data (in seconds), to allow users to edit it without restarting the server
 CACHE_TIMEOUT = 3
@@ -51,7 +55,7 @@ def load_filters() -> Config:
         Config: The loaded filters from the configuration file.
     """
     # do we have config cached?
-    filters = cache.get('part-templates-yaml')
+    filters: Config | None = cache.get('part-templates-yaml')
     if not filters:
         # set the path to the config file using environment variable PART_TEPLATES_CONFIG_FILE, or
         # get from the plugin directory if not set
@@ -63,21 +67,50 @@ def load_filters() -> Config:
 
         # load the config file
         with open(cfg_filename, 'r', encoding='utf-8') as file:
-            filters = yaml.safe_load(file)
+            loaded_data = yaml.safe_load(file)
+            if (loaded_data is None) or (not isinstance(loaded_data, dict)):
+                raise FileNotFoundError(_("File found but contents missing or not dictionary: {cfg_filename}"))
+            filters = loaded_data
 
         # cache the config data
         cache.set('part-templates-yaml', filters, timeout=CACHE_TIMEOUT)
     return filters
 
-@register.filter()
-def scrub(value: str, name: str) -> str:
+@register.simple_tag(takes_context=True)
+def get_context(tag_context: Context, pk: str) -> Dict[str, str]:
     """
-    Scrubs a value (typically from a part parameter) using rules defined in the part_templates.yaml
+    Takes a primary key for a part (the part ID) and renders the various context templates for the
+    part, providing them in a Django context dictionary for access from reports or labels.  Used for
+    accessing secondary parts referenced, such as in a report where the report loops through a
+    collection of parts and wants to access the context properties for each part.
+
+    Args:
+        pk (str): The primary key of the part.
+
+    Returns:
+        Dict[str, str]: The context for the part properties.
+    """
+    # make sure we have the plugin in context
+    plugin = tag_context.get('part_template_plugin')
+    if not plugin:
+        return { 'error': _("[Internal error: inventree_part_templates unable to locate plugin inside context]") }
+
+    # instantiate the plugin class to so we can get the property context for this part
+    property_context = PropertyContext(pk)
+    context: Dict[str, str] = {}
+    property_context.get_context(context, plugin)
+
+    return context
+
+@register.filter()
+def scrub(scrub_string: str, name: str) -> str:
+    """
+    Scrubs a string (typically from a part parameter) using rules defined in the part_templates.yaml
     file based on the supplied name.  The rules are defined in the configuration file as a list of
     dictionaries, where each dictionary contains a pattern and replacement key using regex.
 
     Args:
-        value (str): The value to be scrubbed.
+        scrub_string (str): The value to be scrubbed.
         name (str): The name of the filter set in `part_templates.yaml` to be applied.
 
     Returns:
@@ -95,51 +128,48 @@ def scrub(value: str, name: str) -> str:
     try:
         config = load_filters()
     except FileNotFoundError as error:
-        return (_('["part_templates.yaml" not found: {error}]').format(error=str(error)))
+        return (_('["part_templates.yaml" not found or invalid: {error}]').format(error=str(error)))
     except yaml.YAMLError as error:
         return (_("[Error in configuration file: {error}]").format(error=str(error)))
 
     filters = config.get('filters')
     if filters is None:
         return _('["filters" not found in "parts_templates.yaml"]')
-    
+
     # see if we have a set of rules for this key
     rules = filters.get(name)
-    if rules is None:
-        # return _('["{name}" not found in "parts_templates.yaml"]').format(name=name)
-        return value
-
-    # process all rules for this specific key
-    for rule in rules:
-        pattern = rule.get('pattern')
-        if pattern is None:
-            return _('["pattern" not found in "{name}" in "parts_templates.yaml"]').format(name=name)
-        replacement = rule.get('replacement')
-        if replacement is None:
-            return _('["replacement" not found in "{name}" in "parts_templates.yaml"]').format(name=name)
-
-        try:
-            value = re.sub(pattern, replacement, value)
-        except re.error as error:
-            return _('["{name}" regex error on {pattern}: {error}]').format(name=name, pattern=pattern, error=str(error))
-
-    # see if we have a _GLOBAL rule set
-    global_rules = filters.get('_GLOBAL')
-    if global_rules is not None:
-        for rule in global_rules:
+    if not rules is None:
+        # process all rules for this specific key
+        for rule in rules:
             pattern = rule.get('pattern')
             if pattern is None:
-                return _('["pattern" not found in "_GLOBAL" in "parts_templates.yaml"]')
+                return _('["pattern" not found in "{name}" in "parts_templates.yaml"]').format(name=name)
             replacement = rule.get('replacement')
             if replacement is None:
-                return _('["replacement" not found in "_GLOBAL" in "parts_templates.yaml"]')
+                return _('["replacement" not found in "{name}" in "parts_templates.yaml"]').format(name=name)
 
             try:
-                value = re.sub(pattern, replacement, value)
+                scrub_string = re.sub(pattern, replacement, scrub_string)
             except re.error as error:
-                return _('["_GLOBAL regex error on {pattern}: {error}]').format(pattern=pattern, error=str(error))
-            
-    return value
+                return _('["{name}" regex error on {pattern}: {error}]').format(name=name, pattern=pattern, error=str(error))
+
+        # see if we have a _GLOBAL rule set
+        global_rules = filters.get('_GLOBAL')
+        if global_rules is not None:
+            for rule in global_rules:
+                pattern = rule.get('pattern')
+                if pattern is None:
+                    return _('["pattern" not found in "_GLOBAL" in "parts_templates.yaml"]')
+                replacement = rule.get('replacement')
+                if replacement is None:
+                    return _('["replacement" not found in "_GLOBAL" in "parts_templates.yaml"]')
+
+                try:
+                    scrub_string = re.sub(pattern, replacement, scrub_string)
+                except re.error as error:
+                    return _('["_GLOBAL regex error on {pattern}: {error}]').format(pattern=pattern, error=str(error))
+
+    return scrub_string
 
 @register.filter()
 def value(properties: Dict[str, str], key: str) -> str | None:
@@ -161,10 +191,10 @@ def item(properties: Dict[str, str], key: str) -> str | None:
     {% parameters|item:"Package Type" %}
     """
     try:
-        value = properties.get(key)
+        item_value = properties.get(key)
     except Exception:       # pylint: disable=broad-except
         return ""
 
-    if value:
-        return scrub(value, key)
+    if item_value:
+        return scrub(item_value, key)
     return ""

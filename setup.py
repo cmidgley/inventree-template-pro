@@ -32,7 +32,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
 
     package_data={
-        'inventree_part_templates': ['templates/part_templates/*', 'part_templates.yaml', 'example_labels/*']
+        'inventree_part_templates': ['templates/part_templates/*', 'part_templates.yaml', 'example_labels/*', 'example_reports/*']
     },
     
     include_package_data=False,

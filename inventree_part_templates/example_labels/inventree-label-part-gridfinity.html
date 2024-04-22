@@ -1,4 +1,4 @@
-{# inventree-label-part-16mm.html #}
+{# inventree-label-part-gridfinity.html #}
 
 {% extends "label/label_base.html" %}
 
@@ -122,7 +122,7 @@
                 <div class="'category-ipn">
                     <span class='category'>{{ part_templates.short_cat }}</span>
                     {% if part.IPN %}
-                        <span class='ipn'>{{ part.IPN }}</span>
+                        <!-- span class='ipn'>{{ part.IPN }}</span-->
                     {% endif %}
                 </div>
                 <div class='name'>{{ part.name|scrub:"MPN" }}</div>

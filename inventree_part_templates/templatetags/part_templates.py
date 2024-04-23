@@ -294,6 +294,7 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
         processed (Dict[int, bool]): Dictionary to look for recursion (reuse of objects)
         level (int): The current level of recursion.
     """
+    limit_tree_query_set = 1
     single_indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
     indent = single_indent * level
 
@@ -322,12 +323,15 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
                 items = [_format_object(item, depth - 1, processed, level + 1) for item in obj]
                 return f"[{', '.join(items)}]"
             return "[ ... ]"
-        
+
         # special case for TreeQuerySet so we can inspect the query results
         if obj.__class__.__name__ == 'TreeQuerySet':
-            if depth > 1:
-                return f'[ TreeQuerySet: WIP ({obj.count()} items)]'
-            return _("[ ... ({count} items )]").format(count = obj.count() )
+            limit_tree_query_set -= 1
+            if limit_tree_query_set > 0:
+                if depth > 1:
+                    return f'[ TreeQuerySet: WIP ({obj.count()} items)]'
+                return _("[ ... ({count} items )]").format(count = obj.count() )
+            return _('TreeQuerySet: [ ... ]')
 
         # for custom objects, show the object type and its attributes.
         class_name = f"class <span style='font-weight: bold; font-style: italic'>{obj.__class__.__name__}</span>"
@@ -360,9 +364,9 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
     return _('[ previously output ]')
 
 @register.filter()
-def show_properties(obj:Any, depth='2') -> str:
+def explore(obj:Any, depth='2') -> str:
     """
-    Filter to display properties of an object for finding and understanding properties
+    Filter to explore properties of an object for finding and understanding properties
     on various objects.  By default shows the first two levels of the object, but the
     parameter can specify a specific depth.  While attempts are made to avoid recursion
     (objects that point eventually back to themselves), not all objects work with this so
@@ -417,7 +421,6 @@ def _get_stock_items(part, location_name=None, min_on_hand=None):
         except StockLocation.DoesNotExist:
             # If no such location exists, return an empty queryset
             return StockItem.objects.none()
-    
     return stock_items
 
 @register.simple_tag()
@@ -446,4 +449,3 @@ def stocklist(part: Part | int, min_quantity_on_hand: int, location: str) -> Lis
 
     # get the stock items for the part
     return _get_stock_items(part, location, min_quantity_on_hand)
-

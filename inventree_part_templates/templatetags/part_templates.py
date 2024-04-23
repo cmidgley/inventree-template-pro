@@ -10,7 +10,13 @@ import re
 
 # for html formatting and safety
 import html
-from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+
+# imports to blacklist difficult objects for dumping
+import decimal
+
+# for inspecting objects during recursive dump
+import inspect
 
 # for reading YAML config file
 import os
@@ -246,56 +252,124 @@ def replace(value: str, arg: str):
     repl = parts[1]
     return value.replace(match, repl)
 
-def _format_object(obj: Any, depth: int, level: int = 0) -> str:
+BLACKLISTED_TYPES = (
+    decimal.Decimal,
+    complex,
+    re.Pattern,
+    re.Match,
+)
+
+def _track_recursion(obj: Any, processed: Dict[int, bool]) -> bool:
+    """
+    Check if an object has been processed and add it to the processed dictionary if not.  
+
+    Args:
+        obj (Any): The object to check.
+        processed (Dict[int, bool]): A dictionary to store processed objects.
+
+    Returns:
+        bool: True if the object was not processed before, False if it was already processed.
+    """
+    obj_id = id(obj)
+
+    if obj_id in processed:
+        return False
+    processed[obj_id] = True
+    return True
+
+def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int = 0) -> str:
     """
     Recursively format an object into HTML with a given depth.
     
     Args:
         obj: The object to format.
         depth (int): The maximum depth to format.
+        processed (Dict[int, bool]): Dictionary to look for recursion (reuse of objects)
         level (int): The current level of recursion.
     """
-    indent = '&nbsp;&nbsp;' * level  # HTML space for indentation
+    single_indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+    indent = single_indent * level
 
     # simple types are displayed directly.
-    if isinstance(obj, (str, int, float, bool)) or obj is None:
-        return f'{indent}{repr(obj)}'
+    if obj is None:
+        return 'None'
+    if isinstance(obj, (str, int, float, bool)) or obj is None or isinstance(obj, BLACKLISTED_TYPES):
+        return f'{html.escape(str(obj))} ({type(obj).__name__})'
 
-    # handle dictionaries by recursing into key-value pairs.
-    if isinstance(obj, dict):
-        items = [f"{indent}{key}: {_format_object(value, depth - 1, level + 1)}"
-                 for key, value in obj.items() if depth > 1]
-        return '<br>'.join(items) if depth > 1 else f'{indent}{{...}}'
+    # make sure we have not recursed on this object before
+    if _track_recursion(obj, processed):
+        # handle dictionaries by recursing into key-value pairs.
+        if isinstance(obj, dict):
+            if depth > 1:
+                items = [f"{indent}{single_indent}<span style='font-weight: bold'>'{key}'</span>: {_format_object(value, depth - 1, processed, level + 1)}"
+                    for key, value in obj.items()]
+                if len(items) == 0:
+                    return '{ }'
+                #if len(items) == 1:
+                    #return f'{{ {items[0]} }}'
+                return '{<br>' + '<br>'.join(items) + f'<br>{indent}}}'
+            else:
+                return "{ ... }"
 
-    # handle lists and tuples by recursing into each element.
-    if isinstance(obj, (list, tuple)):
-        items = [_format_object(item, depth - 1, level + 1) for item in obj]
-        return f"{indent}[" + ', '.join(items) + ']'
+        # handle lists and tuples by recursing into each element.
+        if isinstance(obj, (list, tuple)):
+            if depth > 1:
+                items = [_format_object(item, depth - 1, processed, level + 1) for item in obj]
+                return f"[" + ', '.join(items) + ']'
+            return "[ ... ]"
 
-    # for custom objects, show the object type and its attributes.
-    if depth > 1:
-        # Using dir() to list attributes, filter out private and special methods
-        attributes = {attr: getattr(obj, attr) for attr in dir(obj)
-                      if not attr.startswith('__') and not callable(getattr(obj, attr))}
-        items = [f"{indent}{attr}: {_format_object(value, depth - 1, level + 1)}"
-                 for attr, value in attributes.items()]
-        return f"{indent}{obj.__class__.__name__}<br>" + '<br>'.join(items)
+        # for custom objects, show the object type and its attributes.
+        class_name = f"class <span style='font-weight: bold; font-style: italic'>{obj.__class__.__name__}</span>"
+        if depth > 1:
+            attributes: Dict[str, Dict[str, Any]] = {}
+            #for attr in dir(obj):
+            class_attrs = inspect.classify_class_attrs(type(obj))
+            attr_dict = {attr.name: attr for attr in class_attrs if attr.defining_class == type(obj)}
+
+            for attr, details in attr_dict.items():
+                try:
+                    if not attr.startswith('_') and not details.kind in ['method', 'class method', 'static method']:
+                        value = getattr(obj, attr, None)
+                        #if not callable(value) and not inspect.ismethod(value) and not inspect.isfunction(value):
+                        attributes[attr] = { 'value': value, 'kind': details.kind }
+                except Exception as e:
+                    attributes[attr] = { 'value': _('[Error: {err}]').format(err=str(e)), 'kind': None }
+
+            #items = [f"{indent}{single_indent}<span style='font-weight: bold'>{attr}:</span> ({info['kind']}): {_format_object(info['value'], depth, processed, level + 1)}"
+            items = [f"{indent}{single_indent}<span style='font-weight: bold'>{attr}:</span>: {_format_object(info['value'], depth, processed, level + 1)}"
+                for attr, info in attributes.items()]
+            if len(items) == 0:
+                return f"{class_name}: {{ }}"
+            #if len(items) == 1:
+                #return f"{class_name}: {{ {items[0]} }}"
+            return f"{class_name}: {{<br>" + "<br>".join(items) + f"<br>{indent}}}"
+        else:
+            return f'{class_name}: {{ ... }}'
     else:
-        return f'{indent}{obj.__class__.__name__} {{...}}'
+        return _('[ previously output ]')
 
-@register.filter
-def show_properties(obj, depth='2'):
+@register.filter()
+def show_properties(obj:Any, depth='2') -> str:
     """
     Filter to display properties of an object for finding and understanding properties
     on various objects.  By default shows the first two levels of the object, but the
-    parameter can specify a specific depth or `*` to indicate all depths.
+    parameter can specify a specific depth.  While attempts are made to avoid recursion
+    (objects that point eventually back to themselves), not all objects work with this so
+    very large depths can create massive output or even a stack overflow.
 
     Example:
     part|show_properties:3    
     """
+    # set up a dictionary to track objects in case of recursion
+    processed: Dict[int, str] = {}
+
+    # decode the options
     try:
-        int_depth = int(depth) if depth != '*' else 9999
+        int_depth = int(depth)
     except ValueError:
         int_depth = 2
-    formatted_html = _format_object(obj, int_depth)
-    return format_html(formatted_html)
+
+    # format the object as HTML
+    formatted_html = _format_object(obj, int_depth, processed)
+    return mark_safe(formatted_html);
+

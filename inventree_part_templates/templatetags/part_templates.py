@@ -113,12 +113,12 @@ def get_context(context: Context, pk: str) -> Dict[str, str]:
     property_context = PropertyContext(pk)
     if not property_context.get_part():
         return { 'error': _('[get_context "{pk}": part not found').format(pk=pk) }
- 
+
     # get the context for this part
     template_context: Dict[str, str] = {}
     property_context.get_context(template_context, plugin)
 
-    return template_context.get('part_templates')
+    return template_context
 
 @register.filter()
 def scrub(scrub_string: str, name: str) -> str:
@@ -220,7 +220,7 @@ def item(properties: Dict[str, str], key: str) -> str | None:
     return ""
 
 @register.filter()
-def replace(value: str, arg: str):
+def replace(source: str, arg: str):
     """
     Replaces a string value with another, with the filter parameter having two values (match and replace) 
     being separated by the "|" character.  If the "match" side starts with "regex:" then the match and replace
@@ -232,12 +232,11 @@ def replace(value: str, arg: str):
     {% "A|B|C"|substitute:"\||\|, " %}
     {% ",\s*(?![,])|, " %}
     """
-    """ Replaces occurrences of a substring with another substring, with optional regex support. """
 
     # Handle escaped pipe characters and split the arguments
     parts = re.split(r'(?<!\\)\|', arg)
     parts = [part.replace('\\|', '|') for part in parts]
- 
+
     if len(parts) != 2:
         return _('[replace:"{arg}" must have two parameters separated by "|"]').format(arg=html.escape(arg))
 
@@ -245,19 +244,12 @@ def replace(value: str, arg: str):
         # Regex replacement
         pattern = parts[0][6:]
         repl = parts[1]
-        return re.sub(pattern, repl, value)
+        return re.sub(pattern, repl, source)
 
     # Simple replacement
     match = parts[0]
     repl = parts[1]
-    return value.replace(match, repl)
-
-BLACKLISTED_TYPES = (
-    decimal.Decimal,
-    complex,
-    re.Pattern,
-    re.Match,
-)
+    return source.replace(match, repl)
 
 def _track_recursion(obj: Any, processed: Dict[int, bool]) -> bool:
     """
@@ -276,6 +268,16 @@ def _track_recursion(obj: Any, processed: Dict[int, bool]) -> bool:
         return False
     processed[obj_id] = True
     return True
+
+# some types are not appropriate for recursive formatting.  They can be added to the blacklist here
+# which will simply get their str(obj) value
+BLACKLISTED_TYPES = (
+    decimal.Decimal,
+    complex,
+    re.Pattern,
+    re.Match,
+)
+
 
 def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int = 0) -> str:
     """
@@ -305,8 +307,6 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
                     for key, value in obj.items()]
                 if len(items) == 0:
                     return '{ }'
-                #if len(items) == 1:
-                    #return f'{{ {items[0]} }}'
                 return '{<br>' + '<br>'.join(items) + f'<br>{indent}}}'
             else:
                 return "{ ... }"
@@ -315,36 +315,30 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
         if isinstance(obj, (list, tuple)):
             if depth > 1:
                 items = [_format_object(item, depth - 1, processed, level + 1) for item in obj]
-                return f"[" + ', '.join(items) + ']'
+                return f"[{', '.join(items)}]"
             return "[ ... ]"
 
         # for custom objects, show the object type and its attributes.
         class_name = f"class <span style='font-weight: bold; font-style: italic'>{obj.__class__.__name__}</span>"
         if depth > 1:
             attributes: Dict[str, Dict[str, Any]] = {}
-            #for attr in dir(obj):
             class_attrs = inspect.classify_class_attrs(type(obj))
             attr_dict = {attr.name: attr for attr in class_attrs if attr.defining_class == type(obj)}
 
             for attr, details in attr_dict.items():
                 try:
                     if not attr.startswith('_') and not details.kind in ['method', 'class method', 'static method']:
-                        value = getattr(obj, attr, None)
-                        #if not callable(value) and not inspect.ismethod(value) and not inspect.isfunction(value):
-                        attributes[attr] = { 'value': value, 'kind': details.kind }
-                except Exception as e:
+                        obj_value = getattr(obj, attr, None)
+                        attributes[attr] = { 'value': obj_value, 'kind': details.kind }
+                except Exception as e:  # pylint: disable=broad-except
                     attributes[attr] = { 'value': _('[Error: {err}]').format(err=str(e)), 'kind': None }
 
-            #items = [f"{indent}{single_indent}<span style='font-weight: bold'>{attr}:</span> ({info['kind']}): {_format_object(info['value'], depth, processed, level + 1)}"
             items = [f"{indent}{single_indent}<span style='font-weight: bold'>{attr}:</span>: {_format_object(info['value'], depth, processed, level + 1)}"
                 for attr, info in attributes.items()]
             if len(items) == 0:
                 return f"{class_name}: {{ }}"
-            #if len(items) == 1:
-                #return f"{class_name}: {{ {items[0]} }}"
             return f"{class_name}: {{<br>" + "<br>".join(items) + f"<br>{indent}}}"
-        else:
-            return f'{class_name}: {{ ... }}'
+        return f'{class_name}: {{ ... }}'
     else:
         return _('[ previously output ]')
 
@@ -361,7 +355,7 @@ def show_properties(obj:Any, depth='2') -> str:
     part|show_properties:3    
     """
     # set up a dictionary to track objects in case of recursion
-    processed: Dict[int, str] = {}
+    processed: Dict[int, bool] = {}
 
     # decode the options
     try:
@@ -371,5 +365,4 @@ def show_properties(obj:Any, depth='2') -> str:
 
     # format the object as HTML
     formatted_html = _format_object(obj, int_depth, processed)
-    return mark_safe(formatted_html);
-
+    return mark_safe(formatted_html)

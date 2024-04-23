@@ -181,8 +181,7 @@ __Filters:__
 - `show_properties|<optional-depth>`: Will output any value, such as an object like `Part`, as
   nicely formatted HTML to make it easier to find and understand available properties on any
   template variable.  If a number is specified for `<optional-depth>` then it will limit the depth
-  of the output to the specified amount (defaults to 2 to limit output).  Can specify `*` to output
-  everything (`part|show_properties|*`).
+  of the output to the specified amount (defaults to 2 to limit output).  
 
 The following are some examples of using context parameter templates with filters:
 

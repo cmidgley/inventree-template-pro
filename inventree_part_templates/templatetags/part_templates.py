@@ -47,6 +47,9 @@ from inventree_part_templates.property_context import PropertyContext
 # constants
 from inventree_part_templates.constants import TEMPLATETAGS_CONTEXT_PLUGIN
 
+# for explore to dive deeper into queries
+from django.db.models.query import QuerySet
+
 # stock items for parts
 from stock.models import StockItem
 
@@ -294,74 +297,88 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
         processed (Dict[int, bool]): Dictionary to look for recursion (reuse of objects)
         level (int): The current level of recursion.
     """
-    limit_tree_query_set = 1
-    single_indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-    indent = single_indent * level
+    try:
+        single_indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+        indent = single_indent * level
 
-    # simple types are displayed directly.
-    if obj is None:
-        return 'None'
-    if isinstance(obj, (str, int, float, bool)) or obj is None or isinstance(obj, BLACKLISTED_TYPES):
-        return f'{html.escape(str(obj))} ({type(obj).__name__})'
+        # simple types are displayed directly.
+        if obj is None:
+            return 'None'
+        if isinstance(obj, str):
+            return f'"{html.escape(str(obj))}" ({type(obj).__name__})'
+        if isinstance(obj, (str, int, float, bool)) or obj is None or isinstance(obj, BLACKLISTED_TYPES):
+            return f'{html.escape(str(obj))} ({type(obj).__name__})'
 
-    # make sure we have not recursed on this object before
-    if _track_recursion(obj, processed):
-        # handle dictionaries by recursing into key-value pairs.
-        if isinstance(obj, dict):
-            if depth > 1:
-                items = [f"{indent}{single_indent}<span style='font-weight: bold'>'{key}'</span>: {_format_object(value, depth - 1, processed, level + 1)}"
-                    for key, value in obj.items()]
-                if len(items) == 0:
-                    return '{ }'
-                return '{<br>' + '<br>'.join(items) + f'<br>{indent}}}'
-            else:
-                return "{ ... }"
+        # make sure we have not recursed on this object before
+        if _track_recursion(obj, processed):
+            # handle dictionaries by recursing into key-value pairs.
+            if isinstance(obj, dict):
+                if depth > 0:
+                    items = [f"{indent}{single_indent}<span style='font-weight: bold'>'{key}'</span>: {_format_object(value, depth - 1, processed, level + 1)}"
+                        for key, value in obj.items()]
+                    if len(items) == 0:
+                        return '{ }'
+                    return '{<br>' + '<br>'.join(items) + f'<br>{indent}}}'
+                else:
+                    return "{ ... }"
 
-        # handle lists and tuples by recursing into each element.
-        if isinstance(obj, (list, tuple)):
-            if depth > 1:
-                items = [_format_object(item, depth - 1, processed, level + 1) for item in obj]
-                return f"[{', '.join(items)}]"
-            return "[ ... ]"
+            # handle lists and tuples by recursing into each element.
+            if isinstance(obj, (list, tuple)):
+                if depth > 0:
+                    items = [
+                            f"{indent}{single_indent}{index}: {format_object(item, depth - 1, processed, level + 1)}"
+                        for index, item in enumerate(obj)
+                    ]
+                    return f"[<br>{'<br>'.join(items)}<br>{indent}{single_indent}]"
+                return "[ ... ]"
 
-        # special case for TreeQuerySet so we can inspect the query results
-        if obj.__class__.__name__ == 'TreeQuerySet':
-            limit_tree_query_set -= 1
-            if limit_tree_query_set > 0:
-                if depth > 1:
-                    return f'[ TreeQuerySet: WIP ({obj.count()} items)]'
-                return _("[ ... ({count} items )]").format(count = obj.count() )
-            return _('TreeQuerySet: [ ... ]')
+            # build up a nice HTML formatted class name
+            class_name = f"class <span style='font-weight: bold; font-style: italic'>{obj.__class__.__name__}</span>"
+            
+            # special case for QuerySet so we can inspect the query results
+            if isinstance(obj, QuerySet):
+                tree_length = obj.count()
+                if tree_length == 0:
+                    return _("{class_name} (empty query set) [ ]").format(class_name=class_name)
+                if depth > 0:
+                    # fetch the first five items
+                    tree_items = obj.all()[:5 if tree_length <= 5 else 4]
 
-        # for custom objects, show the object type and its attributes.
-        class_name = f"class <span style='font-weight: bold; font-style: italic'>{obj.__class__.__name__}</span>"
-        if depth > 1:
-            attributes: Dict[str, Dict[str, Any]] = {}
-            class_attrs = inspect.classify_class_attrs(type(obj))
-            attr_dict = {attr.name: attr for attr in class_attrs if attr.defining_class == type(obj)}
+                    items = [f"{indent}{single_indent}{index}: {_format_object(item, depth - 1, processed, level + 1)}"
+                        for index, item in enumerate(tree_items)]
+                    if tree_length > 5:
+                        items.append(_("{indent}{single_indent}[ ... {more_items} additional items .. ]").format(more_items=tree_length - 4, indent=indent, single_indent=single_indent))
 
-            for attr, details in attr_dict.items():
-                try:
+                    return _("{class_name} ({tree_length} item query set): [<br>{items}<br>{indent}]").format(class_name=class_name, tree_length=tree_length, items="<br>".join(items), indent=indent)
+                return _("{class_name} ({tree_length} item query set) [ ... ]").format(class_name=class_name, tree_length=tree_length)
+
+            # for custom objects, show the object type and its attributes.
+            if depth > 0:
+                attributes: Dict[str, Any] = {}
+                class_attrs = inspect.classify_class_attrs(type(obj))
+                attr_dict = {attr.name: attr for attr in class_attrs if attr.defining_class == type(obj)}
+
+                for attr, details in attr_dict.items():
                     # if private/protected, or executable, skip
                     if attr.startswith('_') or details.kind in ['method', 'class method', 'static method']:
                         continue
 
-                    obj_value: Any | None = getattr(obj, attr, None)
+                    attr_value: Any | None = getattr(obj, attr, None)
                     # some objects have "do_not_call_in_templates", so let's remove them since this
                     # is only for template display
-                    if hasattr(obj_value, 'do_not_call_in_templates') and getattr(obj_value, 'do_not_call_in_templates', False):
-                        continue
-                    attributes[attr] = { 'value': obj_value, 'kind': details.kind }
-                except Exception as e:  # pylint: disable=broad-except
-                    attributes[attr] = { 'value': _('[Error: {err}]').format(err=str(e)), 'kind': None }
+                    if not getattr(attr_value, 'do_not_call_in_templates', False):
+                        attributes[attr] = attr_value
 
-            items = [f"{indent}{single_indent}<span style='font-weight: bold'>{attr}:</span>: {_format_object(info['value'], depth, processed, level + 1)}"
-                for attr, info in attributes.items()]
-            if len(items) == 0:
-                return f"{class_name}: {{ }}"
-            return f"{class_name}: {{<br>" + "<br>".join(items) + f"<br>{indent}}}"
-        return f'{class_name}: {{ ... }}'
-    return _('[ previously output ]')
+                if len(attributes) == 0:
+                    return f"{class_name}: {{ }}"
+
+                items = [f"{indent}{single_indent}<span style='font-weight: bold'>{attr}:</span>: {_format_object(value, depth - 1, processed, level + 1)}"
+                    for attr, value in attributes.items()]
+                return f"{class_name}: {{<br>" + "<br>".join(items) + f"<br>{indent}}}"
+            return f'{class_name}: {{ ... }}'
+        return _('[ previously output ]')
+    except Exception as e: 
+        return _('Error in Explore: {err}').format(err = str(e))
 
 @register.filter()
 def explore(obj:Any, depth='2') -> str:

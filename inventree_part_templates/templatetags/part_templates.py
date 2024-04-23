@@ -27,8 +27,10 @@ from pathlib import Path
 from django import template
 from django.template import Context
 
-# for locating parts using the primary key
+# for accessing the InvenTree models
 from part.models import Part
+from stock.models import StockItem
+from stock.models import StockLocation
 
 # translation support
 from django.utils.translation import gettext_lazy as _
@@ -44,6 +46,9 @@ from inventree_part_templates.property_context import PropertyContext
 
 # constants
 from inventree_part_templates.constants import TEMPLATETAGS_CONTEXT_PLUGIN
+
+# stock items for parts
+from stock.models import StockItem
 
 # set how long we cache the config data (in seconds), to allow users to edit it without restarting the server
 CACHE_TIMEOUT = 3
@@ -195,7 +200,7 @@ def value(properties: Dict[str, str], key: str) -> str | None:
     Access to value of a dictionary by key (no scrubbing)
 
     Example:
-    {% parameters|value:"Rated Voltage" %}
+    - {% parameters|value:"Rated Voltage" %}
     """
     try:
         return properties.get(key)
@@ -208,7 +213,7 @@ def item(properties: Dict[str, str], key: str) -> str | None:
     Access to value of a dictionary by key (with scrubbing)
 
     Example:
-    {% parameters|item:"Package Type" %}
+    - {% parameters|item:"Package Type" %}
     """
     try:
         item_value = properties.get(key)
@@ -224,13 +229,13 @@ def replace(source: str, arg: str):
     """
     Replaces a string value with another, with the filter parameter having two values (match and replace) 
     being separated by the "|" character.  If the "match" side starts with "regex:" then the match and replace
-    are processed as regular expressions.  The "|" can be espaped with "\|" if it is needed as a character
+    are processed as regular expressions.  The "|" can be escaped with "\\\\|" if it is needed as a character
     in the string.  
 
     Examples that all add a space following a separator character:
-    {% "a,b,c"|substitute:",|, " %}
-    {% "A|B|C"|substitute:"\||\|, " %}
-    {% ",\s*(?![,])|, " %}
+    - {% "a,b,c"|substitute:",|, " %}
+    - {% "A|B|C"|substitute:"\\\\||\\\\|, " %}
+    - {% ",\\\\s*(?![,])|, " %}
     """
 
     # Handle escaped pipe characters and split the arguments
@@ -317,6 +322,12 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
                 items = [_format_object(item, depth - 1, processed, level + 1) for item in obj]
                 return f"[{', '.join(items)}]"
             return "[ ... ]"
+        
+        # special case for TreeQuerySet so we can inspect the query results
+        if obj.__class__.__name__ == 'TreeQuerySet':
+            if depth > 1:
+                return f'[ TreeQuerySet: WIP ({obj.count()} items)]'
+            return _("[ ... ({count} items )]").format(count = obj.count() )
 
         # for custom objects, show the object type and its attributes.
         class_name = f"class <span style='font-weight: bold; font-style: italic'>{obj.__class__.__name__}</span>"
@@ -327,9 +338,16 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
 
             for attr, details in attr_dict.items():
                 try:
-                    if not attr.startswith('_') and not details.kind in ['method', 'class method', 'static method']:
-                        obj_value = getattr(obj, attr, None)
-                        attributes[attr] = { 'value': obj_value, 'kind': details.kind }
+                    # if private/protected, or executable, skip
+                    if attr.startswith('_') or details.kind in ['method', 'class method', 'static method']:
+                        continue
+
+                    obj_value: Any | None = getattr(obj, attr, None)
+                    # some objects have "do_not_call_in_templates", so let's remove them since this
+                    # is only for template display
+                    if hasattr(obj_value, 'do_not_call_in_templates') and getattr(obj_value, 'do_not_call_in_templates', False):
+                        continue
+                    attributes[attr] = { 'value': obj_value, 'kind': details.kind }
                 except Exception as e:  # pylint: disable=broad-except
                     attributes[attr] = { 'value': _('[Error: {err}]').format(err=str(e)), 'kind': None }
 
@@ -339,8 +357,7 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
                 return f"{class_name}: {{ }}"
             return f"{class_name}: {{<br>" + "<br>".join(items) + f"<br>{indent}}}"
         return f'{class_name}: {{ ... }}'
-    else:
-        return _('[ previously output ]')
+    return _('[ previously output ]')
 
 @register.filter()
 def show_properties(obj:Any, depth='2') -> str:
@@ -352,7 +369,7 @@ def show_properties(obj:Any, depth='2') -> str:
     very large depths can create massive output or even a stack overflow.
 
     Example:
-    part|show_properties:3    
+    - part|show_properties:3    
     """
     # set up a dictionary to track objects in case of recursion
     processed: Dict[int, bool] = {}
@@ -366,3 +383,67 @@ def show_properties(obj:Any, depth='2') -> str:
     # format the object as HTML
     formatted_html = _format_object(obj, int_depth, processed)
     return mark_safe(formatted_html)
+
+
+def _get_stock_items(part, location_name=None, min_on_hand=None):
+    """
+    Fetch all StockItems for a given part and optionally filter by StockLocation or its descendants,
+    and by a minimum quantity on hand.
+
+    Args:
+        part (Part): The Part instance for which to find StockItems.
+        location_name (str, optional): The name of the StockLocation to filter by. Defaults to None.
+        min_on_hand (int, optional): The minimum quantity that must be on hand. Defaults to None.
+
+    Returns:
+        QuerySet: A queryset of StockItem instances.
+    """
+    # Start with all stock items for the given part
+    stock_items = StockItem.objects.filter(part=part)
+
+    # Filter by minimum quantity on hand if specified
+    if min_on_hand is not None:
+        stock_items = stock_items.filter(quantity__gte=min_on_hand)
+
+    # If a location name is provided, further filter the stock items
+    if location_name:
+        try:
+            # Get the StockLocation by name
+            location = StockLocation.objects.get(name=location_name)
+            # Get all descendants including the location itself
+            locations = location.get_descendants(include_self=True)
+            # Filter stock items by these locations
+            stock_items = stock_items.filter(location__in=locations)
+        except StockLocation.DoesNotExist:
+            # If no such location exists, return an empty queryset
+            return StockItem.objects.none()
+    
+    return stock_items
+
+@register.simple_tag()
+def stocklist(part: Part | int, min_quantity_on_hand: int, location: str) -> List[StockItem]:
+    """
+    Filter to get a list of stock items for a part, optionally filtering by a minimum number of
+    available stock items and also limited to a location.  It returns a list of StockItem objects
+    that match the criteria.  If a location is specified, it should be the extact name of a 
+    location, and it will match that location and any children of that location.
+
+    QUESTION: Shouldn't this really be about allocations?  Where did I make an allocation for
+    the specific BOM?  This call is generic to a part, which has benefits, but in the use case
+    of a BOM, we want to see what part(s) we allocated.
+
+    Examples:
+    - {% stocklist part as stock_list %}
+    - {% stocklist list.part.pk 10 as stock_list as stock_list %}
+    - {% stocklist part 0 "West Assembly Building" as stock_list %}
+    """
+    # get the part object if it is not already
+    if isinstance(part, int):
+        part = Part.objects.get(pk=part)
+
+    if not part:
+        return []
+
+    # get the stock items for the part
+    return _get_stock_items(part, location, min_quantity_on_hand)
+

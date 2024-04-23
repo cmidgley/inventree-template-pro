@@ -306,7 +306,7 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
             return 'None'
         if isinstance(obj, str):
             return f'"{html.escape(str(obj))}" ({type(obj).__name__})'
-        if isinstance(obj, (str, int, float, bool)) or obj is None or isinstance(obj, BLACKLISTED_TYPES):
+        if isinstance(obj, (str, int, float, bool, BLACKLISTED_TYPES)) or obj is None:
             return f'{html.escape(str(obj))} ({type(obj).__name__})'
 
         # make sure we have not recursed on this object before
@@ -319,14 +319,13 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
                     if len(items) == 0:
                         return '{ }'
                     return '{<br>' + '<br>'.join(items) + f'<br>{indent}}}'
-                else:
-                    return "{ ... }"
+                return "{ ... }"
 
             # handle lists and tuples by recursing into each element.
             if isinstance(obj, (list, tuple)):
                 if depth > 0:
                     items = [
-                            f"{indent}{single_indent}{index}: {format_object(item, depth - 1, processed, level + 1)}"
+                            f"{indent}{single_indent}{index}: {_format_object(item, depth - 1, processed, level + 1)}"
                         for index, item in enumerate(obj)
                     ]
                     return f"[<br>{'<br>'.join(items)}<br>{indent}{single_indent}]"
@@ -334,7 +333,7 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
 
             # build up a nice HTML formatted class name
             class_name = f"class <span style='font-weight: bold; font-style: italic'>{obj.__class__.__name__}</span>"
-            
+
             # special case for QuerySet so we can inspect the query results
             if isinstance(obj, QuerySet):
                 tree_length = obj.count()
@@ -359,9 +358,10 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
                 attr_dict = {attr.name: attr for attr in class_attrs if attr.defining_class == type(obj)}
 
                 for attr, details in attr_dict.items():
+                    # todo: decide if this is wanted, and also if we should go back to dir(obj)
                     # if private/protected, or executable, skip
-                    if attr.startswith('_') or details.kind in ['method', 'class method', 'static method']:
-                        continue
+#                    if attr.startswith('_') or details.kind in ['method', 'class method', 'static method']:
+#                        continue
 
                     attr_value: Any | None = getattr(obj, attr, None)
                     # some objects have "do_not_call_in_templates", so let's remove them since this
@@ -377,7 +377,7 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
                 return f"{class_name}: {{<br>" + "<br>".join(items) + f"<br>{indent}}}"
             return f'{class_name}: {{ ... }}'
         return _('[ previously output ]')
-    except Exception as e: 
+    except Exception as e:   # pylint: disable=broad-except
         return _('Error in Explore: {err}').format(err = str(e))
 
 @register.filter()

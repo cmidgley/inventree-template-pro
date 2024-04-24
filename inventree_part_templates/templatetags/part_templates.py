@@ -14,9 +14,12 @@ from django.utils.safestring import mark_safe
 
 # imports to blacklist difficult objects for dumping
 import decimal
+from djmoney.money import Money
 
 # for inspecting objects during recursive dump
 import inspect
+from functools import partial
+from datetime import date
 
 # for reading YAML config file
 import os
@@ -281,9 +284,11 @@ def _track_recursion(obj: Any, processed: Dict[int, bool]) -> bool:
 # which will simply get their str(obj) value
 BLACKLISTED_TYPES = (
     decimal.Decimal,
+    Money,
     complex,
     re.Pattern,
     re.Match,
+    date
 )
 
 
@@ -308,6 +313,27 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
             return f'"{html.escape(str(obj))}" ({type(obj).__name__})'
         if isinstance(obj, (str, int, float, bool, BLACKLISTED_TYPES)) or obj is None:
             return f'{html.escape(str(obj))} ({type(obj).__name__})'
+
+        # format methods nicely
+        if inspect.ismethod(obj):
+            sig = inspect.signature(obj)
+            param_names = [name for name, param in sig.parameters.items()]
+            return _("method({parameters})").format(parameters=', '.join(param_names))
+
+        # format partial methods as well
+        if isinstance(obj, partial):
+            sig = inspect.signature(obj.func)
+            bound_args = obj.args
+            bound_kwargs = obj.keywords
+            items = []
+            for i, param in enumerate(sig.parameters.values()):
+                if i < len(bound_args):
+                    items.append(f"{param.name}={bound_args[i]}")
+                elif param.name in bound_kwargs:
+                    items.append(f"{param.name}={bound_kwargs[param.name]}")
+                else:
+                    items.append(param.name)
+            return _("partial {name}({parameters})").format(name=obj.func.__name__, parameters=', '.join(items))
 
         # make sure we have not recursed on this object before
         if _track_recursion(obj, processed):
@@ -360,10 +386,24 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
                 for attr, details in attr_dict.items():
                     # todo: decide if this is wanted, and also if we should go back to dir(obj)
                     # if private/protected, or executable, skip
-#                    if attr.startswith('_') or details.kind in ['method', 'class method', 'static method']:
-#                        continue
+#                   if attr.startswith('_') or details.kind in ['method', 'class method', 'static method']:
 
+                    # if name indicates privte/protected, skip it
+                    if attr.startswith('_'):
+                        continue
+
+                    # get the attr's value
                     attr_value: Any | None = getattr(obj, attr, None)
+
+                    # if the name contains 'password', mask the results
+                    if isinstance(attr_value, str) and "password" in attr.lower():
+                        attr_value = '*' * len(attr_value)
+                        
+
+                    # skip all builtins and classes ('type')
+                    if inspect.isbuiltin(attr_value) or isinstance(attr_value, type):
+                        continue
+
                     # some objects have "do_not_call_in_templates", so let's remove them since this
                     # is only for template display
                     if not getattr(attr_value, 'do_not_call_in_templates', False):
@@ -372,7 +412,7 @@ def _format_object(obj: Any, depth: int, processed: Dict[int, bool], level: int 
                 if len(attributes) == 0:
                     return f"{class_name}: {{ }}"
 
-                items = [f"{indent}{single_indent}<span style='font-weight: bold'>{attr}:</span>: {_format_object(value, depth - 1, processed, level + 1)}"
+                items = [f"{indent}{single_indent}<span style='font-weight: bold'>{attr}</span>: {_format_object(value, depth - 1, processed, level + 1)}"
                     for attr, value in attributes.items()]
                 return f"{class_name}: {{<br>" + "<br>".join(items) + f"<br>{indent}}}"
             return f'{class_name}: {{ ... }}'

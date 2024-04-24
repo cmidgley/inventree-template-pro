@@ -10,13 +10,10 @@ from __future__ import annotations
 
 from typing import Dict, Any
 from django.utils.safestring import mark_safe
-from django import template
+from .shared import register
 from django.utils.translation import gettext_lazy as _
 from inventree_part_templates.templatetags.inspect import InspectionManager
 
-# define register so that Django can find the tags/filters
-register = template.Library()
-    
 @register.filter()
 def explore(obj:Any, depth='2') -> str:
     """

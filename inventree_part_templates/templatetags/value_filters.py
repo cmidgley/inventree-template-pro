@@ -10,7 +10,7 @@ import re
 import yaml
 
 from pathlib import Path
-from django import template
+from .shared import register
 from django.utils.translation import gettext_lazy as _
 from django.core.cache import cache
 from typing import Dict, List
@@ -23,10 +23,6 @@ FilterRule = Dict[str, str]
 FilterRules = List[FilterRule]
 Filters = Dict[str, FilterRules]
 Config = Dict[str, Filters]
-
-# define register so that Django can find the tags/filters
-register = template.Library()
-
 
 def load_filters() -> Config:
     """

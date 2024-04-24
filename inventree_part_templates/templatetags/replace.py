@@ -8,12 +8,8 @@
 import re
 import html
 
-from django import template
+from .shared import register
 from django.utils.translation import gettext_lazy as _
-
-# define register so that Django can find the tags/filters
-register = template.Library()
-
 
 @register.filter()
 def replace(source: str, arg: str):

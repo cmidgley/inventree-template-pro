@@ -660,11 +660,25 @@ class InspectionManager:
         Returns:
             str: The formatted inspection result.
         """
+
+        # todo: move this
+        from django.template import loader
+
+        # Load the template
+        template = loader.get_template('part_templates/explore/explore_parent.html')
+
+        # Create the context
+        context = {'template_data': 'testing'}
+
+        # Render the template
+        rendered_template = template.render(context)
+
         children = [self._format(child) for child in inspection.get_children()]
         children_str = "\n".join(children)
         value = inspection.get_format_value() if inspection.get_format_link_to() is None else f"<a href='#{inspection.get_format_link_to()}'>{inspection.get_format_value()}</a>"
 
-        return _("""<div class="inspect-node" id="{id}">
+        return _("""<div class='template'>{rendered_template}</div>
+            <div class="inspect-node" id="{id}">
             <div class="inspect-title">{title}</div>
             <div class="inspect-type">({type})</div>
             <div class="inspect-value">{value}</div>

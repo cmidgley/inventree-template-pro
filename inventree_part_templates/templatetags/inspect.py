@@ -7,15 +7,15 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-
+import os
 import decimal
 import inspect
 import re
-
 from typing import Dict, Any, List
-from djmoney.money import Money
-from functools import partial
 from datetime import date
+from functools import partial
+from django.template import loader
+from djmoney.money import Money
 from django.utils.translation import gettext_lazy as _
 from django.db.models.query import QuerySet
 
@@ -660,12 +660,13 @@ class InspectionManager:
         Returns:
             str: The formatted inspection result.
         """
-
-        # todo: move this
-        from django.template import loader
+        current_directory = os.path.dirname(os.path.abspath(__file__))
+        template_path = os.path.join(current_directory, '..', 'templates', 'part_templates', 'explore', 'interactive')
+        print(f"**** CD is {current_directory}")
+        print(f"**** Template path is {template_path}")
 
         # Load the template
-        template = loader.get_template('part_templates/explore/explore_parent.html')
+        template = loader.get_template(os.path.join(template_path, 'explore_parent.html'))
 
         # Create the context
         context = {'template_data': 'testing'}
@@ -686,6 +687,7 @@ class InspectionManager:
             <div class="inspect-children">{children}</div>
             <div class="inspect-postfix">{postfix}</div>
             </div>""").format(
+                rendered_template=rendered_template,
                 id=inspection.get_format_id(),
                 title=inspection.get_format_title(),
                 type=inspection.get_format_type(),
@@ -694,4 +696,3 @@ class InspectionManager:
                 postfix=inspection.get_format_postfix(),
                 children=children_str
             )
-    

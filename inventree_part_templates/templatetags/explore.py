@@ -27,7 +27,7 @@ def explore(obj:Any, depth='2') -> str:
     very large depths can create massive output or even a stack overflow.
 
     Example:
-    - part|show_properties:3    
+    - part|explore:3    
     """
     # decode the options
     try:

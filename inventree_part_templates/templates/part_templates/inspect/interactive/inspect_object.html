@@ -27,23 +27,35 @@
     - total_children: the total number of children in the children object, which can be a number
     larger than the number of items in children due to filtering of item-level content
 {% endcomment %}
-<div>Object dump:<br>{{ object }}</div>
 <li>
     {% if object.link_anchor %}
         <a href="#{{ object.link_to }}">Skipped: {{ object.title }} ({{object.type}})</a>
     {% else %}
-        <span id="{{ object.id }}">{{ object.title }}: {{ object.value }} ({{ object.type }})</span>
+        <span id="{{ object.id }}">
+            {% if object.value %}
+                {{ object.title }} = {{ objet.value }} ({{ object.type }})
+            {% else %}
+                {{ object.title }} ({{ object.type }}){% if object.children is not None %}:{% endif %}
+            {% endif %}
+        </span>
     {% endif %}
     {% if object.children is not None %}
         [{{ object.children|length }} of {{ object.total_children }}]
-        {{ object.prefix }}
+        {% if object.children|length > 0 %}:
+            {{ object.prefix }}
+        {% elif object.total_children > 0 %}
+            {{ object.prefix }} ... {{ object.postfix }}
+        {% else %}
+            {{ object.prefix }} {{ object.postfix }}
+        {% endif %}
     {% endif %}
 </li>
-{% if object.children is not None %}
+{% if object.children is not None and object.children|length > 0 %}
     <ul>
     {% for child in object.children %}
         {% include object_template with object=child %}
     {% endfor %}
     </ul>
+    {% endif %}
     <div>{{ object.postfix }}</div>
 {% endif %}

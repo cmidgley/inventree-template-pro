@@ -40,16 +40,16 @@
         <div class="inspect-interactive-item-title">
             <span id="{{ object.id }}">
                 {% if object.value %}
-                    {{ object.title }}{{ object.prefix }}{{ object.value }}{{object.postfix}} ({{ object.type }})
+                    <span class="inspect-interactive-item-title-title">{{ object.title }}</span>{{ object.prefix }}{{ object.value }}{{object.postfix}} ({{ object.type }})
                 {% else %}
-                    {{ object.title }} ({{ object.type }}){% if object.children is not None %}:{% endif %}
+                    <span class="inspect-interactive-item-title-title">{{ object.title }}</span> ({{ object.type }}){% if object.children is not None %}:{% endif %}
                 {% endif %}
             </span>
             {% if object.children is not None %}
-                {% if object.children|length > 0 %}:
+                {% if object.children|length > 0 %}
                     {{ object.prefix }}
                 {% elif object.total_children > 0 %}
-                    {{ object.prefix }} ...:{{object.total_children}} {{ object.postfix }}
+                    {{ object.prefix }} ...|{{object.total_children}} {{ object.postfix }}
                 {% else %}
                     {{ object.prefix }} &lt;empty&gt; {{ object.postfix }}
                 {% endif %}

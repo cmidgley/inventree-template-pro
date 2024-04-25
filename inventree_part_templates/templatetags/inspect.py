@@ -139,18 +139,33 @@ class InspectBase(ABC):
         """
         return type(self._obj).__name__
 
-    def get_format_id(self) -> int:
+    def build_unique_id(self, id: int) -> str:
+        """
+        Builds a unique identifier for the object based on the object's ID and the current
+        inspection prefix index.
+
+        Args:
+            id (int): The ID of the object.
+
+        Returns:
+            str: The unique identifier for the object.
+        """
+        return f"Item-{InspectionManager.id_prefix_index}-{id}"
+
+    def get_format_id(self) -> str:
         """
         Returns the unique identifier of the object.  If overridden, make sure that
         get_format_link_to is overridden with a matching value.  Default is the
-        native Python id of the object.
+        native Python id of the object combined with a unique number per each use
+        of inspection.
 
         Returns:
             int: The unique identifier of the object.
         """
-        return id(self._obj)
+        return self.build_unique_id(id(self._obj))
+    
 
-    def get_format_link_to(self) -> int | None:
+    def get_format_link_to(self) -> str | None:
         """
         If the object is a duplicate, this will return the ID of the original object.  This is
         to allow the formatter to provide links between the instances.  Default is None, which
@@ -158,7 +173,7 @@ class InspectBase(ABC):
         matching value.
 
         Returns:
-            int | None: The format link to for the object, or None if it doesn't exist.
+            str | None: The format link to for the object, or None if it doesn't exist.
         """
         return None
 
@@ -343,8 +358,8 @@ class InspectDuplicate(InspectBase):
     recursion has been detected to avoid digging too deep into the heirarchy.
     """
 
-    def get_format_link_to(self) -> int | None:
-        return id(self._obj)
+    def get_format_link_to(self) -> str | None:
+        return self.build_unique_id(id(self._obj))
 
     def get_format_value(self) -> str:
         """
@@ -620,6 +635,9 @@ class InspectClass(InspectBase):
         return ""
 
 class InspectionManager:
+    # define a static member to track multiple uses of inspection on the same page
+    id_prefix_index = 0
+
     """
     The InspectionManager class is used to inspect objects and their properties, recursing into the
     objects to find properties and values according to the type of the objects, limited by depth of
@@ -638,6 +656,10 @@ class InspectionManager:
         self._processed: Dict[int, bool] = {}
         self.options = options
 
+        # increment our static id prefix
+        InspectionManager.id_prefix_index += 1
+
+        # build our base object, which will recurse into the children
         self._base = self.inspect_factory(name, obj, int(options['depth']) + 1)
 
     # some types are not appropriate for recursive formatting.  They can be added to the list here

@@ -230,7 +230,7 @@ class InspectMethod(InspectBase):
         Returns:
             str: The list of parameters for the method.
         """
-        return f'({", ".join(self._parameters)})'
+        return f'{", ".join(self._parameters)}'
     
     def get_format_prefix(self) -> str:
         """
@@ -283,6 +283,15 @@ class InspectPartial(InspectBase):
             else:
                 self._parameters.append({ 'name': param.name, 'value': None })
 
+    def get_format_title(self) -> str:
+        """
+        Returns the title of the object, which is the partial name with the parent method name.
+
+        Returns:
+            str: The title of the object, as name(...) -> parent
+        """
+        return f"{self._name}(...) -> {self._parent_name}"
+    
     def get_format_value(self) -> str:
         """
         Returns the value for a partial, which will be a formatted string similar to:
@@ -294,8 +303,7 @@ class InspectPartial(InspectBase):
         Returns:
             str: The parent method name and partial/parent parameters
         """
-        return _("calling {parent_name}({parameters})").format(
-            parent_name=self._parent_name,
+        return _("{parameters}").format(
             parameters=', '.join(",".join([f"{name}={value}" if value is not None else name
                 for name, value in self._parameters]))
         )

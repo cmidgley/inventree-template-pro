@@ -6,7 +6,6 @@
 """
 from __future__ import annotations
 from abc import ABC, abstractmethod
-import pprint
 import os
 import decimal
 import inspect
@@ -574,7 +573,7 @@ class InspectionManager:
         self._processed: Dict[int, bool] = {}
         self._max_items = max_items
 
-        self._base = self.inspect_factory(name, obj, max_depth)
+        self._base = self.inspect_factory(name, obj, max_depth + 1)
 
     # some types are not appropriate for recursive formatting.  They can be added to the blacklist here
     # which will simply get their str(obj) value

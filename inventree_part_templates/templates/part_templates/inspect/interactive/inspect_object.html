@@ -40,7 +40,13 @@
         </span>
     {% endif %}
     {% if object.children is not None %}
-        [{{ object.children|length }} of {{ object.total_children }}]
+        {% if object.total_children is not None %}
+            {% if object.total_children == 0 %}
+                [empty]
+            {% else %}
+                [{{ object.children|length }} of {{ object.total_children }}]
+            {% endif %}
+        {% endif %}
         {% if object.children|length > 0 %}:
             {{ object.prefix }}
         {% elif object.total_children > 0 %}
@@ -56,6 +62,5 @@
         {% include object_template with object=child %}
     {% endfor %}
     </ul>
-    {% endif %}
     <div>{{ object.postfix }}</div>
 {% endif %}

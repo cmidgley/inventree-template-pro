@@ -1,0 +1,38 @@
+{% comment %}
+    Inspect object template for the 'interactive' style of inspect for inventree-part-template plugin  
+
+    Copyright (c) 2024 Chris Midgley
+    License: MIT (see LICENSE file)
+
+    This template is used to render details of an inspected object (such as when using the explore
+    filter).  It should render the information desired for the object, and then recurse on the
+    children for a heirarcy of the object details.
+
+    The following context variables are available:
+    - object: the object to render
+    - object_template: the name of the child template to load for rendering the object and it's
+    children.  Only include the template if there are children to render:
+    
+    ```
+    {% if object.children %}
+        {% include object_template with object=object.children %}
+    {% endif %}
+    ```
+    
+    Properties of object are:
+    - title: the title of the object, usually it's name or important identifier
+    - anchor: the anchor to link to the object, used by `link_anchor`
+    - type: the type of the object, like a 'str', 'int', or a class name
+    - prefix: the prefix to use before the children, such as "{" for classes or "[" for lists
+    - link_anchor: if the item has been skipped due to recursion, this is the anchor of the object
+    that did render
+    - value: the value of the object, when it is a simple value (only when no children)
+    - postfix: the postfix to use after the children, such as "}" for classes or "]" for lists
+    - children: the object to pass the template using recursion (see above)
+{% endcomment %}
+<h3>Object template: {{ object.title}}: {{object.name}} ({{object.type}})</h3>
+{% if object.children %}
+    {{ object.prefix }}
+    {% include object_template with object=object.children %}
+    {{ object.postfix }}
+{% endif %}

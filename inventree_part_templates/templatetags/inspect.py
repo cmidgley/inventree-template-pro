@@ -645,6 +645,9 @@ class InspectionManager:
         """
         Formats the inspection result as a string.
 
+        Args:
+            style_name (str): The name of the style to use for formatting.
+
         Returns:
             str: The formatted inspection result.
         """
@@ -655,31 +658,36 @@ class InspectionManager:
         Recursively formats the inspection result.
 
         Args:
-            inspect (InspectBase): The inspection object to format.
+            inspection (InspectBase): The inspection object to format.
+            style_name (str): The name of the style to use for formatting.
 
         Returns:
             str: The formatted inspection result.
         """
         # locate the path to the templates, which is relative to this file at
-        # ../templates/part_templates/explore/{style}
+        # ../templates/part_templates/inspect/{style}
         current_directory = os.path.dirname(os.path.abspath(__file__))
-        template_path = os.path.join(current_directory, '..', 'templates', 'part_templates', 'explore', 'interactive', style_name)
+        template_path = os.path.join(current_directory, '..', 'templates', 'part_templates', 'inspect', style_name)
 
-        # Load the template
-        template = loader.get_template(os.path.join(template_path, 'explore_parent.html'))
+        # load the template
+        parent_template = loader.get_template(os.path.join(template_path, 'inspect_frame.html'))
+        object_template = loader.get_template(os.path.join(template_path, 'inspect_object.html'))
 
-        # Create the "inspect' context variable" with all the inspection data
+        # create context data for the object being inspected
         inspect_context = { }
         inspect_context['title'] = inspection.get_format_title()
         inspect_context['anchor']=inspection.get_format_id()
-        inspect_context['title']=inspection.get_format_title()
         inspect_context['type']=inspection.get_format_type()
         inspect_context['prefix']=inspection.get_format_prefix()
         inspect_context['link_anchor'] = inspection.get_format_link_to()
         inspect_context['value']=inspection.get_format_value()
         inspect_context['postfix']=inspection.get_format_postfix()
         inspect_context['children']=inspection.get_children()
-        context = { 'inspect': inspect_context }
+
+        # create the template context, with context variables inspect and template.  'inspect' is the
+        # data about the object to render, and 'object_template' is the name of the child template to load
+        # for recursion on the object (to render the object and recurse on it's children).
+        context = { 'inspect': inspect_context, 'object_template': object_template }
 
         # Render the template
-        return template.render(context)
+        return parent_template.render(context)

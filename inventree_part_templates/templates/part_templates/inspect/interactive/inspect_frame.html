@@ -1,0 +1,19 @@
+{% comment %}
+    Inspect frame template for the 'interactive' style of inspect for inventree-part-template plugin  
+
+    Copyright (c) 2024 Chris Midgley
+    License: MIT (see LICENSE file)
+
+    This template is used to prepare the rendering of an object from inspect (such as the explore
+    filter).  It is usually used to set up style and layout for the rendering, but then delegates to
+    the object template for recursive rendering of the object and it's children.
+
+    The following context variables are available:
+    - inspect: contains information about the object to render.  See the object template(s) for
+      details, as usually this information is not used in this parent template.
+    - object_template: the name of the child template to load for rendering the object and it's
+    children.  Include the template name using `{% include object_template with object=inspect %}`.
+{% endcomment %}
+<h3>Template inspect_frame</h3>
+
+{% include object_template with object=inspect %}

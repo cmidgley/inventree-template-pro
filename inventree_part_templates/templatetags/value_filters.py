@@ -7,13 +7,13 @@
 
 import os
 import re
+from pathlib import Path
+from typing import Dict, List
 import yaml
 
-from pathlib import Path
 from .shared import register
 from django.utils.translation import gettext_lazy as _
 from django.core.cache import cache
-from typing import Dict, List
 
 # set how long we cache the config data (in seconds), to allow users to edit it without restarting the server
 CACHE_TIMEOUT = 3

@@ -5,12 +5,12 @@
     License: MIT (see LICENSE file)
 """
 
+from typing import List
 from .shared import register
 from part.models import Part
 from stock.models import StockItem
 from stock.models import StockLocation
 from django.utils.translation import gettext_lazy as _
-from typing import List
 from stock.models import StockItem
 
 def _get_stock_items(part, location_name=None, min_on_hand=None):

@@ -5,12 +5,12 @@
     License: MIT (see LICENSE file)
 """
 
-from .shared import register
-from django.template import Context
-from django.utils.translation import gettext_lazy as _
 from typing import Dict
 from inventree_part_templates.property_context import PropertyContext
 from inventree_part_templates.constants import TEMPLATETAGS_CONTEXT_PLUGIN
+from .shared import register
+from django.template import Context
+from django.utils.translation import gettext_lazy as _
 
 @register.simple_tag(takes_context=True)
 def part_context(context: Context, pk: str) -> Dict[str, str]:

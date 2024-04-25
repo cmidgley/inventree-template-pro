@@ -8,8 +8,8 @@
 import re
 import html
 
-from .shared import register
 from django.utils.translation import gettext_lazy as _
+from .shared import register
 
 @register.filter()
 def replace(source: str, arg: str):

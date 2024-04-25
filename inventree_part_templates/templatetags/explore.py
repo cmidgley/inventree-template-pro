@@ -8,11 +8,11 @@
 from __future__ import annotations
 
 
-from typing import Dict, Any
+from typing import Any
 from django.utils.safestring import mark_safe
+from inventree_part_templates.templatetags.inspect import InspectionManager
 from .shared import register
 from django.utils.translation import gettext_lazy as _
-from inventree_part_templates.templatetags.inspect import InspectionManager
 
 @register.filter()
 def explore(obj:Any, depth='2') -> str:
@@ -33,5 +33,5 @@ def explore(obj:Any, depth='2') -> str:
         int_depth = 2
 
     # explore the object
-    formatted_html = InspectionManager("Explore", obj, int_depth).format()
+    formatted_html = InspectionManager("Explore", obj, int_depth).format('interactive')
     return mark_safe(formatted_html)

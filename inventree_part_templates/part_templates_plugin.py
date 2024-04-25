@@ -6,45 +6,21 @@
     License: MIT (see LICENSE file)
 """
 
-# forward class references
 from __future__ import annotations
-
-# Typing
-from typing import Dict, Any, List
-
-# Translation support
+from typing import Dict, Any, List, cast
 from django.utils.translation import gettext_lazy as _
-
-# Plugin imports
 from plugin import InvenTreePlugin
 from plugin.mixins import AppMixin, ReportMixin, SettingsMixin, PanelMixin, UrlsMixin
-
-# InvenTree models
 from stock.models import StockItem
 from part.models import Part, PartCategory
-
-# InvenTree views
 from part.views import PartDetail, CategoryDetail
 from stock.views import StockItemDetail
-
-# Django views
 from django.views.generic import UpdateView
-
-# API support for URLs
 from django.urls import path
 from django.http import HttpResponse, HttpRequest, JsonResponse
-
-# constants
 from inventree_part_templates.constants import METADATA_PARENT, METADATA_TEMPLATE_KEY, MAX_TEMPLATES, TEMPLATETAGS_CONTEXT_PLUGIN
-
-# Plugin version number
 from .version import PLUGIN_VERSION
-
-# User support
 from django.contrib.auth.models import User
-from typing import cast
-
-# property context support
 from .property_context import PropertyContext
 
 class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, InvenTreePlugin):

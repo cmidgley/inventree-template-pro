@@ -5,26 +5,13 @@
     License: MIT (see LICENSE file)
 """
 
-# Error reporting assistance
+from typing import Dict, Any
 import traceback
-
-# Typing
-from typing import Dict, Any, List
-
-# Translation support
 from django.utils.translation import gettext_lazy as _
-
-# Django templates
 from django.template import Context, Template
-
-# InvenTree models
 from stock.models import StockItem
 from part.models import Part, PartCategory
-
-# Settings mixing to access plugin specific settings
 from plugin.mixins import SettingsMixin
-
-# constants
 from inventree_part_templates.constants import METADATA_PARENT, METADATA_TEMPLATE_KEY, CONTEXT_KEY, MAX_TEMPLATES
 
 

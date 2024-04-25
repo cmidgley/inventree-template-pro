@@ -40,19 +40,12 @@
         </span>
     {% endif %}
     {% if object.children is not None %}
-        {% if object.total_children is not None %}
-            {% if object.total_children == 0 %}
-                [empty]
-            {% else %}
-                [{{ object.children|length }} of {{ object.total_children }}]
-            {% endif %}
-        {% endif %}
         {% if object.children|length > 0 %}:
             {{ object.prefix }}
         {% elif object.total_children > 0 %}
-            {{ object.prefix }} ... {{ object.postfix }}
+            {{ object.prefix }} ... &lt; {{object.total_children}} elements not shown &gt; {{ object.postfix }}
         {% else %}
-            {{ object.prefix }} {{ object.postfix }}
+            {{ object.prefix }} &lt; empty &gt; {{ object.postfix }}
         {% endif %}
     {% endif %}
 </li>
@@ -62,5 +55,12 @@
         {% include object_template with object=child %}
     {% endfor %}
     </ul>
-    <div>{{ object.postfix }}</div>
+    <div>
+        {% if object.total_children > object.children|length %}
+            <li>
+                ... &lt; {{ object.total_children - object.children|length }} more elements &gt;
+            </li>
+        {% endif %}
+        {{ object.postfix }}
+    </div>
 {% endif %}

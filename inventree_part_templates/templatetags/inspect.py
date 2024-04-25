@@ -434,9 +434,9 @@ class InspectQuerySet(InspectBase):
         # if we have any items, and we are to recurse into them...
         if self._total_items > 0 and depth > 0:
             # fetch the first items
-            tree_items = obj.all()[manager.get_max_items()]
+            query_items = obj.all()[:manager.get_max_items()]
 
-            for index, tree_item in enumerate(tree_items):
+            for index, tree_item in enumerate(query_items):
                 self._add_child(str(index), tree_item)
 
     def get_format_prefix(self) -> str:
@@ -691,13 +691,15 @@ class InspectionManager:
         """
         context = { }
         context['title'] = inspection.get_format_title()
-        context['id']=inspection.get_format_id()
-        context['type']=inspection.get_format_type()
-        context['prefix']=inspection.get_format_prefix()
+        context['id'] = inspection.get_format_id()
+        context['type'] = inspection.get_format_type()
+        context['prefix'] = inspection.get_format_prefix()
         context['link_to'] = inspection.get_format_link_to()
-        context['value']=inspection.get_format_value()
-        context['postfix']=inspection.get_format_postfix()
-        context['total_children']=inspection.get_total_children()
+        context['value'] = inspection.get_format_value()
+        context['postfix'] = inspection.get_format_postfix()
+        context['total_children'] = inspection.get_total_children()
+        # internal only context for debugging inspect itself
+        context['inspect_type'] = inspection.__class__.__name__
 
         children = []
         for child in inspection.get_children():

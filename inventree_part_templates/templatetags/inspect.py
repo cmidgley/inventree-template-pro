@@ -77,8 +77,9 @@ class InspectBase(ABC):
 
     def get_format_prefix(self) -> str:
         """
-        Gets the prefix to be displayed before the children of the object.  Default is empty string.
-        Virtual method that may be overridden by subclasses.
+        Gets the prefix to be displayed before the children or a value of the object.  Default is empty string.
+        Virtual method that may be overridden by subclasses.  For example, a dict (children-based) would return "{"
+        whereas a method (value-based) would return "(".
 
         Returns:
             str: The prefix to be displayed.
@@ -88,7 +89,8 @@ class InspectBase(ABC):
     def get_format_postfix(self) -> str:
         """
         Gets the postfix to be displayed after the children of the object.  Default is empty string.
-        Virtual method that may be overridden by subclasses.
+        Virtual method that may be overridden by subclasses.  For example, a dict (children-based)
+        would return "}" whereas a method (value-based) would return ")".
 
         Returns:
             str: The postfix to be displayed.
@@ -191,6 +193,15 @@ class InspectSimpleType(InspectBase):
         if isinstance(self._value, str):
             return f'"{self._value}"'
         return str(self._value)
+    
+    def get_format_prefix(self) -> str:
+        """
+        For value types, the prefix is '=' such as 'name = value'.
+
+        Returns:
+            str: The format prefix of '='
+        """
+        return '='
 
 class InspectMethod(InspectBase):
     """
@@ -220,6 +231,24 @@ class InspectMethod(InspectBase):
             str: The list of parameters for the method.
         """
         return f'({", ".join(self._parameters)})'
+    
+    def get_format_prefix(self) -> str:
+        """
+        For methods, the prefix is '(' such as 'method_name(param1, param2)'.
+
+        Returns:
+            str: The format prefix of '('
+        """
+        return '('
+    
+    def get_format_postfix(self) -> str:
+        """
+        For methods, the postfix is ')' such as 'method_name(param1, param2)'.
+
+        Returns:
+            str: The format postfix of ')'
+        """
+        return ')'
 
 
 class InspectPartial(InspectBase):
@@ -270,6 +299,24 @@ class InspectPartial(InspectBase):
             parameters=', '.join(",".join([f"{name}={value}" if value is not None else name
                 for name, value in self._parameters]))
         )
+    
+    def get_format_prefix(self) -> str:
+        """
+        For partials, the prefix is '(' such as 'method_name(param1, param2)'.
+
+        Returns:
+            str: The format prefix of '('
+        """
+        return '('
+    
+    def get_format_postfix(self) -> str:
+        """
+        For partials, the postfix is ')' such as 'method_name(param1, param2)'.
+
+        Returns:
+            str: The format postfix of ')'
+        """
+        return ')'
 
 class InspectDuplicate(InspectBase):
     """

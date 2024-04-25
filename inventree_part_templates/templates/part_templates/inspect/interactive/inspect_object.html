@@ -17,11 +17,13 @@
     - title: the title of the object, usually it's name or important identifier
     - id: the id (anchor) of the object, used by `link_anchor` to reference this object
     - type: the type of the object, like a 'str', 'int', or a class name
-    - prefix: the prefix to use before the children, such as "{" for classes or "[" for lists
+    - prefix: the prefix to use before the children or value such as "{" for classes or "[" for
+    lists, or "(" for methods.
     - link_to: if the item has been skipped due to recursion, this is the id (anchor) of the object
     that did render
     - value: the value of the object, when it is a simple value (only when no children)
-    - postfix: the postfix to use after the children, such as "}" for classes or "]" for lists
+    - postfix: the postfix to use after the children, such as "}" for classes or "]" for lists, or
+    ")" for methods.
     - children: the object to pass the template using recursion (see above).  Will be None when
     the object is not allowed to have children, or 0 when it could but has none.
     - total_children: the total number of children in the children object, which can be a number
@@ -35,7 +37,7 @@
     {% else %}
         <span id="{{ object.id }}">
             {% if object.value %}
-                {{ object.title }} = {{ objet.value }} ({{ object.type }})
+                {{ object.title }}{{ object.prefix }}{{ object.value }}{{object.postfix}} ({{ object.type }})
             {% else %}
                 {{ object.title }} ({{ object.type }}){% if object.children is not None %}:{% endif %}
             {% endif %}
@@ -45,9 +47,9 @@
         {% if object.children|length > 0 %}:
             {{ object.prefix }}
         {% elif object.total_children > 0 %}
-            {{ object.prefix }} ... &lt; {{object.total_children}} elements not shown &gt; {{ object.postfix }}
+            {{ object.prefix }} ...:{{object.total_children}} {{ object.postfix }}
         {% else %}
-            {{ object.prefix }} &lt; empty &gt; {{ object.postfix }}
+            {{ object.prefix }} &lt;empty&gt; {{ object.postfix }}
         {% endif %}
     {% endif %}
 </li>

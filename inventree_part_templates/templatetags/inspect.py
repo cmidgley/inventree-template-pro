@@ -191,9 +191,11 @@ class InspectSimpleType(InspectBase):
             str: The formatted value of the attribute.
         """
         if isinstance(self._value, str):
+            if "password" in self._name.lower():
+                return f'"{"*" * len(self._value)}"'
             return f'"{self._value}"'
         return str(self._value)
-    
+
     def get_format_prefix(self) -> str:
         """
         For value types, the prefix is '=' such as 'name = value'.
@@ -231,7 +233,7 @@ class InspectMethod(InspectBase):
             str: The list of parameters for the method.
         """
         return f'{", ".join(self._parameters)}'
-    
+
     def get_format_prefix(self) -> str:
         """
         For methods, the prefix is '(' such as 'method_name(param1, param2)'.
@@ -240,7 +242,7 @@ class InspectMethod(InspectBase):
             str: The format prefix of '('
         """
         return '('
-    
+
     def get_format_postfix(self) -> str:
         """
         For methods, the postfix is ')' such as 'method_name(param1, param2)'.
@@ -291,7 +293,7 @@ class InspectPartial(InspectBase):
             str: The title of the object, as name(...) -> parent
         """
         return f"{self._name}(...) -> {self._parent_name}"
-    
+
     def get_format_value(self) -> str:
         """
         Returns the value for a partial, which will be a formatted string similar to:
@@ -304,10 +306,10 @@ class InspectPartial(InspectBase):
             str: The parent method name and partial/parent parameters
         """
         return _("{parameters}").format(
-            parameters=', '.join(",".join([f"{name}={value}" if value is not None else name
-                for name, value in self._parameters]))
+            parameters=', '.join([f"{name}={value}" if value is not None else name
+                for name, value in self._parameters])
         )
-    
+
     def get_format_prefix(self) -> str:
         """
         For partials, the prefix is '(' such as 'method_name(param1, param2)'.
@@ -316,7 +318,7 @@ class InspectPartial(InspectBase):
             str: The format prefix of '('
         """
         return '('
-    
+
     def get_format_postfix(self) -> str:
         """
         For partials, the postfix is ')' such as 'method_name(param1, param2)'.
@@ -343,7 +345,7 @@ class InspectDuplicate(InspectBase):
         Returns:
             str: The format value of the inspected object.
         """
-        return _("(previously output)")
+        return _("(duplicated)")
 
 class InspectDict(InspectBase):
     """
@@ -630,9 +632,9 @@ class InspectionManager:
 
         self._base = self.inspect_factory(name, obj, max_depth + 1)
 
-    # some types are not appropriate for recursive formatting.  They can be added to the blacklist here
+    # some types are not appropriate for recursive formatting.  They can be added to the list here
     # which will simply get their str(obj) value
-    BLACKLISTED_TYPES = (
+    WHITELIST_USE_SIMPLE_TYPE = (
         decimal.Decimal,
         Money,
         complex,
@@ -656,7 +658,7 @@ class InspectionManager:
         if depth <= 0:
             raise ValueError(_("Internal error in InspectManager: Depth exceeded"))
 
-        if isinstance(obj, (str, int, float, bool, self.BLACKLISTED_TYPES)) or obj is None:
+        if isinstance(obj, (str, int, float, bool, self.WHITELIST_USE_SIMPLE_TYPE)) or obj is None:
             return InspectSimpleType(self, name, obj, depth - 1)
         if inspect.ismethod(obj):
             return InspectMethod(self, name, obj, depth - 1)
@@ -672,7 +674,7 @@ class InspectionManager:
 
     def been_seen_before(self, obj: Any) -> bool:
         """
-        Check if an object has been processed and add it to the processed dictionary if not.
+        Check if an object has been processed and add it to the processed dictionary if not.  
 
         Args:
             obj (Any): The object to check.
@@ -680,6 +682,10 @@ class InspectionManager:
         Returns:
             bool: True if the object was processed before, False if new.
         """
+        # skip none, as they would otherwise match but should always just be None
+        if obj is None:
+            return False
+
         obj_id = id(obj)
 
         if obj_id in self._processed:

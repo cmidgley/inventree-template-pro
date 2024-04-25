@@ -32,8 +32,8 @@
 
 {% load report part_templates %}
 <li>
-    {% if object.link_anchor %}
-        <a href="#{{ object.link_to }}">Skipped: {{ object.title }} ({{object.type}})</a>
+    {% if object.link_to %}
+        <a href="#{{ object.link_to }}">{{ object.title }} ({{object.type}})</a>
     {% else %}
         <span id="{{ object.id }}">
             {% if object.value %}
@@ -42,14 +42,14 @@
                 {{ object.title }} ({{ object.type }}){% if object.children is not None %}:{% endif %}
             {% endif %}
         </span>
-    {% endif %}
-    {% if object.children is not None %}
-        {% if object.children|length > 0 %}:
-            {{ object.prefix }}
-        {% elif object.total_children > 0 %}
-            {{ object.prefix }} ...:{{object.total_children}} {{ object.postfix }}
-        {% else %}
-            {{ object.prefix }} &lt;empty&gt; {{ object.postfix }}
+        {% if object.children is not None %}
+            {% if object.children|length > 0 %}:
+                {{ object.prefix }}
+            {% elif object.total_children > 0 %}
+                {{ object.prefix }} ...:{{object.total_children}} {{ object.postfix }}
+            {% else %}
+                {{ object.prefix }} &lt;empty&gt; {{ object.postfix }}
+            {% endif %}
         {% endif %}
     {% endif %}
 </li>

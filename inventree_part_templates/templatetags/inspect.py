@@ -674,22 +674,35 @@ class InspectionManager:
         parent_template = loader.get_template(os.path.join(template_path, 'inspect_frame.html'))
         object_template = loader.get_template(os.path.join(template_path, 'inspect_object.html'))
 
-        # create context data for the object being inspected
-        inspect_context = { }
-        inspect_context['title'] = inspection.get_format_title()
-        inspect_context['id']=inspection.get_format_id()
-        inspect_context['type']=inspection.get_format_type()
-        inspect_context['prefix']=inspection.get_format_prefix()
-        inspect_context['link_to'] = inspection.get_format_link_to()
-        inspect_context['value']=inspection.get_format_value()
-        inspect_context['postfix']=inspection.get_format_postfix()
-        inspect_context['children']=inspection.get_children()
-        inspect_context['total_children']=inspection.get_total_children()
-
-        # create the template context, with context variables inspect and template.  'inspect' is the
-        # data about the object to render, and 'object_template' is the name of the child template to load
-        # for recursion on the object (to render the object and recurse on it's children).
-        context = { 'inspect': inspect_context, 'object_template': object_template }
+        # create context for the template
+        context = { 'inspect': self._build_context(inspection), 'object_template': object_template }
 
         # Render the template
         return parent_template.render(context)
+
+    def _build_context(self, inspection: InspectBase) -> Dict[str, Any]:
+        """
+        Recursively builds the context data for the inspection object.
+
+        Args:
+            inspection (InspectBase): The inspection object to build the context data for.
+
+        Returns:
+            Dict[str, Any]: The context data for the inspection object.
+        """
+        context = { }
+        context['title'] = inspection.get_format_title()
+        context['id']=inspection.get_format_id()
+        context['type']=inspection.get_format_type()
+        context['prefix']=inspection.get_format_prefix()
+        context['link_to'] = inspection.get_format_link_to()
+        context['value']=inspection.get_format_value()
+        context['postfix']=inspection.get_format_postfix()
+        context['total_children']=inspection.get_total_children()
+
+        children = []
+        for child in inspection.get_children():
+            children.append(self._build_context(child))
+        context['children'] = children
+
+        return context

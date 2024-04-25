@@ -27,6 +27,8 @@
     - total_children: the total number of children in the children object, which can be a number
     larger than the number of items in children due to filtering of item-level content
 {% endcomment %}
+
+{% load report part_templates %}
 <li>
     {% if object.link_anchor %}
         <a href="#{{ object.link_to }}">Skipped: {{ object.title }} ({{object.type}})</a>
@@ -58,7 +60,7 @@
     <div>
         {% if object.total_children > object.children|length %}
             <li>
-                ... &lt; {{ object.total_children - object.children|length }} more elements &gt;
+                ... &lt; {% subtract object.total_children object.children|length %} more elements &gt;
             </li>
         {% endif %}
         {{ object.postfix }}

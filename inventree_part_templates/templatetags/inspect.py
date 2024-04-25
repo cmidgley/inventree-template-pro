@@ -107,7 +107,7 @@ class InspectBase(ABC):
         """
         return None
 
-    def get_children(self) -> List[InspectBase]:
+    def get_children(self) -> List[InspectBase] | None:
         """
         Returns a list of children of the current object, which may be empty.  Default is empty list.
         Virtual method that may be overridden by subclasses.
@@ -115,7 +115,7 @@ class InspectBase(ABC):
         Returns:
             List[InspectBase]: A list of `InspectBase` objects representing the children.
         """
-        return self._children
+        return self._children if self.get_total_children() is not None else None
 
     def get_format_title(self) -> str:
         """
@@ -701,9 +701,14 @@ class InspectionManager:
         # internal only context for debugging inspect itself
         context['inspect_type'] = inspection.__class__.__name__
 
-        children = []
-        for child in inspection.get_children():
-            children.append(self._build_context(child))
-        context['children'] = children
+        # recurse into children
+        inspect_children = inspection.get_children()
+        if inspect_children is not None:
+            children = []
+            for child in inspect_children:
+                children.append(self._build_context(child))
+            context['children'] = children
+        else:
+            context['children'] = None
 
         return context

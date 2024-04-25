@@ -4,9 +4,9 @@
     Copyright (c) 2024 Chris Midgley
     License: MIT (see LICENSE file)
 """
-
 from __future__ import annotations
 from abc import ABC, abstractmethod
+import pprint
 import os
 import decimal
 import inspect
@@ -39,7 +39,7 @@ class InspectBase(ABC):
         Returns:
             None
         """
-        self.__children: Dict[int, InspectBase] = {}
+        self._children: Dict[int, InspectBase] = {}
         self._depth = depth
         self._manager = manager
         self._name = name
@@ -55,8 +55,8 @@ class InspectBase(ABC):
             value (Any): The value of the child object, that will be recursed into.
         """
         if self._manager.track_recursion(value):
-            self.__children[id(value)] = InspectDuplicate(self._manager, name, None, self._depth)
-        self.__children[id(value)] = self._manager.inspect_factory(name, value, self._depth)
+            self._children[id(value)] = InspectDuplicate(self._manager, name, None, self._depth)
+        self._children[id(value)] = self._manager.inspect_factory(name, value, self._depth)
 
     #
     # Abstract and virtual methods the various implementations may implement to affect the
@@ -115,7 +115,7 @@ class InspectBase(ABC):
         Returns:
             List[InspectBase]: A list of `InspectBase` objects representing the children.
         """
-        return list(self.__children.values())
+        return list(self._children.values())
 
     def get_format_title(self) -> str:
         """
@@ -310,7 +310,7 @@ class InspectDict(InspectBase):
         for key, value in obj.items():
             if depth > 0:
                 self._add_child(key, value)
-            if len(self.__children) >= manager.get_max_items():
+            if len(self._children) >= manager.get_max_items():
                 break
         self._total_items = len(obj)
 
@@ -542,7 +542,7 @@ class InspectClass(InspectBase):
         Returns:
             int: The total number of children.
         """
-        return len(self.__children) if self.__children is not None else 0
+        return len(self._children)
 
     def get_format_value(self) -> str:
         """

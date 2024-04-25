@@ -22,10 +22,10 @@
     that did render
     - value: the value of the object, when it is a simple value (only when no children)
     - postfix: the postfix to use after the children, such as "}" for classes or "]" for lists
-    - children: the object to pass the template using recursion (see above)
-    - total_children: the total number of children in the children object, which will be None if
-    this object can not have children, and can be a number larger than the number of items in 
-    children due to filtering of item-level content
+    - children: the object to pass the template using recursion (see above).  Will be None when
+    the object is not allowed to have children, or 0 when it could but has none.
+    - total_children: the total number of children in the children object, which can be a number
+    larger than the number of items in children due to filtering of item-level content
 {% endcomment %}
 <li>
     {% if object.link_anchor %}
@@ -33,12 +33,12 @@
     {% else %}
         <span id="{{ object.id }}">{{ object.title }}: {{ object.value }} ({{ object.type }})</span>
     {% endif %}
-    {% if object.total_children is not None %}
+    {% if object.children is not None %}
         [{{ children|length }} of {{ object.total_children }}]
         {{ object.prefix }}
     {% endif %}
 </li>
-{% if object.children %}
+{% if object.children is not None %}
     <ul>
     {% for child in object.children %}
         {% include object_template with object=child %}

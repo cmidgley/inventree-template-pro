@@ -542,7 +542,7 @@ class InspectClass(InspectBase):
         Returns:
             int: The total number of children.
         """
-        return len(self.__children)
+        return len(self.__children) if self.__children is not None else 0
 
     def get_format_value(self) -> str:
         """

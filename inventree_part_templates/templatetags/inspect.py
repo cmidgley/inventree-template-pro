@@ -55,13 +55,15 @@ class InspectBase(ABC):
             value (Any): The value of the child object, that will be recursed into.
         """
         # if we are not showing methods, skip them
-        if not self._manager.options['methods'] and (inspect.ismethod(value) or isinstance(value, partial)):
+        if not self._manager.options['methods'] and (inspect.ismethod(value) or 
+                                                     inspect.isfunction(value) or 
+                                                     isinstance(value, partial)):
             return
-        
+
         # if duplicate (already generated), add a InspectDuplicate instead, which allows us to link
         # back to the already rendered instance
         if self._manager.been_seen_before(value):
-            self._children.append(InspectDuplicate(self._manager, name, None, self._depth))
+            self._children.append(InspectDuplicate(self._manager, name, value, self._depth))
         else:
             self._children.append(self._manager.inspect_factory(name, value, self._depth))
 
@@ -701,7 +703,7 @@ class InspectionManager:
 
         if isinstance(obj, self.WHITELIST_USE_SIMPLE_TYPE) or obj is None:
             return InspectSimpleType(self, name, obj, depth - 1)
-        if inspect.ismethod(obj):
+        if inspect.ismethod(obj) or inspect.isfunction(obj):
             return InspectMethod(self, name, obj, depth - 1)
         if isinstance(obj, partial):
             return InspectPartial(self, name, obj, depth - 1)

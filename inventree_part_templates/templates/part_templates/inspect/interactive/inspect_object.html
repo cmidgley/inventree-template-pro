@@ -33,9 +33,11 @@
 {% load report part_templates %}
 <div class="inspect-interactive-item">
     {% if object.link_to %}
-        <div class="inspect-interactive-item-title inspect-interactive-item-link">
+    <div class="inspect-interactive-item-title">
+        <span class="inspect-interactive-item-title-title inspect-interactive-item-link">
             <a href="#{{ object.link_to }}">{{ object.title }}</a> ({{object.type}})
-        </div>
+        </span>
+    </div>
     {% else %}
         <div class="inspect-interactive-item-title">
             <span id="{{ object.id }}">

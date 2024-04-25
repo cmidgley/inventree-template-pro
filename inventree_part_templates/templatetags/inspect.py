@@ -287,7 +287,7 @@ class InspectPartial(InspectBase):
             if isinstance(value, InspectionManager.WHITELIST_USE_SIMPLE_TYPE):
                 value = str(value)
             else:
-                value = _('(complex)')
+                value = _('({type})').format(type=type(value).__name__)
             self._parameters.append({ 'name': param.name, 'value': value })
 
     def get_format_title(self) -> str:
@@ -563,7 +563,7 @@ class InspectClass(InspectBase):
 
         for attr_name in dir(obj):
             # if name indicates privte/protected, skip it
-            if attr_name.startswith('_'):
+            if attr_name.startswith('_') and manager.options['privates'] is False:
                 continue
 
             # get the attr's value
@@ -625,29 +625,28 @@ class InspectionManager:
     objects to find properties and values according to the type of the objects, limited by depth of
     recursion and maximum items to include in a list/dict/etc.
     """
-    def __init__(self, name: str, obj: Any, max_depth: int = 2, max_items: int = 5) -> None:
+    def __init__(self, name: str, obj: Any, options: Dict[str, str|int|bool]) -> None:
         """
         Initializes the InspectionManager object.
 
         Args:
             name (str): The name of the object.
             obj (Any): The object to be inspected.
-            max_depth (int, optional): The maximum depth of recursive inspection. Defaults to 2.
-            max_items (int, optional): The maximum number of items to be displayed. Defaults to 5.
+            options (Dict[str, str|int|bool]): The options to control the inspection process.
         """
         self._obj = obj
         self._processed: Dict[int, bool] = {}
-        self._max_items = max_items
+        self.options = options
 
-        self._base = self.inspect_factory(name, obj, max_depth + 1)
+        self._base = self.inspect_factory(name, obj, int(options['depth']) + 1)
 
     # some types are not appropriate for recursive formatting.  They can be added to the list here
     # which will simply get their str(obj) value
     WHITELIST_USE_SIMPLE_TYPE = (
-        str, 
-        int, 
-        float, 
-        bool, 
+        str,
+        int,
+        float,
+        bool,
         decimal.Decimal,
         Money,
         complex,
@@ -673,10 +672,11 @@ class InspectionManager:
 
         if isinstance(obj, self.WHITELIST_USE_SIMPLE_TYPE) or obj is None:
             return InspectSimpleType(self, name, obj, depth - 1)
-        if inspect.ismethod(obj):
-            return InspectMethod(self, name, obj, depth - 1)
-        if isinstance(obj, partial):
-            return InspectPartial(self, name, obj, depth - 1)
+        if self.options['methods']:
+            if inspect.ismethod(obj):
+                return InspectMethod(self, name, obj, depth - 1)
+            if isinstance(obj, partial):
+                return InspectPartial(self, name, obj, depth - 1)
         if isinstance(obj, dict):
             return InspectDict(self, name, obj, depth - 1)
         if isinstance(obj, list):
@@ -713,27 +713,23 @@ class InspectionManager:
         Returns:
             int: The maximum number of items.
         """
-        return self._max_items
+        return int(self.options['lists'])
 
-    def format(self, style_name: str) -> str:
+    def format(self) -> str:
         """
         Formats the inspection result as a string.
-
-        Args:
-            style_name (str): The name of the style to use for formatting.
 
         Returns:
             str: The formatted inspection result.
         """
-        return self._format(self._base, style_name)
+        return self._format(self._base)
 
-    def _format(self, inspection: InspectBase, style_name: str) -> str:
+    def _format(self, inspection: InspectBase) -> str:
         """
         Recursively formats the inspection result.
 
         Args:
             inspection (InspectBase): The inspection object to format.
-            style_name (str): The name of the style to use for formatting.
 
         Returns:
             str: The formatted inspection result.
@@ -741,7 +737,7 @@ class InspectionManager:
         # locate the path to the templates, which is relative to this file at
         # ../templates/part_templates/inspect/{style}
         current_directory = os.path.dirname(os.path.abspath(__file__))
-        template_path = os.path.join(current_directory, '..', 'templates', 'part_templates', 'inspect', style_name)
+        template_path = os.path.join(current_directory, '..', 'templates', 'part_templates', 'inspect', str(self.options['style']))
 
         # load the template
         parent_template = loader.get_template(os.path.join(template_path, 'inspect_frame.html'))

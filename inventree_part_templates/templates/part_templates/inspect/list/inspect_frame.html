@@ -14,21 +14,6 @@
     - object_template: the name of the child template to load for rendering the object and it's
     children.  Include the template name using `{% include object_template with object=inspect %}`.
 {% endcomment %}
-<style>
-.inspect-interactive-outer {
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin: 10px;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-}
-.inspect-interactive-item-title {
-  font-weight: bold;
-}
-.inspect-interactive-item-children {
-    margin-left: 20px;
-}
-</style>
-<div class="inspect-interactive-outer">
+<ul>
 {% include object_template with object=inspect %}
-</div>
+</ul>

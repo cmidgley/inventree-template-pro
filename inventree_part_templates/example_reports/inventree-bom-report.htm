@@ -185,7 +185,7 @@ table td.expand {
             {% for build in part.active_builds %}
                 <div>
                     <h4>Build order: {{ build.reference }}</h4>
-                    {{ build|explore:2}}
+                    {{ build|explore:"depth=3,style=interactive" }}
                 </div>
             {% endfor %}
         </div>

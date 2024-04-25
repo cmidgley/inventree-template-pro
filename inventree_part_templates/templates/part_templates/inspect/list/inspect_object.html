@@ -31,42 +31,40 @@
 {% endcomment %}
 
 {% load report part_templates %}
-<div class="inspect-interactive-item">
+<li>
     {% if object.link_to %}
-        <div class="inspect-interactive-item-title inspect-interactive-item-link">
-            <a href="#{{ object.link_to }}">{{ object.title }}</a> ({{object.type}})
-        </div>
+        <a href="#{{ object.link_to }}">{{ object.title }} ({{object.type}})</a>
     {% else %}
-        <div class="inspect-interactive-item-title">
-            <span id="{{ object.id }}">
-                {% if object.value %}
-                    {{ object.title }}{{ object.prefix }}{{ object.value }}{{object.postfix}} ({{ object.type }})
-                {% else %}
-                    {{ object.title }} ({{ object.type }}){% if object.children is not None %}:{% endif %}
-                {% endif %}
-            </span>
-            {% if object.children is not None %}
-                {% if object.children|length > 0 %}:
-                    {{ object.prefix }}
-                {% elif object.total_children > 0 %}
-                    {{ object.prefix }} ...:{{object.total_children}} {{ object.postfix }}
-                {% else %}
-                    {{ object.prefix }} &lt;empty&gt; {{ object.postfix }}
-                {% endif %}
+        <span id="{{ object.id }}">
+            {% if object.value %}
+                {{ object.title }}{{ object.prefix }}{{ object.value }}{{object.postfix}} ({{ object.type }})
+            {% else %}
+                {{ object.title }} ({{ object.type }}){% if object.children is not None %}:{% endif %}
             {% endif %}
-            </div>
-    {% endif %}
-    {% if object.children is not None and object.children|length > 0 %}
-        <div class="inspect-interactive-item-children">
-        {% for child in object.children %}
-            {% include object_template with object=child %}
-        {% endfor %}
-            {% if object.total_children > object.children|length %}
-                <div class="inspect-interactive-item inspect-interactive-item-more">
-                    ... &lt; {% subtract object.total_children object.children|length %} more elements &gt;
-                </div>
+        </span>
+        {% if object.children is not None %}
+            {% if object.children|length > 0 %}:
+                {{ object.prefix }}
+            {% elif object.total_children > 0 %}
+                {{ object.prefix }} ...:{{object.total_children}} {{ object.postfix }}
+            {% else %}
+                {{ object.prefix }} &lt;empty&gt; {{ object.postfix }}
             {% endif %}
-            {{ object.postfix }}
-        </div>
+        {% endif %}
     {% endif %}
-</div>
+</li>
+{% if object.children is not None and object.children|length > 0 %}
+    <ul>
+    {% for child in object.children %}
+        {% include object_template with object=child %}
+    {% endfor %}
+    </ul>
+    <div>
+        {% if object.total_children > object.children|length %}
+            <li>
+                ... &lt; {% subtract object.total_children object.children|length %} more elements &gt;
+            </li>
+        {% endif %}
+        {{ object.postfix }}
+    </div>
+{% endif %}

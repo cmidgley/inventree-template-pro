@@ -47,12 +47,19 @@ class InspectBase(ABC):
     def _add_child(self, name: str, value: Any) -> None:
         """
         Add a child member to this object, for objects that have sub-properties/attributes (using
-        recursion).  For example, dict, list and class.
+        recursion).  For example, dict, list and class.  Also skips methods/partials if they have
+        been disabled in the options.
 
         Args:
             name (str): The name of the child object.
             value (Any): The value of the child object, that will be recursed into.
         """
+        # if we are not showing methods, skip them
+        if not self._manager.options['methods'] and (inspect.ismethod(value) or isinstance(value, partial)):
+            return
+        
+        # if duplicate (already generated), add a InspectDuplicate instead, which allows us to link
+        # back to the already rendered instance
         if self._manager.been_seen_before(value):
             self._children.append(InspectDuplicate(self._manager, name, None, self._depth))
         else:
@@ -694,11 +701,10 @@ class InspectionManager:
 
         if isinstance(obj, self.WHITELIST_USE_SIMPLE_TYPE) or obj is None:
             return InspectSimpleType(self, name, obj, depth - 1)
-        if self.options['methods']:
-            if inspect.ismethod(obj):
-                return InspectMethod(self, name, obj, depth - 1)
-            if isinstance(obj, partial):
-                return InspectPartial(self, name, obj, depth - 1)
+        if inspect.ismethod(obj):
+            return InspectMethod(self, name, obj, depth - 1)
+        if isinstance(obj, partial):
+            return InspectPartial(self, name, obj, depth - 1)
         if isinstance(obj, dict):
             return InspectDict(self, name, obj, depth - 1)
         if isinstance(obj, list):

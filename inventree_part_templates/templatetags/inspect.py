@@ -641,16 +641,16 @@ class InspectionManager:
         """
         return self._max_items
 
-    def format(self) -> str:
+    def format(self, style_name: str) -> str:
         """
         Formats the inspection result as a string.
 
         Returns:
             str: The formatted inspection result.
         """
-        return self._format(self._base)
+        return self._format(self._base, style_name)
 
-    def _format(self, inspection: InspectBase) -> str:
+    def _format(self, inspection: InspectBase, style_name: str) -> str:
         """
         Recursively formats the inspection result.
 
@@ -660,39 +660,26 @@ class InspectionManager:
         Returns:
             str: The formatted inspection result.
         """
+        # locate the path to the templates, which is relative to this file at
+        # ../templates/part_templates/explore/{style}
         current_directory = os.path.dirname(os.path.abspath(__file__))
-        template_path = os.path.join(current_directory, '..', 'templates', 'part_templates', 'explore', 'interactive')
-        print(f"**** CD is {current_directory}")
-        print(f"**** Template path is {template_path}")
+        template_path = os.path.join(current_directory, '..', 'templates', 'part_templates', 'explore', 'interactive', style_name)
 
         # Load the template
         template = loader.get_template(os.path.join(template_path, 'explore_parent.html'))
 
-        # Create the context
-        context = {'template_data': 'testing'}
+        # Create the "inspect' context variable" with all the inspection data
+        inspect_context = { }
+        inspect_context['title'] = inspection.get_format_title()
+        inspect_context['anchor']=inspection.get_format_id()
+        inspect_context['title']=inspection.get_format_title()
+        inspect_context['type']=inspection.get_format_type()
+        inspect_context['prefix']=inspection.get_format_prefix()
+        inspect_context['link_anchor'] = inspection.get_format_link_to()
+        inspect_context['value']=inspection.get_format_value()
+        inspect_context['postfix']=inspection.get_format_postfix()
+        inspect_context['children']=inspection.get_children()
+        context = { 'inspect': inspect_context }
 
         # Render the template
-        rendered_template = template.render(context)
-
-        children = [self._format(child) for child in inspection.get_children()]
-        children_str = "\n".join(children)
-        value = inspection.get_format_value() if inspection.get_format_link_to() is None else f"<a href='#{inspection.get_format_link_to()}'>{inspection.get_format_value()}</a>"
-
-        return _("""<div class='template'>{rendered_template}</div>
-            <div class="inspect-node" id="{id}">
-            <div class="inspect-title">{title}</div>
-            <div class="inspect-type">({type})</div>
-            <div class="inspect-value">{value}</div>
-            <div class="inspect-prefix">{prefix}</div>
-            <div class="inspect-children">{children}</div>
-            <div class="inspect-postfix">{postfix}</div>
-            </div>""").format(
-                rendered_template=rendered_template,
-                id=inspection.get_format_id(),
-                title=inspection.get_format_title(),
-                type=inspection.get_format_type(),
-                prefix=inspection.get_format_prefix(),
-                value=value,
-                postfix=inspection.get_format_postfix(),
-                children=children_str
-            )
+        return template.render(context)

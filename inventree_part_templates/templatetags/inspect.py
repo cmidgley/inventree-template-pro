@@ -54,7 +54,7 @@ class InspectBase(ABC):
             name (str): The name of the child object.
             value (Any): The value of the child object, that will be recursed into.
         """
-        if self._manager.track_recursion(value):
+        if self._manager.been_seen_before(value):
             self._children.append(InspectDuplicate(self._manager, name, None, self._depth))
         else:
             self._children.append(self._manager.inspect_factory(name, value, self._depth))
@@ -616,7 +616,7 @@ class InspectionManager:
             return InspectQuerySet(self, name, obj, depth - 1)
         return InspectClass(self, name, obj, depth - 1)
 
-    def track_recursion(self, obj: Any) -> bool:
+    def been_seen_before(self, obj: Any) -> bool:
         """
         Check if an object has been processed and add it to the processed dictionary if not.
 
@@ -624,14 +624,14 @@ class InspectionManager:
             obj (Any): The object to check.
 
         Returns:
-            bool: True if the object was not processed before, False if it was already processed.
+            bool: True if the object was processed before, False if new.
         """
         obj_id = id(obj)
 
         if obj_id in self._processed:
-            return False
+            return True
         self._processed[obj_id] = True
-        return True
+        return False
 
     def get_max_items(self) -> int:
         """

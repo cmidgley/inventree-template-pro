@@ -635,6 +635,10 @@ class InspectionManager:
     # some types are not appropriate for recursive formatting.  They can be added to the list here
     # which will simply get their str(obj) value
     WHITELIST_USE_SIMPLE_TYPE = (
+        str, 
+        int, 
+        float, 
+        bool, 
         decimal.Decimal,
         Money,
         complex,
@@ -658,7 +662,7 @@ class InspectionManager:
         if depth <= 0:
             raise ValueError(_("Internal error in InspectManager: Depth exceeded"))
 
-        if isinstance(obj, (str, int, float, bool, self.WHITELIST_USE_SIMPLE_TYPE)) or obj is None:
+        if isinstance(obj, self.WHITELIST_USE_SIMPLE_TYPE) or obj is None:
             return InspectSimpleType(self, name, obj, depth - 1)
         if inspect.ismethod(obj):
             return InspectMethod(self, name, obj, depth - 1)
@@ -682,8 +686,8 @@ class InspectionManager:
         Returns:
             bool: True if the object was processed before, False if new.
         """
-        # skip none, as they would otherwise match but should always just be None
-        if obj is None:
+        # skip simple types
+        if isinstance(obj, self.WHITELIST_USE_SIMPLE_TYPE) or obj is None:
             return False
 
         obj_id = id(obj)

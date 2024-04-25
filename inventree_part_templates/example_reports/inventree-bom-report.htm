@@ -46,7 +46,6 @@ content: "{% inventree_version shortstring=True %}";
 
 .part-info {
     display: inline-block;
-    vertical-align: top;
     width: calc(100% - 32px + 10px)
 }
 
@@ -71,12 +70,28 @@ content: "{% inventree_version shortstring=True %}";
     white-space: normal;
 }
 
+.table TH.quantity {
+    text-align: center;
+}
+
+.table TD.quantity {
+    vertical-align: middle;
+    text-align: center;
+    font-weight: bold;
+    font-size: 100%;
+}
+
 table {
     border: 1px solid #eee;
     border-radius: 3px;
     border-collapse: collapse;
     width: 100%;
     font-size: 80%;
+    text-align: left;
+}
+
+.table td {
+    vertical-align: top;
 }
 
 table td {
@@ -113,7 +128,7 @@ table td.expand {
 
 .error {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 8pt;
+    font-size: 12pt;
     color: red;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -160,11 +175,26 @@ table td.expand {
             </tbody>
         </table>
 
+        <div>
+            <h3>Part dump</h3>
+            {{ part|explore:1}}
+        </div>
+
+        <div>
+            <h3>Active builds</h3>
+            {% for build in part.active_builds %}
+                <div>
+                    <h4>Build order: {{ build.reference }}</h4>
+                    {{ build|explore:2}}
+                </div>
+            {% endfor %}
+        </div>
+
         <h3>{% trans "Materials needed" %}</h3>
         <table class='table table-striped table-condensed'>
             <thead>
                 <tr>
-                    <th>{% trans "Quantity" %}</th>
+                    <th class="quantity">{% trans "Quantity" %}</th>
                     <th>{% trans "Part" %}</th>
                     <th>{% trans "Category" %}</th>
                     <th class="part-reference">{% trans "Reference" %}</th>
@@ -172,7 +202,7 @@ table td.expand {
             </thead>
             <tbody>
                 {% for line in bom_items.all %}
-                    {% get_context line.sub_part.pk as part_context %}
+                    {% part_context line.sub_part.pk as part_context %}
                     {% if not part_context %}
                         <tr>
                             <td colspan="4" class="error">Plugin inventree-part-templates did not locate part {{line.sub_part.pk }}</td>
@@ -183,7 +213,7 @@ table td.expand {
                         </tr>
                     {% else %}
                         <tr>
-                            <td>{% decimal line.quantity %}</td>
+                            <td class="quantity">{% decimal line.quantity %}</td>
                             <td>
                                 <div class='thumb-container'>
                                     <img src='{% part_image line.sub_part height=240 %}' alt='{% trans "Image" %}' class='part-thumb'>
@@ -199,6 +229,10 @@ table td.expand {
                             </td>
                             <td>{{ part_context.category }}</td>
                             <td class="part-reference">{{ line.reference|replace:",|, " }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                            </td>
                         </tr>
                     {% endif %}
                 {% endfor %}

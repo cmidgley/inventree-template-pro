@@ -278,12 +278,17 @@ class InspectPartial(InspectBase):
 
         self._parent_name = obj.func.__name__
         for i, param in enumerate(sig.parameters.values()):
+            value: Any = None
             if i < len(bound_args):
-                self._parameters.append({ 'name': param.name, 'value': bound_args[i] })
+                value = bound_args[i]
             elif param.name in bound_kwargs:
-                self._parameters.append({ 'name': param.name, 'value': bound_kwargs[param.name] })
+                value = bound_kwargs[param.name]
+
+            if isinstance(value, InspectionManager.WHITELIST_USE_SIMPLE_TYPE):
+                value = str(value)
             else:
-                self._parameters.append({ 'name': param.name, 'value': None })
+                value = _('(complex)')
+            self._parameters.append({ 'name': param.name, 'value': value })
 
     def get_format_title(self) -> str:
         """
@@ -305,10 +310,14 @@ class InspectPartial(InspectBase):
         Returns:
             str: The parent method name and partial/parent parameters
         """
-        return _("{parameters}").format(
-            parameters=', '.join([f"{name}={value}" if value is not None else name
-                for name, value in self._parameters])
-        )
+        formatted_parameters: List[str] = []
+        for param in self._parameters:
+            if param['value'] is None:
+                formatted_parameters.append(param['name'])
+            else:
+                formatted_parameters.append(f"{param['name']}={str(param['value'])}")
+
+        return ', '.join(formatted_parameters)
 
     def get_format_prefix(self) -> str:
         """

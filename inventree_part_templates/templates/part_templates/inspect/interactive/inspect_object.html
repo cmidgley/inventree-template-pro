@@ -11,28 +11,38 @@
     The following context variables are available:
     - object: the object to render
     - object_template: the name of the child template to load for rendering the object and it's
-    children.  Only include the template if there are children to render:
-    
-    ```
-    {% if object.children %}
-        {% include object_template with object=object.children %}
-    {% endif %}
-    ```
-    
+    children.  Only include the template if there are children to render.
+
     Properties of object are:
     - title: the title of the object, usually it's name or important identifier
-    - anchor: the anchor to link to the object, used by `link_anchor`
+    - id: the id (anchor) of the object, used by `link_anchor` to reference this object
     - type: the type of the object, like a 'str', 'int', or a class name
     - prefix: the prefix to use before the children, such as "{" for classes or "[" for lists
-    - link_anchor: if the item has been skipped due to recursion, this is the anchor of the object
+    - link_to: if the item has been skipped due to recursion, this is the id (anchor) of the object
     that did render
     - value: the value of the object, when it is a simple value (only when no children)
     - postfix: the postfix to use after the children, such as "}" for classes or "]" for lists
     - children: the object to pass the template using recursion (see above)
+    - total_children: the total number of children in the children object, which will be None if
+    this object can not have children, and can be a number larger than the number of items in 
+    children due to filtering of item-level content
 {% endcomment %}
-<h3>Object template: {{ object.title}}: {{object.name}} ({{object.type}})</h3>
+<li>
+    {% if object.link_anchor %}
+        <a href="#{{ object.link_to }}">Skipped: {{ object.title }} ({{object.type}})</a>
+    {% else %}
+        <span id="{{ object.id }}">{{ object.title }}: {{ object.value }} ({{ object.type }})</span>
+    {% endif %}
+    {% if object.total_children is not None %}
+        [{{ children|length }} of {{ object.total_children }}]
+        {{ object.prefix }}
+    {% endif %}
+</li>
 {% if object.children %}
-    {{ object.prefix }}
-    {% include object_template with object=object.children %}
-    {{ object.postfix }}
+    <ul>
+    {% for child in object.children %}
+        {% include object_template with object=child %}
+    {% endfor %}
+    </ul>
+    <div>{{ object.postfix }}</div>
 {% endif %}

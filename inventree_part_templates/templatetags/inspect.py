@@ -676,13 +676,14 @@ class InspectionManager:
         # create context data for the object being inspected
         inspect_context = { }
         inspect_context['title'] = inspection.get_format_title()
-        inspect_context['anchor']=inspection.get_format_id()
+        inspect_context['id']=inspection.get_format_id()
         inspect_context['type']=inspection.get_format_type()
         inspect_context['prefix']=inspection.get_format_prefix()
-        inspect_context['link_anchor'] = inspection.get_format_link_to()
+        inspect_context['link_to'] = inspection.get_format_link_to()
         inspect_context['value']=inspection.get_format_value()
         inspect_context['postfix']=inspection.get_format_postfix()
         inspect_context['children']=inspection.get_children()
+        inspect_context['total_children']=inspection.get_total_children()
 
         # create the template context, with context variables inspect and template.  'inspect' is the
         # data about the object to render, and 'object_template' is the name of the child template to load

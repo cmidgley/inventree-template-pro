@@ -45,7 +45,7 @@
         <button class="btn" data-bs-toggle="collapse" data-bs-target="#children-{{ object.id }}">
             <span class="fas fa-caret-right expando-icon"></span>
         {% else %}
-        <button class="btn" style="visibility: hidden">
+        <button class="btn">
         {% endif %}
             <span id="{{ object.id }}">
                 {% if object.value %}
@@ -67,20 +67,22 @@
         </div>
     {% endif %}
     {% if object.children is not None and object.children|length > 0 %}
-    <div id="children-{{ object.id }}" class="collapse inspect-interactive-item-children">
-        {% for child in object.children %}
-            {% include object_template with object=child %}
-        {% endfor %}
-        {% if object.total_children > object.children|length %}
-        <div class="inspect-interactive-item inspect-interactive-item-more">
-            <div class="inspect-interactive-item-title">
-                <span class="inspect-interactive-item-title-title">
-                    {% subtract object.total_children object.children|length %} more elements...
-                </span>
+    <div id="children-{{ object.id }}">
+        <div class="collapse inspect-interactive-item-children">
+            {% for child in object.children %}
+                {% include object_template with object=child %}
+            {% endfor %}
+            {% if object.total_children > object.children|length %}
+            <div class="inspect-interactive-item inspect-interactive-item-more">
+                <div class="inspect-interactive-item-title">
+                    <span class="inspect-interactive-item-title-title">
+                        {% subtract object.total_children object.children|length %} more elements...
+                    </span>
+                </div>
             </div>
+            {% endif %}
         </div>
-        {% endif %}
+        {{ object.postfix }}
     </div>
-    {{ object.postfix }}
     {% endif %}
 </div>

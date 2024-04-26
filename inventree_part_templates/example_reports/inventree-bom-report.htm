@@ -175,21 +175,6 @@ table td.expand {
             </tbody>
         </table>
 
-        <div>
-            <h3>Part dump</h3>
-            {{ part|explore:1}}
-        </div>
-
-        <div>
-            <h3>Active builds</h3>
-            {% for build in part.active_builds %}
-                <div>
-                    <h4>Build order: {{ build.reference }}</h4>
-                    {{ build|explore:"depth=3,style=interactive" }}
-                </div>
-            {% endfor %}
-        </div>
-
         <h3>{% trans "Materials needed" %}</h3>
         <table class='table table-striped table-condensed'>
             <thead>
@@ -232,6 +217,7 @@ table td.expand {
                         </tr>
                         <tr>
                             <td colspan="4">
+                                {{ part_context|explore:"depth:10,style=interactive" }}
                             </td>
                         </tr>
                     {% endif %}
@@ -239,5 +225,20 @@ table td.expand {
             </tbody>
         </table>
     {% endif %}
+
+    <div>
+        <h3>BOM Part</h3>
+        {{ part|explore:"depth:6,style=interactive"}}
+    </div>
+
+    <div>
+        <h3>Active builds</h3>
+        {% for build in part.active_builds %}
+            <div>
+                <h4>Build order: {{ build.reference }}</h4>
+                {{ build|explore:"depth=6,style=interactive" }}
+            </div>
+        {% endfor %}
+    </div>
 
 {% endblock page_content %}

@@ -585,6 +585,8 @@ class InspectClass(InspectBase):
         """
         super().__init__(manager, name, obj, depth)
 
+        self._total_items = 0
+
         for attr_name in dir(obj):
             # if name indicates privte/protected, skip it
             if attr_name.startswith('_') and manager.options['privates'] is False:
@@ -605,6 +607,9 @@ class InspectClass(InspectBase):
             # this is a member we want to process
             if depth > 0:
                 self._add_child(attr_name, attr_value)
+
+            # track total items found
+            self._total_items += 1
 
     def get_format_prefix(self) -> str:
         """
@@ -632,7 +637,7 @@ class InspectClass(InspectBase):
         Returns:
             int: The total number of children.
         """
-        return len(self._children)
+        return self._total_items
 
     def get_format_value(self) -> str:
         """

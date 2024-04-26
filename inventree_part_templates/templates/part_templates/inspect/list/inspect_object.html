@@ -46,7 +46,7 @@
             {% if object.children|length > 0 %}:
                 {{ object.prefix }}
             {% elif object.total_children > 0 %}
-                {{ object.prefix }} ...:{{object.total_children}} {{ object.postfix }}
+                {{ object.prefix }} {{object.total_children}} more... {{ object.postfix }}
             {% else %}
                 {{ object.prefix }} &lt;empty&gt; {{ object.postfix }}
             {% endif %}
@@ -60,7 +60,7 @@
         {% endfor %}
         {% if object.total_children > object.children|length %}
             <li>
-                {% subtract object.total_children object.children|length %} more elements...
+                {% subtract object.total_children object.children|length %} more...
             </li>
         {% endif %}
     </ul>

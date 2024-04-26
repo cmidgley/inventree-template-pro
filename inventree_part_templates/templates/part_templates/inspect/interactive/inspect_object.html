@@ -42,9 +42,8 @@
     {% else %}
     <div class="inspect-interactive-item-title">
         {% if object.children|length > 0 %}
-        <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#children-{{
-        object.id }}">
-            <span class="fas fa-chevron-right expando-icon"></span>
+        <button class="btn" data-bs-toggle="collapse" data-bs-target="#children-{{ object.id }}">
+            <span class="fas fa-caret-right expando-icon"></span>
         {% endif %}
             <span id="{{ object.id }}">
                 {% if object.value %}

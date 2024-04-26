@@ -55,13 +55,13 @@
           var icon = button.querySelector('.expando-icon');
   
           collapseElement.addEventListener('show.bs.collapse', function () {
-              icon.classList.remove('fa-chevron-right');
-              icon.classList.add('fa-chevron-down');
+              icon.classList.remove('fa-caret-right');
+              icon.classList.add('fa-caret-down');
           });
   
           collapseElement.addEventListener('hide.bs.collapse', function () {
-              icon.classList.remove('fa-chevron-down');
-              icon.classList.add('fa-chevron-right');
+              icon.classList.remove('fa-caret-down');
+              icon.classList.add('fa-caret-right');
           });
       });
   });

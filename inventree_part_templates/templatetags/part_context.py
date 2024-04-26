@@ -11,6 +11,7 @@ from inventree_part_templates.constants import TEMPLATETAGS_CONTEXT_PLUGIN
 from .shared import register
 from django.template import Context
 from django.utils.translation import gettext_lazy as _
+from inventree_part_templates.constants import CONTEXT_KEY
 
 @register.simple_tag(takes_context=True)
 def part_context(context: Context, pk: str) -> Dict[str, str]:
@@ -34,7 +35,7 @@ def part_context(context: Context, pk: str) -> Dict[str, str]:
         return { 'error': _('[get_context "{pk}": part not found').format(pk=pk) }
 
     # get the context for this part
-    template_context: Dict[str, str] = {}
+    template_context: Dict[str, Dict[str, str]] = {}
     property_context.get_context(template_context, plugin)
 
-    return template_context
+    return template_context[CONTEXT_KEY]

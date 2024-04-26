@@ -42,7 +42,7 @@
     {% else %}
     <div class="inspect-interactive-item-title">
         {% if object.children|length > 0 %}
-        <button class="btn" data-bs-toggle="collapse collapsed" data-bs-target="#children-{{ object.id }}">
+        <button class="btn collapsed" data-bs-toggle="collapse" data-bs-target="#children-{{ object.id }}">
             <span class="fas fa-caret-right expando-icon"></span>
         {% else %}
         <button class="btn">

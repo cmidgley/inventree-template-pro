@@ -70,7 +70,7 @@
     </div>
     {% endif %}
     {% if object.children is not None and object.children|length > 0 %}
-    <div id="children-{{ object.id }} collapse">
+    <div id="children-{{ object.id }}" class="collapse">
             <div class="inspect-interactive-item-children">
                 {% for child in object.children %}
                     {% include object_template with object=child %}

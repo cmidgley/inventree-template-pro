@@ -19,6 +19,9 @@
 <link rel="stylesheet" href="/static/fontawesome/css/brands.min.css">
 <link rel="stylesheet" href="/static/fontawesome/css/solid.min.css">
 
+{% block style %}
+{{ block.super }}
+{% if not template_interactive %}
 <style>
 .inspect-interactive-outer {
     border: 1px solid #ddd;
@@ -40,6 +43,12 @@ button:not(.collapsed) .inspect-interactive-item-title-postfix {
     margin-left: 20px;
 }
 </style>
+{% endif %}
+{% endblock %}
+
+{% block page_content %}
+{{ block.super }}
+{% if template_interactive %}
 <div class="inspect-interactive-outer">
 {% include object_template with object=inspect %}
 </div>
@@ -72,4 +81,10 @@ button:not(.collapsed) .inspect-interactive-item-title-postfix {
       });
   });
   </script>
-  
+{% endif %}
+{% endblock %}
+
+{% comment %}
+This sets a variable in context to 1 to indicate we have already included our header/footer
+{% endcomment %}
+{% add 1 0 template_interactive %}

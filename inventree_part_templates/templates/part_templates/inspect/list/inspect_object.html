@@ -55,16 +55,14 @@
 </li>
 {% if object.children is not None and object.children|length > 0 %}
     <ul>
-    {% for child in object.children %}
-        {% include object_template with object=child %}
-    {% endfor %}
-    </ul>
-    <div>
+        {% for child in object.children %}
+            {% include object_template with object=child %}
+        {% endfor %}
         {% if object.total_children > object.children|length %}
             <li>
-                ... &lt; {% subtract object.total_children object.children|length %} more elements &gt;
+                {% subtract object.total_children object.children|length %} more elements...
             </li>
         {% endif %}
-        {{ object.postfix }}
-    </div>
+    </ul>
+    {{ object.postfix }}
 {% endif %}

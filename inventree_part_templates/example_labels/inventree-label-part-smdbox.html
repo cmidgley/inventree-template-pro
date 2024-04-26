@@ -13,18 +13,18 @@
 {% subtract 21 6 as smd_width %}
 {% subtract 18 1.5 as smd_height %}
 
-{% add 7 0 as qr_size %}
+{% define 7 as qr_size %}
 
 {% subtract width qr_size as right_width %}
 
-{% add 1 0 as qr_to_right_margin %}
+{% define 1 as qr_to_right_margin %}
 {% subtract right_width qr_to_right_margin as right_width %}
 
-{% add 0.5 0 as qr_to_bottom_margin %}
+{% define 0.5 as qr_to_bottom_margin %}
 {% subtract height qr_size as bottom_height %}
 {% subtract bottom_height qr_to_bottom_margin as bottom_height %}
 
-{% add 2 0 as font_size %}
+{% define 2 as font_size %}
 
 .label {
     font-family: Verdana, Arial, Helvetica, sans-serif;

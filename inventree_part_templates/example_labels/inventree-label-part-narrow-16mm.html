@@ -9,16 +9,16 @@
 
 {% subtract 16 1.5 as narrow_height %}
 
-{% subtract narrow_height 0 as qr_size %}
+{% define narrow_height as qr_size %}
 
 {% subtract width 1 as width %}
 
 {% subtract width qr_size as right_width %}
 
-{% add 1 0 as qr_to_right_margin %}
+{% define 1 as qr_to_right_margin %}
 {% subtract right_width qr_to_right_margin as right_width %}
 
-{% add 3 0 as font_size %}
+{% define 3 as font_size %}
 
 .label {
     display: block;

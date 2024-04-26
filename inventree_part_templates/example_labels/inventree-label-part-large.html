@@ -7,20 +7,20 @@
 {% block style %}
 {% localize off %}
 
-{% add 12 0 as qr_size %}
+{% define 12 as qr_size %}
 
 {% subtract width 2 as width %}
 
 {% subtract width qr_size as right_width %}
 
-{% add 1 0 as qr_to_right_margin %}
+{% define 1 as qr_to_right_margin %}
 {% subtract right_width qr_to_right_margin %}
 
-{% add 0.5 0 as qr_to_bottom_margin %}
+{% define 0.5 as qr_to_bottom_margin %}
 {% subtract height qr_size as bottom_height %}
 {% subtract bottom_height qr_to_bottom_margin as bottom_height %}
 
-{% add 3.5 0 as font_size %}
+{% define 3.5 as font_size %}
 
 .label {
     display: block;

@@ -41,13 +41,15 @@
     </div>
     {% else %}
         <div class="inspect-interactive-item-title">
-            <span id="{{ object.id }}">
-                {% if object.value %}
-                    <span class="inspect-interactive-item-title-title">{{ object.title }}</span>{{ object.prefix }}{{ object.value }}{{object.postfix}} ({{ object.type }})
-                {% else %}
-                    <span class="inspect-interactive-item-title-title">{{ object.title }}</span> ({{ object.type }}){% if object.children is not None %}:{% endif %}
-                {% endif %}
-            </span>
+            <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#children-{{ object.id }}">
+                <span id="{{ object.id }}">
+                    {% if object.value %}
+                        <span class="inspect-interactive-item-title-title">{{ object.title }}</span>{{ object.prefix }}{{ object.value }}{{object.postfix}} ({{ object.type }})
+                    {% else %}
+                        <span class="inspect-interactive-item-title-title">{{ object.title }}</span> ({{ object.type }}){% if object.children is not None %}:{% endif %}
+                    {% endif %}
+                </span>
+            </button>
             {% if object.children is not None %}
                 {% if object.children|length > 0 %}
                     {{ object.prefix }}
@@ -60,7 +62,7 @@
             </div>
     {% endif %}
     {% if object.children is not None and object.children|length > 0 %}
-        <div class="inspect-interactive-item-children">
+        <div id="children-{{ object.id }}" class="collapse inspect-interactive-item-children">
             {% for child in object.children %}
                 {% include object_template with object=child %}
             {% endfor %}

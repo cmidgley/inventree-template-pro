@@ -71,22 +71,21 @@
     {% endif %}
     {% if object.children is not None and object.children|length > 0 %}
     <div id="children-{{ object.id }}" class="collapse">
-            <div class="inspect-interactive-item-children">
-                {% for child in object.children %}
-                    {% include object_template with object=child %}
-                {% endfor %}
-                {% if object.total_children > object.children|length %}
-                <div class="inspect-interactive-item inspect-interactive-item-more">
-                    <div class="inspect-interactive-item-title">
-                        <span class="inspect-interactive-item-title-title">
-                            {% subtract object.total_children object.children|length %} more elements...
-                        </span>
-                    </div>
+        <div class="inspect-interactive-item-children">
+            {% for child in object.children %}
+                {% include object_template with object=child %}
+            {% endfor %}
+            {% if object.total_children > object.children|length %}
+            <div class="inspect-interactive-item inspect-interactive-item-more">
+                <div class="inspect-interactive-item-title">
+                    <span class="inspect-interactive-item-title-title">
+                        {% subtract object.total_children object.children|length %} more elements...
+                    </span>
                 </div>
-                {% endif %}
             </div>
-            {{ object.postfix }}
+            {% endif %}
         </div>
+        {{ object.postfix }}
     </div>
     {% endif %}
 </div>

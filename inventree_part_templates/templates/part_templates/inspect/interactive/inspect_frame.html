@@ -16,6 +16,8 @@
 {% endcomment %}
 
 <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="/static/fontawesome/css/brands.min.css">
+<link rel="stylesheet" href="/static/fontawesome/css/solid.min.css">
 
 <style>
 .inspect-interactive-outer {
@@ -36,4 +38,32 @@
 {% include object_template with object=inspect %}
 </div>
 
+<!-- bootstrap -->
 <script type="text/javascript" src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- fontawesome -->
+<script defer type='text/javascript' src="/static/fontawesome/js/solid.min.js"></script>
+<script defer type='text/javascript' src="/static/fontawesome/js/regular.min.js"></script>
+<script defer type='text/javascript' src="/static/fontawesome/js/brands.min.js"></script>
+<script defer type='text/javascript' src="/static/fontawesome/js/fontawesome.min.js"></script>
+
+<!-- toggle icon expand/collapse-->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      var collapseElements = document.querySelectorAll('.collapse');
+      collapseElements.forEach(function(collapseElement) {
+          var button = document.querySelector('[data-bs-target="#' + collapseElement.id + '"]');
+          var icon = button.querySelector('.expando-icon');
+  
+          collapseElement.addEventListener('show.bs.collapse', function () {
+              icon.classList.remove('fa-chevron-right');
+              icon.classList.add('fa-chevron-down');
+          });
+  
+          collapseElement.addEventListener('hide.bs.collapse', function () {
+              icon.classList.remove('fa-chevron-down');
+              icon.classList.add('fa-chevron-right');
+          });
+      });
+  });
+  </script>
+  

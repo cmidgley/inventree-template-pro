@@ -40,42 +40,48 @@
         ({{object.type}})
     </div>
     {% else %}
-        <div class="inspect-interactive-item-title">
-            <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#children-{{ object.id }}">
-                <span id="{{ object.id }}">
-                    {% if object.value %}
-                        <span class="inspect-interactive-item-title-title">{{ object.title }}</span>{{ object.prefix }}{{ object.value }}{{object.postfix}} ({{ object.type }})
-                    {% else %}
-                        <span class="inspect-interactive-item-title-title">{{ object.title }}</span> ({{ object.type }}){% if object.children is not None %}:{% endif %}
-                    {% endif %}
-                </span>
-            </button>
-            {% if object.children is not None %}
-                {% if object.children|length > 0 %}
-                    {{ object.prefix }}
-                {% elif object.total_children > 0 %}
-                    {{ object.prefix }} ...|{{object.total_children}} {{ object.postfix }}
+    <div class="inspect-interactive-item-title">
+        {% if object.children|length > 0 %}
+        <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#children-{{
+        object.id }}">
+            <span class="fas fa-chevron-right expando-icon"></span>
+        {% endif %}
+            <span id="{{ object.id }}">
+                {% if object.value %}
+                    <span class="inspect-interactive-item-title-title">{{ object.title }}</span>{{ object.prefix }}{{ object.value }}{{object.postfix}} ({{ object.type }})
                 {% else %}
-                    {{ object.prefix }} &lt;empty&gt; {{ object.postfix }}
+                    <span class="inspect-interactive-item-title-title">{{ object.title }}</span> ({{ object.type }}){% if object.children is not None %}:{% endif %}
                 {% endif %}
+            </span>
+        {% if object.children|length > 0 %}
+        </button>
+        {% endif %}
+        {% if object.children is not None %}
+            {% if object.children|length > 0 %}
+                {{ object.prefix }}
+            {% elif object.total_children > 0 %}
+                {{ object.prefix }} ...|{{object.total_children}} {{ object.postfix }}
+            {% else %}
+                {{ object.prefix }} &lt;empty&gt; {{ object.postfix }}
             {% endif %}
-            </div>
+        {% endif %}
+        </div>
     {% endif %}
     {% if object.children is not None and object.children|length > 0 %}
-        <div id="children-{{ object.id }}" class="collapse inspect-interactive-item-children">
-            {% for child in object.children %}
-                {% include object_template with object=child %}
-            {% endfor %}
-            {% if object.total_children > object.children|length %}
-                <div class="inspect-interactive-item inspect-interactive-item-more">
-                    <div class="inspect-interactive-item-title">
-                        <span class="inspect-interactive-item-title-title">
-                            {% subtract object.total_children object.children|length %} more elements...
-                        </span>
-                    </div>
-                </div>
-            {% endif %}
+    <div id="children-{{ object.id }}" class="collapse inspect-interactive-item-children">
+        {% for child in object.children %}
+            {% include object_template with object=child %}
+        {% endfor %}
+        {% if object.total_children > object.children|length %}
+        <div class="inspect-interactive-item inspect-interactive-item-more">
+            <div class="inspect-interactive-item-title">
+                <span class="inspect-interactive-item-title-title">
+                    {% subtract object.total_children object.children|length %} more elements...
+                </span>
+            </div>
         </div>
-        {{ object.postfix }}
+        {% endif %}
+    </div>
+    {{ object.postfix }}
     {% endif %}
 </div>

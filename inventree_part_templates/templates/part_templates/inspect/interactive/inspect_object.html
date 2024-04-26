@@ -57,7 +57,10 @@
         </button>
         {% if object.children is not None %}
             {% if object.children|length > 0 %}
-                {{ object.prefix }}
+                {{ object.prefix }} 
+                <span class="inspect-interactive-item-title-postfix">
+                    {{ object.postfix }}
+                </span>
             {% elif object.total_children > 0 %}
                 {{ object.prefix }} ...|{{object.total_children}} {{ object.postfix }}
             {% else %}
@@ -67,8 +70,8 @@
         </div>
     {% endif %}
     {% if object.children is not None and object.children|length > 0 %}
-    <div id="children-{{ object.id }}">
-        <div class="collapse inspect-interactive-item-children">
+    <div id="children-{{ object.id }} collapse">
+        <div class="inspect-interactive-item-children">
             {% for child in object.children %}
                 {% include object_template with object=child %}
             {% endfor %}

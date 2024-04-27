@@ -787,6 +787,16 @@ class InspectionManager:
             'object_template': object_template 
         }
 
+        # use the django context to track if this is the first time our templates are rendered.
+        # This can be used by the templates to decide if things like including CSS or JS should be
+        # rendered
+        style_first_use_key = f'{self.options["style"]}_first'
+        if style_first_use_key not in self._django_context:
+            self._django_context[style_first_use_key] = True
+            context['first_inspection'] = True
+        else:
+            context['first_inspection'] = False
+
         # Render the template
         return frame_template.render(context)
 
@@ -809,16 +819,6 @@ class InspectionManager:
         context['value'] = inspection.get_format_value()
         context['postfix'] = inspection.get_format_postfix()
         context['total_children'] = inspection.get_total_children()
-
-        # use the django context to track if this is the first time our templates are rendered.
-        # This can be used by the templates to decide if things like including CSS or JS should be
-        # rendered
-        style_first_use_key = f'{self.options["style"]}_first'
-        if style_first_use_key not in self._django_context:
-            self._django_context[style_first_use_key] = True
-            context['first_inspection'] = True
-        else:
-            context['first_inspection'] = False
 
         # recurse into children
         inspect_children = inspection.get_children()

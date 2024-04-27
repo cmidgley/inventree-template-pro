@@ -687,7 +687,9 @@ class InspectionManager:
         self._base = self.inspect_factory(name, obj, int(options['depth']) + 1)
 
     # some types are not appropriate for recursive formatting.  They can be added to the list here
-    # which will simply get their str(obj) value
+    # which will simply get their str(obj) value.  Most can use isinstance, but some need a specific
+    # name check (like __proxy__), so a second WHITELIST_USE_SIMPLE_TYPE_BY_NAME list of strings is
+    # used to check for those.
     WHITELIST_USE_SIMPLE_TYPE = (
         str,
         int,
@@ -699,6 +701,9 @@ class InspectionManager:
         re.Pattern,
         re.Match,
         date
+    )
+    WHITELIST_USE_SIMPLE_TYPE_BY_NAME = (
+        "__proxy__"
     )
 
     def inspect_factory(self, name: str, obj: Any, depth: int) -> InspectBase:
@@ -716,6 +721,8 @@ class InspectionManager:
         if depth <= 0:
             raise ValueError(_("Internal error in InspectManager: Depth exceeded"))
 
+        if type(obj).__name__ in self.WHITELIST_USE_SIMPLE_TYPE_BY_NAME:
+            return InspectSimpleType(self, name, obj, depth - 1)
         if isinstance(obj, self.WHITELIST_USE_SIMPLE_TYPE) or obj is None:
             return InspectSimpleType(self, name, obj, depth - 1)
         if inspect.ismethod(obj) or inspect.isfunction(obj):

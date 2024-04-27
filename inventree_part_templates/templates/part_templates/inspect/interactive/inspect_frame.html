@@ -61,65 +61,81 @@ button:not(.collapsed) .inspect-interactive-item-title-postfix {
 
 <!-- toggle icon expand/collapse, and collapse children when parent collapsed -->
 <script>
-  $(document).ready(function () {
-    $('.collapse').each(function() {
-      var collapseElement = $(this);
-      var button = $('[data-bs-target="#' + collapseElement.attr('id') + '"]');
-      var icon = button.find('.expando-icon');
-  
-      // on expand, change the icon to a down arrow
-      collapseElement.on('show.bs.collapse', function () {
-        icon.removeClass('fa-caret-right').addClass('fa-caret-down');
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.collapse').forEach(function(collapseElement) {
+      var button = document.querySelector('[data-bs-target="#' + collapseElement.id + '"]');
+      var icon = button.querySelector('.expando-icon');
+      
+      // Event listener for expand
+      collapseElement.addEventListener('show.bs.collapse', function() {
+        icon.classList.remove('fa-caret-right');
+        icon.classList.add('fa-caret-down');
       });
-  
-      // on collapse, change the icon to a right arrow and collapse all children
-      collapseElement.on('hide.bs.collapse', function () {
-        icon.removeClass('fa-caret-down').addClass('fa-caret-right');
-  
-        // collapse all child collapse elements
-        collapseElement.find('.collapse.show').each(function() {
-          $(this).collapse('hide');
-          // update child icons as well
-          var childIcon = $('[data-bs-target="#' + $(this).attr('id') + '"]').find('.expando-icon');
-          childIcon.removeClass('fa-caret-down').addClass('fa-caret-right');
+      
+      // Event listener for collapse
+      collapseElement.addEventListener('hide.bs.collapse', function() {
+        icon.classList.remove('fa-caret-down');
+        icon.classList.add('fa-caret-right');
+        
+        // Manually hide all child collapse elements
+        collapseElement.querySelectorAll('.collapse.show').forEach(function(childCollapse) {
+          childCollapse.classList.remove('show');
+          childCollapse.style.height = '0'; // Mimic Bootstrap's hiding behavior
+
+          // Update child icons as well
+          var childIcon = document.querySelector('[data-bs-target="#' + childCollapse.id + '"] .expando-icon');
+          childIcon.classList.remove('fa-caret-down');
+          childIcon.classList.add('fa-caret-right');
         });
       });
     });
   });
-</script>
-  
+  </script>
+    
 <!-- logic to watch for hash changes and expand the element to be visible -->
 <script>
-  $(document).ready(function() {
+  document.addEventListener('DOMContentLoaded', function() {
     function expandToHash(hash) {
       if (!hash) return;
-        
-      // find the target element
-      var target = $('#' + hash.slice(1));
-      if (target.length === 0) return;
 
-      // collect all collapsible parents
-      var parents = target.parents('.collapse');
+      // Find the target element using native JavaScript
+      var target = document.getElementById(hash.slice(1));
+      if (!target) return;
 
-      // expand all parents 
-      parents.each(function() {
-        $(this).collapse('show');
+      // Collect all collapsible parents using closest and accumulating them
+      var parents = [];
+      var element = target;
+      while (element) {
+        element = element.closest('.collapse');
+        if (element) {
+          parents.push(element);
+          element = element.parentElement;  // continue searching from the parent
+        }
+      }
+
+      // Expand all parents
+      parents.forEach(function(parent) {
+        var bsCollapse = new bootstrap.Collapse(parent, {
+          toggle: false
+        });
+        bsCollapse.show();
       });
 
-      // scroll to the target element
+      // Scroll to the target element
       setTimeout(function() {
-        target[0].scrollIntoView({behavior: "smooth", block: "start"});
+        target.scrollIntoView({behavior: "smooth", block: "start"});
       }, 300);
     }
 
-    // run on load with the current hash
+    // Run on load with the current hash
     expandToHash(window.location.hash);
 
-    // attach an event listener for hash changes
-    $(window).on('hashchange', function() {
+    // Attach an event listener for hash changes
+    window.addEventListener('hashchange', function() {
       expandToHash(window.location.hash);
     });
   });
 </script>
+
     
 {% endif %}

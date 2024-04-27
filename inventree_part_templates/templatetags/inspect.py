@@ -671,7 +671,7 @@ class InspectionManager:
         self._obj = obj
         self._processed: Dict[int, bool] = {}
         self.options = options
-        self._django_context = context
+        self._django_request_context = context
 
         # increment our static id prefix
         InspectionManager.id_prefix_index += 1
@@ -782,12 +782,13 @@ class InspectionManager:
         object_template = loader.get_template(os.path.join(template_path, 'inspect_object.html'))
 
         # create context for the template
-        context = self._django_context if self._django_context is not None else {}
-        context['inspect'] = self._build_context(inspection)
-        context['object_template'] = object_template
+        context = { 
+            'inspect': self._build_context(inspection), 
+            'object_template': object_template 
+        }
 
         # Render the template
-        return parent_template.render(context)
+        return parent_template.render(context, self._django_request_context)
 
     def _build_context(self, inspection: InspectBase) -> Dict[str, Any]:
         """

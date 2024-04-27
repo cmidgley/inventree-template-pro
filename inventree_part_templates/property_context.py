@@ -69,7 +69,7 @@ class PropertyContext:
                     # success - add the key with the formatted result to context
                     context[CONTEXT_KEY][key] = result
         else:
-            context[CONTEXT_KEY] = { 'error', _("Must use Part or StockItem (found {type})").format(type=self._entity if isinstance(self._entity, int) else type(self._entity).__type__) }
+            context[CONTEXT_KEY] = { 'error', _("Must use Part or StockItem (found {type})").format(type=self._entity if isinstance(self._entity, int) else type(self._entity).__name__) }
 
     def get_part(self) -> Part | None:
         """

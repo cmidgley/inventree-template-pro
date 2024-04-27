@@ -13,11 +13,12 @@
       details, as usually this information is not used in this parent template.
     - object_template: the name of the child template to load for rendering the object and it's
     children.  Include the template name using `{% include object_template with object=inspect %}`.
+    - first_inspection: True if the first time this template has been used in the report.
 {% endcomment %}
 
 {% load inventree_extras %}
 
-{% if not template_interactive %}
+{% if first_inspection %}
 <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
 <link rel="stylesheet" href="/static/fontawesome/css/brands.min.css">
 <link rel="stylesheet" href="/static/fontawesome/css/solid.min.css">
@@ -49,7 +50,7 @@ button:not(.collapsed) .inspect-interactive-item-title-postfix {
 {% include object_template with object=inspect %}
 </div>
 
-{% if not template_interactive %}
+{% if first_inspection %}
 <!-- bootstrap -->
 <script type="text/javascript" src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- fontawesome -->
@@ -79,8 +80,3 @@ button:not(.collapsed) .inspect-interactive-item-title-postfix {
   });
   </script>
 {% endif %}
-
-{% comment %}
-This sets a variable in context to 1 to indicate we have already included our header/footer
-{% endcomment %}
-{% define 1 template_interactive %}

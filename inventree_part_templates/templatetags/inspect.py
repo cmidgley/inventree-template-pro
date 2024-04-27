@@ -658,7 +658,7 @@ class InspectionManager:
     # define a static member to track multiple uses of inspection on the same page
     id_prefix_index = 0
 
-    def __init__(self, name: str, obj: Any, options: Dict[str, str|int|bool]) -> None:
+    def __init__(self, name: str, obj: Any, options: Dict[str, str|int|bool], context: Context) -> None:
         """
         Initializes the InspectionManager object.
 
@@ -671,6 +671,7 @@ class InspectionManager:
         self._obj = obj
         self._processed: Dict[int, bool] = {}
         self.options = options
+        self._django_context = context
 
         # increment our static id prefix
         InspectionManager.id_prefix_index += 1
@@ -808,8 +809,16 @@ class InspectionManager:
         context['value'] = inspection.get_format_value()
         context['postfix'] = inspection.get_format_postfix()
         context['total_children'] = inspection.get_total_children()
-        # internal only context for debugging inspect itself
-        context['inspect_type'] = inspection.__class__.__name__
+
+        # use the django context to track if this is the first time our templates are rendered.
+        # This can be used by the templates to decide if things like including CSS or JS should be
+        # rendered
+        style_first_use_key = f'{self.options["style"]}_first'
+        if style_first_use_key not in self._django_context:
+            self._django_context[style_first_use_key] = True
+            context['first_inspection'] = True
+        else:
+            context['first_inspection'] = False
 
         # recurse into children
         inspect_children = inspection.get_children()

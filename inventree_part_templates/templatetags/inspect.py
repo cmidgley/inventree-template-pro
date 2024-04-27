@@ -13,7 +13,7 @@ import re
 from typing import Dict, Any, List
 from datetime import date
 from functools import partial
-from django.template import loader
+from django.template import loader, Context
 from djmoney.money import Money
 from django.utils.translation import gettext_lazy as _
 from django.db.models.query import QuerySet
@@ -148,7 +148,7 @@ class InspectBase(ABC):
         """
         return type(self._obj).__name__
 
-    def build_unique_id(self, id: int) -> str:
+    def build_unique_id(self, obj_id: int) -> str:
         """
         Builds a unique identifier for the object based on the object's ID and the current
         inspection prefix index.
@@ -159,7 +159,7 @@ class InspectBase(ABC):
         Returns:
             str: The unique identifier for the object.
         """
-        return f"Item-{InspectionManager.id_prefix_index}-{id}"
+        return f"Item-{InspectionManager.id_prefix_index}-{obj_id}"
 
     def get_format_id(self) -> str:
         """
@@ -172,7 +172,7 @@ class InspectBase(ABC):
             int: The unique identifier of the object.
         """
         return self.build_unique_id(id(self._obj))
-    
+
 
     def get_format_link_to(self) -> str | None:
         """
@@ -649,15 +649,16 @@ class InspectClass(InspectBase):
         return ""
 
 class InspectionManager:
-    # define a static member to track multiple uses of inspection on the same page
-    id_prefix_index = 0
-
     """
     The InspectionManager class is used to inspect objects and their properties, recursing into the
     objects to find properties and values according to the type of the objects, limited by depth of
     recursion and maximum items to include in a list/dict/etc.
     """
-    def __init__(self, name: str, obj: Any, options: Dict[str, str|int|bool]) -> None:
+
+    # define a static member to track multiple uses of inspection on the same page
+    id_prefix_index = 0
+
+    def __init__(self, name: str, obj: Any, options: Dict[str, str|int|bool], context: Context | None) -> None:
         """
         Initializes the InspectionManager object.
 
@@ -665,10 +666,12 @@ class InspectionManager:
             name (str): The name of the object.
             obj (Any): The object to be inspected.
             options (Dict[str, str|int|bool]): The options to control the inspection process.
+            context (Context): The Django template context to use for rendering the template (optional)
         """
         self._obj = obj
         self._processed: Dict[int, bool] = {}
         self.options = options
+        self._django_context = context
 
         # increment our static id prefix
         InspectionManager.id_prefix_index += 1
@@ -779,7 +782,9 @@ class InspectionManager:
         object_template = loader.get_template(os.path.join(template_path, 'inspect_object.html'))
 
         # create context for the template
-        context = { 'inspect': self._build_context(inspection), 'object_template': object_template }
+        context = self._django_context if self._django_context is not None else {}
+        context['inspect'] = self._build_context(inspection)
+        context['object_template'] = object_template
 
         # Render the template
         return parent_template.render(context)

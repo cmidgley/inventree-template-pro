@@ -10,12 +10,13 @@ from __future__ import annotations
 
 from typing import Any, Dict
 from django.utils.safestring import mark_safe
+from django.template import Context
+from django.utils.translation import gettext_lazy as _
 from inventree_part_templates.templatetags.inspect import InspectionManager
 from .shared import register
-from django.utils.translation import gettext_lazy as _
 
-@register.filter()
-def explore(obj:Any, options=None) -> str:
+@register.filter(takes_context=True)
+def explore(context: Context, obj:Any, options=None) -> str:
     """
     Filter to explore properties of an object for finding and understanding properties
     on various objects.  By default shows the first three levels of the object, limits 
@@ -54,7 +55,7 @@ def explore(obj:Any, options=None) -> str:
         if isinstance(options, str):
             # Split the string by commas
             split_options = options.split(',')
-            
+
             # decode each option
             for split_option in split_options:
                 if '=' in split_option:
@@ -77,5 +78,5 @@ def explore(obj:Any, options=None) -> str:
                 pass
 
     # explore the object
-    formatted_html = InspectionManager("Explore", obj, manager_options).format()
+    formatted_html = InspectionManager("Explore", obj, manager_options, context).format()
     return mark_safe(formatted_html)

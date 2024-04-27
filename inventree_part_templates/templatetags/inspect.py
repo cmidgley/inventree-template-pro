@@ -44,7 +44,7 @@ class InspectBase(ABC):
         self._name = name
         self._obj = obj
 
-    def _add_child(self, name: str, value: Any) -> None:
+    def _add_child(self, name: str, value: Any, create_child = True) -> bool:
         """
         Add a child member to this object, for objects that have sub-properties/attributes (using
         recursion).  For example, dict, list and class.  Also skips methods/partials if they have
@@ -53,16 +53,23 @@ class InspectBase(ABC):
         Args:
             name (str): The name of the child object.
             value (Any): The value of the child object, that will be recursed into.
+
+        Returns:
+            bool: True if the child was (or would be if create_child is False) added, False if it was skipped.
         """
         # if we are not showing methods, skip them
         if not self._manager.options['methods'] and (inspect.ismethod(value) or
                                                      inspect.isfunction(value) or
                                                      isinstance(value, partial)):
-            return
-        
+            return False
+
         # if we are not showing None values, skip them
         if not self._manager.options['none'] and value is None:
-            return
+            return False
+        
+        # if we are just counting and not adding, return success
+        if not create_child:
+            return True
 
         # if duplicate (already generated), add a InspectDuplicate instead, which allows us to link
         # back to the already rendered instance
@@ -70,6 +77,8 @@ class InspectBase(ABC):
             self._children.append(InspectDuplicate(self._manager, name, value, self._depth))
         else:
             self._children.append(self._manager.inspect_factory(name, value, self._depth))
+        
+        return True
 
     #
     # Abstract and virtual methods the various implementations may implement to affect the
@@ -401,12 +410,10 @@ class InspectDict(InspectBase):
         """
         super().__init__(manager, name, obj, depth)
 
+        self._total_items = 0
         for key, value in obj.items():
-            if depth > 0:
-                self._add_child(key, value)
-            if len(self._children) >= manager.get_max_items():
-                break
-        self._total_items = len(obj)
+            if self._add_child(key, value, depth > 0 and len(self._children) < manager.get_max_items()):
+                self._total_items += 1
 
     def get_format_prefix(self) -> str:
         """
@@ -415,7 +422,7 @@ class InspectDict(InspectBase):
         Returns:
             str: The format prefix.
         """
-        return "{"
+        return "Dict {"
 
     def get_format_postfix(self) -> str:
         """
@@ -462,12 +469,10 @@ class InspectList(InspectBase):
         """
         super().__init__(manager, name, obj, depth)
 
+        self._total_items = 0
         for index, item in enumerate(obj):
-            if depth > 0:
-                self._add_child(str(index), item)
-            if index >= manager.get_max_items():
-                break
-        self._total_items = len(obj)
+            if self._add_child(str(index), item, depth > 0 and index < manager.get_max_items()):
+                self._total_items = self._total_items + 1
 
     def get_format_prefix(self) -> str:
         """
@@ -476,7 +481,7 @@ class InspectList(InspectBase):
         Returns:
             str: The format prefix.
         """
-        return "["
+        return "List ["
 
     def get_format_postfix(self) -> str:
         """
@@ -540,7 +545,7 @@ class InspectQuerySet(InspectBase):
         Returns:
             str: The format prefix.
         """
-        return "["
+        return "QuerySet ["
 
     def get_format_postfix(self) -> str:
         """
@@ -610,10 +615,8 @@ class InspectClass(InspectBase):
 
             # this is a member we want to process
             if depth > 0:
-                self._add_child(attr_name, attr_value)
-
-            # track total items found
-            self._total_items += 1
+                if self._add_child(attr_name, attr_value):
+                    self._total_items += 1
 
     def get_format_prefix(self) -> str:
         """
@@ -622,7 +625,7 @@ class InspectClass(InspectBase):
         Returns:
             str: The format prefix.
         """
-        return "{"
+        return "Object {"
 
     def get_format_postfix(self) -> str:
         """

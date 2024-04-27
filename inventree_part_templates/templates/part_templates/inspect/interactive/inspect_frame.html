@@ -73,7 +73,11 @@ button:not(.collapsed) .inspect-interactive-item-title-postfix {
       });
       
       // Event listener for collapse
-      collapseElement.addEventListener('hide.bs.collapse', function() {
+      collapseElement.addEventListener('hide.bs.collapse', function(event) {
+        // Stop collapse event from bubbling up
+        event.stopPropagation();
+        
+        // change the icon to show collapsed
         icon.classList.remove('fa-caret-down');
         icon.classList.add('fa-caret-right');
         

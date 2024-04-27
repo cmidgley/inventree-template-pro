@@ -75,15 +75,21 @@ button:not(.collapsed) .inspect-interactive-item-title-postfix {
       var handleHide = function () {
         icon.classList.remove('fa-caret-down');
         icon.classList.add('fa-caret-right');
-        // Temporarily remove event listeners from children to prevent stack overflow
-        var childCollapses = collapseElement.querySelectorAll('.collapse.show');
-        childCollapses.forEach(function(child) {
-          child.removeEventListener('hide.bs.collapse', handleHide);
-          new bootstrap.Collapse(child, {
-            toggle: false
-          }).hide();
-          child.addEventListener('hide.bs.collapse', handleHide);
-        });
+
+        // Check if collapse is programmatically triggered and ignore if so
+        if (!collapseElement.dataset.programmatic) {
+          // Set a flag to ignore programmatic triggers
+          var childCollapses = collapseElement.querySelectorAll('.collapse.show');
+          childCollapses.forEach(function(child) {
+            child.dataset.programmatic = 'true'; // Mark children to ignore events
+            new bootstrap.Collapse(child, {
+              toggle: false
+            }).hide();
+          });
+        } else {
+          // Clear the flag after processing
+          delete collapseElement.dataset.programmatic;
+        }
       };
 
       collapseElement.addEventListener('show.bs.collapse', handleShow);
@@ -91,6 +97,7 @@ button:not(.collapsed) .inspect-interactive-item-title-postfix {
     });
   });
 </script>
+
 
   
 

@@ -16,15 +16,13 @@ from inventree_part_templates.templatetags.inspect import InspectionManager
 from .shared import register
 
 @register.simple_tag(takes_context=True)
-def explore(context: Context, obj:Any, depth=3, lists=5, methods=False, privates=False, style="list") -> str:
+def explore(context: Context, obj:Any, depth=3, lists=5, methods=False, privates=False, style="list", none=True) -> str:
     """
     Tag to explore properties of an object for finding and understanding properties
-    on various objects.  By default shows the first three levels of the object, limits 
-    limits to 5 items, does not show private/protected members, and does not show 
-    methods/partials.  It also uses the default output style (template) of 'list'.
-    All of these can be controlled with options.
+    on various objects.
 
-    If you specify a single numeric option, it will be used as the depth:
+    If you specify a single numeric option, it will be used as the depth (the maximum recursion
+    depth to explore the object).  For example:
 
     `{% explore part 5 }}`
 
@@ -37,11 +35,13 @@ def explore(context: Context, obj:Any, depth=3, lists=5, methods=False, privates
     style (see templates/part_templates/inspect/* for the styles and templates).
 
     Options are:
-    - depth=<number>: set the maximum depth to explore.
-    - lists=<number>: set the maximum number of items in a list to include.
-    - methods: include methods and partials in the output.
-    - privates: include private and protected members in the output.
-    - style=<style>: set the output style (template) to use.  The default is "list".
+    - depth=<number>: set the maximum depth to explore (default 3).
+    - lists=<number>: set the maximum number of items in a list to include (default 5).
+    - methods=True/False: if methods and partials are included in the output (default False).
+    - privates=True/False: if private and protected members (_ and __) are included in the output
+    (default False).
+    - style=<style>: set the output style (template) to use (default "list").
+    - none: if properties that resolve to None are included in the output (default True).
 
     Example:
     - {% explore my_object %}
@@ -55,7 +55,8 @@ def explore(context: Context, obj:Any, depth=3, lists=5, methods=False, privates
         'methods': methods, 
         'privates': privates, 
         'lists': lists, 
-        'style': style 
+        'style': style,
+        'none': none
     }
 
     # explore the object

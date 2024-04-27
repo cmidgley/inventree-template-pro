@@ -59,6 +59,10 @@ class InspectBase(ABC):
                                                      inspect.isfunction(value) or
                                                      isinstance(value, partial)):
             return
+        
+        # if we are not showing None values, skip them
+        if not self._manager.options['none'] and value is None:
+            return
 
         # if duplicate (already generated), add a InspectDuplicate instead, which allows us to link
         # back to the already rendered instance

@@ -79,4 +79,49 @@ button:not(.collapsed) .inspect-interactive-item-title-postfix {
       });
   });
   </script>
+
+  # logic to watch for hash changes and expand the element to be visible
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        function expandToHash(hash) {
+            if (!hash) return;
+            
+            // Find the element
+            var target = document.getElementById(hash.slice(1));
+            if (!target) return;
+    
+            // Find all parents that are collapsible
+            var parents = [];
+            var element = target;
+            while (element) {
+                if (element.matches('.collapse')) {
+                    parents.push(element);
+                }
+                element = element.parentElement;
+            }
+    
+            // Expand all parents
+            parents.forEach(function(parent) {
+                var bootstrapCollapse = new bootstrap.Collapse(parent, {
+                    toggle: false // Do not toggle, just ensure it's open
+                });
+                bootstrapCollapse.show();
+            });
+    
+            // Optionally, scroll to the target element
+            setTimeout(function() {
+                target.scrollIntoView({behavior: "smooth", block: "start"});
+            }, 300); // Adjust timing based on your needs
+        }
+    
+        // Run on load
+        expandToHash(window.location.hash);
+    
+        // Run on hash change
+        window.addEventListener('hashchange', function() {
+            expandToHash(window.location.hash);
+        }, false);
+    });
+  </script>
+  
 {% endif %}

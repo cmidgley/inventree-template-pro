@@ -67,26 +67,31 @@ button:not(.collapsed) .inspect-interactive-item-title-postfix {
       var button = document.querySelector('[data-bs-target="#' + collapseElement.id + '"]');
       var icon = button.querySelector('.expando-icon');
 
-      collapseElement.addEventListener('show.bs.collapse', function () {
+      var handleShow = function () {
         icon.classList.remove('fa-caret-right');
         icon.classList.add('fa-caret-down');
-      });
+      };
 
-      collapseElement.addEventListener('hide.bs.collapse', function () {
+      var handleHide = function () {
         icon.classList.remove('fa-caret-down');
         icon.classList.add('fa-caret-right');
-        // Collapse all child collapses only when the parent is being collapsed
+        // Temporarily remove event listeners from children to prevent stack overflow
         var childCollapses = collapseElement.querySelectorAll('.collapse.show');
         childCollapses.forEach(function(child) {
-          var childCollapse = new bootstrap.Collapse(child, {
+          child.removeEventListener('hide.bs.collapse', handleHide);
+          new bootstrap.Collapse(child, {
             toggle: false
-          });
-          childCollapse.hide();
+          }).hide();
+          child.addEventListener('hide.bs.collapse', handleHide);
         });
-      });
+      };
+
+      collapseElement.addEventListener('show.bs.collapse', handleShow);
+      collapseElement.addEventListener('hide.bs.collapse', handleHide);
     });
   });
 </script>
+
   
 
   <!-- logic to watch for hash changes and expand the element to be visible -->

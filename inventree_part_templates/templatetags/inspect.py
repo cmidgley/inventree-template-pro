@@ -55,8 +55,8 @@ class InspectBase(ABC):
             value (Any): The value of the child object, that will be recursed into.
         """
         # if we are not showing methods, skip them
-        if not self._manager.options['methods'] and (inspect.ismethod(value) or 
-                                                     inspect.isfunction(value) or 
+        if not self._manager.options['methods'] and (inspect.ismethod(value) or
+                                                     inspect.isfunction(value) or
                                                      isinstance(value, partial)):
             return
 
@@ -658,7 +658,7 @@ class InspectionManager:
     # define a static member to track multiple uses of inspection on the same page
     id_prefix_index = 0
 
-    def __init__(self, name: str, obj: Any, options: Dict[str, str|int|bool], context: Context | None) -> None:
+    def __init__(self, name: str, obj: Any, options: Dict[str, str|int|bool]) -> None:
         """
         Initializes the InspectionManager object.
 
@@ -671,7 +671,6 @@ class InspectionManager:
         self._obj = obj
         self._processed: Dict[int, bool] = {}
         self.options = options
-        self._django_request_context = context
 
         # increment our static id prefix
         InspectionManager.id_prefix_index += 1
@@ -782,13 +781,13 @@ class InspectionManager:
         object_template = loader.get_template(os.path.join(template_path, 'inspect_object.html'))
 
         # create context for the template
-        context = { 
+        context = {
             'inspect': self._build_context(inspection), 
             'object_template': object_template 
         }
 
         # Render the template
-        return parent_template.render(context, self._django_request_context)
+        return parent_template.render(context)
 
     def _build_context(self, inspection: InspectBase) -> Dict[str, Any]:
         """

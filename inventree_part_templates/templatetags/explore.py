@@ -15,8 +15,8 @@ from django.utils.translation import gettext_lazy as _
 from inventree_part_templates.templatetags.inspect import InspectionManager
 from .shared import register
 
-@register.simple_tag(takes_context=True)
-def explore(context: Context, obj:Any, depth=3, lists=5, methods=False, privates=False, style="list") -> str:
+@register.simple_tag(takes_context=False)
+def explore(obj:Any, depth=3, lists=5, methods=False, privates=False, style="list") -> str:
     """
     Tag to explore properties of an object for finding and understanding properties
     on various objects.  By default shows the first three levels of the object, limits 
@@ -59,5 +59,5 @@ def explore(context: Context, obj:Any, depth=3, lists=5, methods=False, privates
     }
 
     # explore the object
-    formatted_html = InspectionManager("Explore", obj, manager_options, context).format()
+    formatted_html = InspectionManager("Explore", obj, manager_options).format()
     return mark_safe(formatted_html)

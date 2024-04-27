@@ -223,7 +223,7 @@ table td.expand {
 
     <div>
         <h3>BOM Part</h3>
-        {{ part|explore:"depth=3,style=interactive"}}
+        {% explore part depth=3 style="interactive" %}
     </div>
 
     <div>
@@ -231,7 +231,7 @@ table td.expand {
         {% for build in part.active_builds %}
             <div>
                 <h4>Build order: {{ build.reference }}</h4>
-                {{ build|explore:"depth=4,style=interactive" }}
+                {% explore build depth=4 style="interactive" %}
             </div>
         {% endfor %}
     </div>

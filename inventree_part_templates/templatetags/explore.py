@@ -15,10 +15,10 @@ from django.utils.translation import gettext_lazy as _
 from inventree_part_templates.templatetags.inspect import InspectionManager
 from .shared import register
 
-@register.filter(takes_context=True)
-def explore(context: Context, obj:Any, options=None) -> str:
+@register.simple_tag(takes_context=True)
+def explore(context: Context, obj:Any, depth=3, lists=5, methods=False, privates=False, style="list") -> str:
     """
-    Filter to explore properties of an object for finding and understanding properties
+    Tag to explore properties of an object for finding and understanding properties
     on various objects.  By default shows the first three levels of the object, limits 
     limits to 5 items, does not show private/protected members, and does not show 
     methods/partials.  It also uses the default output style (template) of 'list'.
@@ -26,12 +26,11 @@ def explore(context: Context, obj:Any, options=None) -> str:
 
     If you specify a single numeric option, it will be used as the depth:
 
-    `{{ part|explore:5 }}`
+    `{% explore part 5 }}`
 
-    If you want to specify additional options, use a string with options separated by
-    commas:
+    If you want to specify additional options, use named arguments such as:
 
-    `{{ part|explore:"depth=5,methods,privates,lists=50,style=interactive" }}`
+    `{% explore part depth=5 methods=True privates=True lists=50 style="interactive" }}`
 
     This will show the first 5 levels of the object, show methods, show private/protected
     members, and show up to the first 50 lines of lists.  It also switches to the "interactive"
@@ -42,40 +41,22 @@ def explore(context: Context, obj:Any, options=None) -> str:
     - lists=<number>: set the maximum number of items in a list to include.
     - methods: include methods and partials in the output.
     - privates: include private and protected members in the output.
-    - style=<style>: set the output style (template) to use.  The default is 'list'.
+    - style=<style>: set the output style (template) to use.  The default is "list".
 
     Example:
-    - part|explore:3
-    - part|explore:"lists=10"
-    - part|explore:"depth=5,methods"
+    - {% explore my_object %}
+    - {% explore part.category 5 %}
+    - {% explore part lists=10 %}
+    - {% explore part depth=5 methods %}
     """
-    # decode the options into a dictionary
-    manager_options: Dict[str, str|int|bool] = { 'depth': 3, 'methods': False, 'privates': False, 'lists': 5, 'style': 'list' }
-    if options is not None:
-        if isinstance(options, str):
-            # Split the string by commas
-            split_options = options.split(',')
-
-            # decode each option
-            for split_option in split_options:
-                if '=' in split_option:
-                    key, value = split_option.split('=')
-                    if (key in ('depth', 'lists')) and (value.isdigit()):
-                        manager_options[key.strip().lower()] = int(value.strip())
-                    elif key in ('style'):
-                        manager_options[key.strip().lower()] = value.strip().lower()
-                    else:
-                        raise ValueError(_("Unknown option: ") + split_option)
-                else:
-                    if split_option in ('methods', 'privates'):
-                        manager_options[key.strip().lower()] = True
-                    else:
-                        raise ValueError(_("Unknown option: ") + split_option)
-        else:
-            try:
-                manager_options['depth'] = int(options)
-            except ValueError:
-                pass
+    # set up the options dictionary
+    manager_options: Dict[str, str|int|bool] = {
+        'depth': depth, 
+        'methods': methods, 
+        'privates': privates, 
+        'lists': lists, 
+        'style': style 
+    }
 
     # explore the object
     formatted_html = InspectionManager("Explore", obj, manager_options, context).format()

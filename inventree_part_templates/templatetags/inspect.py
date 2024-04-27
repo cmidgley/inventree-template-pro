@@ -777,7 +777,7 @@ class InspectionManager:
         template_path = os.path.join(current_directory, '..', 'templates', 'part_templates', 'inspect', str(self.options['style']))
 
         # load the template
-        parent_template = loader.get_template(os.path.join(template_path, 'inspect_frame.html'))
+        frame_template = loader.get_template(os.path.join(template_path, 'inspect_frame.html'))
         object_template = loader.get_template(os.path.join(template_path, 'inspect_object.html'))
 
         # create context for the template
@@ -787,7 +787,7 @@ class InspectionManager:
         }
 
         # Render the template
-        return parent_template.render(context)
+        return frame_template.render(context)
 
     def _build_context(self, inspection: InspectBase) -> Dict[str, Any]:
         """

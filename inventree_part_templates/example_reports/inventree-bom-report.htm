@@ -66,6 +66,11 @@ content: "{% inventree_version shortstring=True %}";
     width: 100%;
 }
 
+.table-materials td {
+    vertical-align: top;
+    padding-top: 10px;
+}
+
 
 .col-quantity {
     text-align: center;
@@ -102,7 +107,6 @@ content: "{% inventree_version shortstring=True %}";
 .col-reference {
     overflow-wrap: break-word;
     white-space: normal;
-    width: 
 }
 
 .error {
@@ -127,7 +131,7 @@ content: "{% inventree_version shortstring=True %}";
 
 {% block page_content %}
     {% if not part_templates %}
-        <div class="error">Plugin inventree-part-templates required</div>
+        <div class="error">{% trans "Plugin inventree-part-templates required" %}</div>
     {% elif part_templates.error %}
         <div class="error">{{ part_templates.error }}</div>
     {% else %}
@@ -135,11 +139,10 @@ content: "{% inventree_version shortstring=True %}";
             <tbody>
                 <tr>
                     <td>
-                        <h3>{% trans "Assembly for Part:" %}</h3>
+                        <h3>{% trans "Assembly for part:" %}</h3>
                         <div class='main-part-text'>
                             {{ part.full_name }}
                         </div>
-                        <br/>
                         <div class='main-part-description'>
                             {{ part.description }}
                         </div>
@@ -169,7 +172,7 @@ content: "{% inventree_version shortstring=True %}";
                     {% part_context line.sub_part.pk as part_context %}
                     {% if not part_context %}
                         <tr>
-                            <td colspan="5" class="error">Plugin inventree-part-templates did not locate part {{line.sub_part.pk }}</td>
+                            <td colspan="5" class="error">{% trans "Plugin inventree-part-templates did not locate part" %} {{line.sub_part.pk }}</td>
                         </tr>
                     {% elif part_context.error %}
                         <tr>
@@ -201,7 +204,9 @@ content: "{% inventree_version shortstring=True %}";
                                     {% for allocated_stock in build.allocated_stock %}
                                         <div class="part-allocated-stock">
                                             {% if allocated_stock.bom_item.sub_part_id == line.sub_part.pk and not part_found %}
-                                                {{ allocated_stock.quantity|floatformat:"0" }} allocated to {{ build.reference }}
+                                            {% blocktrans with quantity=allocated_stock.quantity|floatformat:"0" build_ref=build.reference %}
+                                                {{quantity}} allocated to {{build_ref}}
+                                            {% endblocktrans %}
                                             {% endif %}
                                         </div>
                                     {% endfor %}

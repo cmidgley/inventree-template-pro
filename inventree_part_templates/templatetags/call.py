@@ -13,7 +13,7 @@ def call(obj, method_name, *args):
     Call a method by name on an object with any number of arguments and return the result.
 
     Example:
-    - {% call part "getRequiredParts" true %}
+    - {% call part "getRequiredParts" true as required_parts %}
     """
     if hasattr(obj, method_name):
         method = getattr(obj, method_name)

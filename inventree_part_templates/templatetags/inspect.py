@@ -511,6 +511,33 @@ class InspectList(InspectBase):
         """
         return ""
 
+class InspectSet(InspectList):
+    """
+    Represents a inspection object for Sets, which will recurse into all members of
+    the set (limited by the max_items setting in the InspectionManager).  Inherits from
+    InspectList as it is the same logic, except for different prefix/postfix.
+    """
+
+    def get_format_prefix(self) -> str:
+        """
+        Returns the prefix for the set, which is "{".
+
+        Returns:
+            str: The format prefix.
+        """
+        return "Set {"
+
+    def get_format_postfix(self) -> str:
+        """
+        Returns the postfix for the set, which is "}".
+
+        Returns:
+
+        """
+        return "}"
+
+    
+
 class InspectQuerySet(InspectBase):
     """
     Represents a inspection object for a QuerySet, which will execute the query set to
@@ -735,6 +762,8 @@ class InspectionManager:
             return InspectPartial(self, name, obj, depth - 1)
         if isinstance(obj, dict):
             return InspectDict(self, name, obj, depth - 1)
+        if isinstance(obj, set):
+            return InspectSet(self, name, obj, depth - 1)
         if isinstance(obj, list):
             return InspectList(self, name, obj, depth - 1)
         if isinstance(obj, QuerySet):

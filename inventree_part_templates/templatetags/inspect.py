@@ -676,9 +676,8 @@ class InspectClass(InspectBase):
                 continue
 
             # this is a member we want to process
-            if depth > 0:
-                if self._add_child(attr_name, attr_value):
-                    self._total_items += 1
+            if self._add_child(attr_name, attr_value, depth > 0):
+                self._total_items += 1
 
     def get_format_prefix(self) -> str:
         """

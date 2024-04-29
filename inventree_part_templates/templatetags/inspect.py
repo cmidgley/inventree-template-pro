@@ -602,7 +602,11 @@ class InspectClass(InspectBase):
                 continue
 
             # get the attr's value
-            attr_value: Any | None = getattr(obj, attr_name, None)
+            attr_value: Any | None
+            try:
+                attr_value = getattr(obj, attr_name, None)
+            except Exception as e:   # pylint: disable=broad-except
+                attr_value = _("Error: {error}").format(err=str(e))
 
             # skip all builtins and class definitions ('type')
             if inspect.isbuiltin(attr_value) or isinstance(attr_value, type):

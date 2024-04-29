@@ -7,13 +7,10 @@
 
 from inventree_part_templates.version import PLUGIN_VERSION
 from .shared import register
-from .explore import explore
-from .replace import replace
-from .stocklist import stocklist
-from .value_filters import scrub, value, item
-from .part_context import part_context
 
-__all__ = ['explore', 'replace', 'stocklist', 'scrub', 'value', 'item', 'part_context']
+# Django won't recognize this as a valid tag library unless we include at least one tag or filter
+# directly in this file, so we have a simple tag that returns the version of the plugin.  All other
+# tags are in their own files, and use the .shared.register decorator to register them with the library.
 
 @register.simple_tag()
 def part_templates_verison() -> str:

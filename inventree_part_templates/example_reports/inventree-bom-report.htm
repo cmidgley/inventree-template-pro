@@ -26,94 +26,14 @@ content: "{% inventree_version shortstring=True %}";
     float: right;
 }
 
-.logo {
-    height: 20mm;
-    vertical-align: middle;
-}
-
-.thumb-container {
-    width: 32px;
-    display: inline-block;
-    vertical-align: top;
-    margin-right: 10px;
-}
-
-.part-thumb {
-    max-width: 32px;
-    max-height: 32px;
-    display: inline;
-}
-
-.part-info {
-    display: inline-block;
-    width: calc(100% - 32px + 10px)
-}
-
-.part-text {
-    display: block;
-}
-
-.part-description {
-    display: block;
-    font-weight: bold;
-}
-
-.part-logo {
-    max-width: 120px;
-    max-height: 120px;
-    display: inline;
-}
-
-.part-reference {
-    width: 20%;
-    overflow-wrap: break-word;
-    white-space: normal;
-}
-
-.table TH.quantity {
-    text-align: center;
-}
-
-.table TD.quantity {
-    vertical-align: middle;
-    text-align: center;
-    font-weight: bold;
-    font-size: 100%;
-}
-
-table {
-    border: 1px solid #eee;
-    border-radius: 3px;
-    border-collapse: collapse;
-    width: 100%;
-    font-size: 80%;
-    text-align: left;
-}
-
-.table td {
-    vertical-align: top;
-}
-
-table td {
-    border: 1px solid #eee;
-}
-
-table td.shrink {
-    white-space: nowrap
-}
-
-table td.expand {
-    width: 99%
-}
-
-.invisible-table {
+.borderless-table {
     border: 0px solid transparent;
     border-collapse: collapse;
     width: 100%;
     font-size: 80%;
 }
 
-.invisible-table td {
+.borderless-table td {
     border: 0px solid transparent;
     vertical-align: top;
 }
@@ -124,6 +44,65 @@ table td.expand {
 
 .main-part-description {
     display: inline;
+}
+
+.inventree-logo {
+    height: 20mm;
+    vertical-align: middle;
+}
+
+.main-part-logo {
+    display: inline;
+}
+
+.main-part-logo-img {
+    max-width: 120px;
+    max-height: 120px;
+}
+
+
+.table-materials {
+    text-align: left;
+    width: 100%;
+}
+
+
+.col-quantity {
+    text-align: center;
+    width: 100px;
+}
+
+.col-category {
+    width: 250px;
+
+}
+
+.col-part {
+}
+
+.col-part-thumb {
+    max-width: 32px;
+    max-height: 32px;
+    display: inline;
+}
+
+.col-part-text {
+    display: block;
+}
+
+.col-part-description {
+    display: block;
+    font-weight: bold;
+}
+
+.col-build {
+    width: 300px;
+}
+
+.col-reference {
+    overflow-wrap: break-word;
+    white-space: normal;
+    width: 
 }
 
 .error {
@@ -138,7 +117,7 @@ table td.expand {
 
 {% block header_content %}
 
-    <img class='logo' src='{% logo_image %}' alt="InvenTree logo" width='150'>
+    <img class='inventree-logo' src='{% logo_image %}' alt="InvenTree logo" width='150'>
 
     <div class='header-right'>
         <h3>{% trans "Bill of Materials" %}</h3>
@@ -147,13 +126,12 @@ table td.expand {
 {% endblock header_content %}
 
 {% block page_content %}
-
     {% if not part_templates %}
         <div class="error">Plugin inventree-part-templates required</div>
     {% elif part_templates.error %}
         <div class="error">{{ part_templates.error }}</div>
     {% else %}
-        <table class="invisible-table">
+        <table class="borderless-table">
             <tbody>
                 <tr>
                     <td>
@@ -167,8 +145,8 @@ table td.expand {
                         </div>
                     </td>
                     <td>
-                        <div class='part-logo'>
-                            <img src='{% part_image part height=480 %}' alt='{% trans "Image" %}' class='part-logo'>
+                        <div class='main-part-logo'>
+                            <img src='{% part_image part height=480 %}' alt='{% trans "Image" %}' class='main-part-logo-img'>
                         </div>
                     </td>
                 </tr>
@@ -176,13 +154,14 @@ table td.expand {
         </table>
 
         <h3>{% trans "Materials needed" %}</h3>
-        <table class='table table-striped table-condensed'>
+        <table class='table table-striped table-condensed table-materials'>
             <thead>
                 <tr>
-                    <th class="quantity">{% trans "Quantity" %}</th>
-                    <th>{% trans "Part" %}</th>
-                    <th>{% trans "Category" %}</th>
-                    <th class="part-reference">{% trans "Reference" %}</th>
+                    <th class="col-quantity">{% trans "Quantity" %}</th>
+                    <th class="col-category">{% trans "Category" %}</th>
+                    <th class="col-part">{% trans "Part" %}</th>
+                    <th class="col-build">{% trans "Build Allocation(s)" %}</th>
+                    <th class="col-reference">{% trans "Reference(s)" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -190,50 +169,49 @@ table td.expand {
                     {% part_context line.sub_part.pk as part_context %}
                     {% if not part_context %}
                         <tr>
-                            <td colspan="4" class="error">Plugin inventree-part-templates did not locate part {{line.sub_part.pk }}</td>
+                            <td colspan="5" class="error">Plugin inventree-part-templates did not locate part {{line.sub_part.pk }}</td>
                         </tr>
                     {% elif part_context.error %}
                         <tr>
-                            <td colspan="4" class="error">{{ part_context.error }}</td>
+                            <td colspan="5" class="error">{{ part_context.error }}</td>
                         </tr>
                     {% else %}
                         <tr>
-                            <td class="quantity">{% decimal line.quantity %}</td>
-                            <td>
-                                <div class='thumb-container'>
-                                    <img src='{% part_image line.sub_part height=240 %}' alt='{% trans "Image" %}' class='part-thumb'>
-                                </div>
-                                <div class="part-info">
-                                    <div class='part-text'>
-                                        {{ line.sub_part.full_name }}
-                                    </div>
-                                    <div class='part-description'>
-                                        {{ part_context.description }}
-                                    </div>
-                                </div>
+                            <td class="col-quantity">{% decimal line.quantity %}</td>
+                            <td class="col-category">{{ part_context.category }}</td>
+                            <td class="col-part">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <img src='{% part_image line.sub_part height=240 %}' alt='{% trans "Image" %}' class='col-part-thumb'>
+                                        </td>
+                                        <td>
+                                            <div class='col-part-text'>
+                                                {{ line.sub_part.full_name }}
+                                            </div>
+                                            <div class='col-part-description'>
+                                                {{ part_context.description }}
+                                            </div>        
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
-                            <td>{{ part_context.category }}</td>
-                            <td class="part-reference">{{ line.reference|replace:",|, " }}</td>
+                            <td class="col-build">
+                                {% for build in part.active_builds %}
+                                    {% for allocated_stock in build.allocated_stock %}
+                                        <div class="part-allocated-stock">
+                                            {% if allocated_stock.bom_item.sub_part_id == line.sub_part.pk and not part_found %}
+                                                {{ allocated_stock.quantity|floatformat:"0" }} allocated to {{ build.reference }}
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% endfor %}
+                            </td>
+                            <td class="col-reference">{{ line.reference|replace:",|, " }}</td>
                         </tr>
                     {% endif %}
                 {% endfor %}
             </tbody>
         </table>
     {% endif %}
-
-    <div>
-        <h3>BOM Part</h3>
-        {% explore part depth=3 style="interactive" none=False %}
-    </div>
-
-    <div>
-        <h3>Active builds</h3>
-        {% for build in part.active_builds %}
-            <div>
-                <h4>Build order: {{ build.reference }}</h4>
-                {% explore build depth=4 style="interactive" none=False %}
-            </div>
-        {% endfor %}
-    </div>
-
 {% endblock page_content %}

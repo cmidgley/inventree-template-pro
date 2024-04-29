@@ -459,7 +459,7 @@ class InspectList(InspectBase):
     """
     def __init__(self, manager: InspectionManager, name: str, obj: Any, depth: int) -> None:
         """
-        Initialize an instance of the InspectionNode class.
+        Initialize an instance of the InspectionList class.
 
         Args:
             manager (InspectionManager): The InspectionManager instance.
@@ -488,7 +488,7 @@ class InspectList(InspectBase):
         Returns the postfix for the list, which is "]".
 
         Returns:
-
+            str: The format postfix.
         """
         return "]"
 
@@ -511,12 +511,27 @@ class InspectList(InspectBase):
         """
         return ""
 
-class InspectSet(InspectList):
+class InspectSet(InspectBase):
     """
     Represents a inspection object for Sets, which will recurse into all members of
-    the set (limited by the max_items setting in the InspectionManager).  Inherits from
-    InspectList as it is the same logic, except for different prefix/postfix.
+    the set (limited by the max_items setting in the InspectionManager).
     """
+    def __init__(self, manager: InspectionManager, name: str, obj: Any, depth: int) -> None:
+        """
+        Initialize an instance of the InspectionSet class.
+
+        Args:
+            manager (InspectionManager): The InspectionManager instance.
+            name (str): The name of the node.
+            obj (Any): The object to be inspected.
+            depth (int): The depth of the inspection.
+        """
+        super().__init__(manager, name, obj, depth)
+
+        self._total_items = 0
+        for index, item in enumerate(obj):
+            if self._add_child(str(index), item, depth > 0 and index < manager.get_max_items()):
+                self._total_items = self._total_items + 1
 
     def get_format_prefix(self) -> str:
         """
@@ -525,19 +540,35 @@ class InspectSet(InspectList):
         Returns:
             str: The format prefix.
         """
-        return "Set {"
+        return "List {"
 
     def get_format_postfix(self) -> str:
         """
         Returns the postfix for the set, which is "}".
 
         Returns:
-
+            str: The format postfix.
         """
-        return "}"
+        return "]"
 
-    
+    def get_total_children(self) -> int:
+        """
+        Returns the total number of children for the current object, which may be larger than
+        the total number children (due to max_items)
 
+        Returns:
+            int: The total number of children.
+        """
+        return self._total_items
+
+    def get_format_value(self) -> str:
+        """
+        Since this object has children, it does not have a value to display.
+
+        Returns:
+            str: "", as this object does not have a value.
+        """
+        return ""
 class InspectQuerySet(InspectBase):
     """
     Represents a inspection object for a QuerySet, which will execute the query set to
@@ -760,10 +791,10 @@ class InspectionManager:
             return InspectMethod(self, name, obj, depth - 1)
         if isinstance(obj, partial):
             return InspectPartial(self, name, obj, depth - 1)
-        if isinstance(obj, dict):
-            return InspectDict(self, name, obj, depth - 1)
         if isinstance(obj, set):
             return InspectSet(self, name, obj, depth - 1)
+        if isinstance(obj, dict):
+            return InspectDict(self, name, obj, depth - 1)
         if isinstance(obj, list):
             return InspectList(self, name, obj, depth - 1)
         if isinstance(obj, QuerySet):

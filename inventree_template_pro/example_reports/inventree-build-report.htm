@@ -19,6 +19,10 @@ margin-top: 4cm;
     float: right;
 }
 
+tr {
+    page-break-inside: avoid;
+}
+
 .logo {
     height: 20mm;
     vertical-align: middle;
@@ -76,6 +80,7 @@ margin-top: 4cm;
     text-align: left;
     width: 100%;
     padding-top: 10px;
+    font-size: 75%;
 }
 
 .table-materials td {
@@ -88,8 +93,7 @@ margin-top: 4cm;
 }
 
 .col-category {
-    width: 250px;
-
+    width: 180px;
 }
 
 .col-part {
@@ -152,8 +156,6 @@ content: "v{{ report_revision }} - {{ date.isoformat }}";
     <div class='details-image'>
         <img class='part-image' alt="{% trans 'Part image' %}" src="{% part_image part height=480 %}">
     </div>
-
-    {{% explore part style='interactive' %}
 
     <div class='details-container'>
 
@@ -248,8 +250,8 @@ content: "v{{ report_revision }} - {{ date.isoformat }}";
     <tbody>
 
 {% call part "getRequiredParts" True None as required_parts %}
-{% for part in required_parts %}
-    {% part_context part.pk as part_context %}
+{% for required_part in required_parts %}
+    {% part_context required_part.pk as part_context %}
     {% if not part_context %}
         <tr>
             <td colspan="5" class="error">{% trans "Plugin inventree-template-pro did not locate part:" %} {{line.sub_part.pk }}</td>
@@ -260,7 +262,7 @@ content: "v{{ report_revision }} - {{ date.isoformat }}";
         </tr>
     {% else %}
             <td class="col-quantity">
-                {{ part.used_in_count }}
+                {{ required_part.used_in_count }}
             </td>
             <td class="col-category">
                 {{ part_context.category }}
@@ -269,11 +271,11 @@ content: "v{{ report_revision }} - {{ date.isoformat }}";
                 <table>
                     <tr>
                         <td>
-                            <img src='{% part_image part height=240 %}' alt='{% trans "Image" %}' class='col-part-thumb'>
+                            <img src='{% part_image required_part height=240 %}' alt='{% trans "Image" %}' class='col-part-thumb'>
                         </td>
                         <td>
                             <div class='col-part-text'>
-                                {{ part.full_name }}
+                                {{ required_part.full_name }}
                             </div>
                             <div class='col-part-description'>
                                 {{ part_context.description }}
@@ -284,21 +286,21 @@ content: "v{{ report_revision }} - {{ date.isoformat }}";
             </td>
             <td class="col-stock">
                 <div class="col-stock-available">
-                    <span class="col-stock-available-quantity">{{ part.total_stock|floatformat:"0" }} 
+                    <span class="col-stock-available-quantity">{{ required_part.total_stock|floatformat:"0" }} 
                         {% trans "on-hand" %}</span>
-                    {% if part.on_order > 0 %}
-                        {% blocktrans with on_order=part.on_order %}
+                    {% if required_part.on_order > 0 %}
+                        {% blocktrans with on_order=required_part.on_order %}
                             ({{ on_order }} on order)
                         {% endblocktrans %}
                     {% endif %}
                 </div>
                 <div class="col-stock-pricing">
-                    {% blocktrans with min=part.pricing.overall_min max=part.pricing.overall_max %}
+                    {% blocktrans with min=required_part.pricing.overall_min max=required_part.pricing.overall_max %}
                         {{ min }} - {{ max }}
                     {% endblocktrans %}
                 </div>
                 <div class="col-stock-location">
-                    {% for build_item in part.build_order_allocations %}
+                    {% for build_item in required_part.build_order_allocations %}
                         {% if build_item.build.pk == build.pk %}
                             {% if build_item.stock_item.location %}
                                 {{ build_item.stock_item.location.description }}
@@ -313,9 +315,9 @@ content: "v{{ report_revision }} - {{ date.isoformat }}";
                 </div>
             </td>
             <td class="col-reference">
-                {% for build_item in part.build_order_allocations %}
-                    {% if build_item.build.pk == build.pk %}
-                        {{ build_item.bom_item.reference|replace:",|, " }}
+                {% for build_item in part.get_bom_items %}
+                    {% if required_part.pk == build_item.sub_part_id %}
+                        {{ build_item.reference|replace:",|, " }}
                     {% endif %}
                 {% endfor %}
             </td>

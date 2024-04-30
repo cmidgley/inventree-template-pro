@@ -850,9 +850,9 @@ class InspectionManager:
             str: The formatted inspection result.
         """
         # locate the path to the templates, which is relative to this file at
-        # ../templates/part_templates/inspect/{style}
+        # ../templates/template_pro/inspect/{style}
         current_directory = os.path.dirname(os.path.abspath(__file__))
-        template_path = os.path.join(current_directory, '..', 'templates', 'part_templates', 'inspect', str(self.options['style']))
+        template_path = os.path.join(current_directory, '..', 'templates', 'template_pro', 'inspect', str(self.options['style']))
 
         # load the template
         frame_template = loader.get_template(os.path.join(template_path, 'inspect_frame.html'))

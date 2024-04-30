@@ -1,5 +1,5 @@
 """ 
-    Manages the templates and context to resolve part templates to strings for inventree-part-templates.
+    Manages the templates and context to resolve part templates to strings for inventree-template-pro.
 
     Copyright (c) 2024 Chris Midgley
     License: MIT (see LICENSE file)
@@ -12,7 +12,7 @@ from django.template import Context, Template
 from stock.models import StockItem
 from part.models import Part, PartCategory
 from plugin.mixins import SettingsMixin
-from inventree_part_templates.constants import METADATA_PARENT, METADATA_TEMPLATE_KEY, CONTEXT_KEY, MAX_TEMPLATES
+from inventree_template_pro.constants import METADATA_PARENT, METADATA_TEMPLATE_KEY, CONTEXT_KEY, MAX_TEMPLATES
 
 
 #
@@ -103,7 +103,7 @@ class PropertyContext:
         }
 
         # set up the Django template
-        django_template = Template("{% load barcode report part_templates %}" + template)
+        django_template = Template("{% load barcode report template_pro %}" + template)
         # create the template context
         context = Context(template_data)
         # format the template

@@ -12,7 +12,7 @@ from typing import Any, Dict
 from django.utils.safestring import mark_safe
 from django.template import Context
 from django.utils.translation import gettext_lazy as _
-from inventree_part_templates.templatetags.inspect import InspectionManager
+from inventree_template_pro.templatetags.inspect import InspectionManager
 from .shared import register
 
 @register.simple_tag(takes_context=True)
@@ -32,7 +32,7 @@ def explore(context: Context, obj:Any, depth=3, lists=5, methods=False, privates
 
     This will show the first 5 levels of the object, show methods, show private/protected
     members, and show up to the first 50 lines of lists.  It also switches to the "interactive"
-    style (see templates/part_templates/inspect/* for the styles and templates).
+    style (see templates/template_pro/inspect/* for the styles and templates).
 
     Options are:
     - depth=<number>: set the maximum depth to explore (default 3).

@@ -2,7 +2,7 @@
 
 {% extends "label/label_base.html" %}
 
-{% load l10n i18n barcode report part_templates %}
+{% load l10n i18n barcode report template_pro %}
 
 {% block style %}
 {% localize off %}
@@ -47,10 +47,10 @@
 
 
 {% block content %}
-{% if not part_templates %}
-    <div class="error">Plugin inventree-part-templates required</div>
-{% elif part_templates.error %}
-    <div class="error">{{ part_templates.error }}</div>
+{% if not template_pro %}
+    <div class="error">Plugin inventree-template-pro required</div>
+{% elif template_pro.error %}
+    <div class="error">{{ template_pro.error }}</div>
 {% else %}
     <div class="label">
         <div class="narrow">

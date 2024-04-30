@@ -5,7 +5,7 @@
     License: MIT (see LICENSE file)
 """
 
-from inventree_part_templates.version import PLUGIN_VERSION
+from inventree_template_pro.version import PLUGIN_VERSION
 from .shared import register
 
 # Django won't recognize this as a valid tag library unless we include at least one tag or filter
@@ -13,7 +13,7 @@ from .shared import register
 # tags are in their own files, and use the .shared.register decorator to register them with the library.
 
 @register.simple_tag()
-def part_templates_verison() -> str:
+def template_pro_verison() -> str:
     """
     Returns the version of the part templates plugin
     """

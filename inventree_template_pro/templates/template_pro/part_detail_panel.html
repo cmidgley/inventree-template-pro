@@ -1,5 +1,5 @@
 <!--
-inventree-part-templates
+inventree-template-pro
 
 Copyright (c) 2024 Chris Midgley
 License: MIT (see LICENSE file)
@@ -49,7 +49,7 @@ panel used on Part and Category detail pages to display and manage part template
         let table = $('#part-template-table');
         // edit button handler
         $(table)
-            .find('.button-part-templates-edit')
+            .find('.button-template-pro-edit')
             .click(function () {
                 let html = `
                     <div>
@@ -62,7 +62,7 @@ panel used on Part and Category detail pages to display and manage part template
                         </ul>
                         {% trans "The following custom filters are available:" %}
                         <ul>
-                            <li>{% trans '<code>item</code>: An item from a dictionary, such as <code>parameters|item:"Rated Voltage"</code>' %}.  It is run through the scrubbing filter if the item name matches a filter in <code>part_templates.yaml</code>.</li>
+                            <li>{% trans '<code>item</code>: An item from a dictionary, such as <code>parameters|item:"Rated Voltage"</code>' %}.  It is run through the scrubbing filter if the item name matches a filter in <code>template_pro.yaml</code>.</li>
                             <li>{% trans '<code>value</code>: An item from a dictionary, such as <code>parameters|value:"Package Type"</code>, but not scrubbed.'%}</li>
                             <li>{% trans '<code>scrub</code>: A filter that scrubs a value, such as <code>part.Name|scrub:"MPN"</code>' %}</li>
                         </ul>
@@ -97,7 +97,7 @@ panel used on Part and Category detail pages to display and manage part template
 
         // delete button handler
         $(table)
-            .find('.button-part-templates-delete')
+            .find('.button-template-pro-delete')
             .click(function () {
                 // var pk = $(this).attr('pk');
 
@@ -121,7 +121,7 @@ panel used on Part and Category detail pages to display and manage part template
             });
     }
 </script>
-{% if part_templates %}
+{% if template_pro %}
 <div class="bootstrap-table bootstrap5">
 	<div class="fixed-table-container" style="padding-bottom: 0px;">
 		<div class="fixed-table-body">
@@ -129,23 +129,23 @@ panel used on Part and Category detail pages to display and manage part template
                 <thead>
                     <tr>
                         <th><div class="th-inner">{% trans "Context property" %}</div></th>
-                        {% if part_templates_may_view %}
+                        {% if template_pro_may_view %}
                             <th><div class="th-inner">{% trans "Value" %}</div></th>
                         {% endif %}
-                        {% if part_templates_may_edit %}
+                        {% if template_pro_may_edit %}
                             <th><div class="th-inner">{% trans "Context template " %}</div></th>
                             <th></th>
                         {% endif %}
                     </tr>
                 </thead>
                 <tbody>
-                    {% for item in part_templates %}
+                    {% for item in template_pro %}
                     <tr>
                         <td>{{ item.key }}</td>
-                        {% if part_templates_may_view %}
+                        {% if template_pro_may_view %}
 			<td>{{ item.rendered_template }}</td>
                         {% endif %}
-                        {% if part_templates_may_edit %}
+                        {% if template_pro_may_edit %}
                             <td>
                                 {% if item.template %}
                                     {{ item.template }}
@@ -161,17 +161,17 @@ panel used on Part and Category detail pages to display and manage part template
                                     <button
                                         key="{{ item.key }}"
                                         template="{{ item.template }}"
-                                        api_url="{% url 'plugin:part-templates:set_template' item.key item.entity item.pk %}"
-                                        id="button-part-templates-edit-{{ item.key }}"
-                                        class="btn btn-outline-secondary button-part-templates-edit"
+                                        api_url="{% url 'plugin:template-pro:set_template' item.key item.entity item.pk %}"
+                                        id="button-template-pro-edit-{{ item.key }}"
+                                        class="btn btn-outline-secondary button-template-pro-edit"
                                         title='{% trans "Edit template" %}'>
                                         <span class="fas fa-edit icon-blue"></span>
                                     </button>
                                     <button
                                         key="{{ item.key }}"
-                                        api_url="{% url 'plugin:part-templates:set_template' item.key item.entity item.pk %}"
-                                        id="button-part-templates-delete-{{ item.key }}"
-                                        class="btn btn-outline-secondary button-part-templates-delete"
+                                        api_url="{% url 'plugin:template-pro:set_template' item.key item.entity item.pk %}"
+                                        id="button-template-pro-delete-{{ item.key }}"
+                                        class="btn btn-outline-secondary button-template-pro-delete"
                                         title='{% trans "Delete template" %}'
                                         {% if not item.template %}disabled="true"{% endif %}>
                                             <span class="fas fa-trash-alt {% if item.template %}icon-red{% else %}icon-gray{% endif %}"></span>
@@ -188,6 +188,6 @@ panel used on Part and Category detail pages to display and manage part template
 </div>
 {% else %}
 <p>
-    {% trans 'Plugin not configured (see <a href="/settings/">settings</a> and select Inventree Part Templates" from the Plugins section).' %}
+    {% trans 'Plugin not configured (see <a href="/settings/">settings</a> and select InvenTree Part Templates" from the Plugins section).' %}
 </p>
 {% endif %}

@@ -1,12 +1,12 @@
 """"
-Setup script for the inventree-part-templates plugin.
+Setup script for the inventree-template-pro plugin.
 """
 # -*- coding: utf-8 -*-
 
 import os
 from typing import Dict, List
 import setuptools
-from inventree_part_templates.version import PLUGIN_VERSION
+from inventree_template_pro.version import PLUGIN_VERSION
 
 # get a long_description using our README.md file
 with open('README.md', encoding='utf-8') as f:
@@ -32,22 +32,22 @@ def add_templates_to_package_data(orig_package_data: Dict[str, List[str]], base_
     html_template_data = find_package_data(base_dir, template_dir)
 
     for file_to_add in html_template_data:
-        orig_package_data['inventree_part_templates'].append(file_to_add)
+        orig_package_data['inventree_template_pro'].append(file_to_add)
 
     return orig_package_data
 
 
 static_package_data: Dict[str, List[str]] = {
-    'inventree_part_templates': [
-        'part_templates.yaml',
+    'inventree_template_pro': [
+        'template_pro.yaml',
         'example_labels/*',
         'example_reports/*'
     ]
 }
-package_data = add_templates_to_package_data(static_package_data, 'inventree_part_templates', 'templates/part_templates')
+package_data = add_templates_to_package_data(static_package_data, 'inventree_template_pro', 'templates/template_pro')
 
 setuptools.setup(
-    name="inventree-part-templates",
+    name="inventree-template-pro",
 
     version=PLUGIN_VERSION,
 
@@ -63,7 +63,7 @@ setuptools.setup(
 
     keywords="inventree inventreeplugins plugins label report part category print template",
 
-    url="https://github.com/cmidgley/inventree-part-templates",
+    url="https://github.com/cmidgley/inventree-template-pro",
 
     license="MIT",
 
@@ -83,7 +83,7 @@ setuptools.setup(
 
     entry_points={
         "inventree_plugins": [
-            "PartTemplatesPlugin = inventree_part_templates.part_templates_plugin:PartTemplatesPlugin"
+            "PartTemplatesPlugin = inventree_template_pro.template_pro_plugin:PartTemplatesPlugin"
         ]
     },
 )

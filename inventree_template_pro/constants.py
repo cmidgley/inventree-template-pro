@@ -6,8 +6,8 @@
 """
 
 # internal settings
-CONTEXT_KEY = 'part_templates'
-METADATA_PARENT = 'part_template_plugin'
+CONTEXT_KEY = 'template_pro'
+METADATA_PARENT = 'template_pro_plugin'
 METADATA_TEMPLATE_KEY = 'templates'
 MAX_TEMPLATES = 5
 TEMPLATETAGS_CONTEXT_PLUGIN = 'plugin-instance'

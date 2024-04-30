@@ -5,7 +5,7 @@
 {% load report %}
 {% load barcode %}
 {% load inventree_extras %}
-{% load part_templates %}
+{% load template_pro %}
 
 {% block page_margin %}
 margin: 2cm;
@@ -130,10 +130,10 @@ content: "{% inventree_version shortstring=True %}";
 {% endblock header_content %}
 
 {% block page_content %}
-    {% if not part_templates %}
-        <div class="error">{% trans "Plugin inventree-part-templates required" %}</div>
-    {% elif part_templates.error %}
-        <div class="error">{{ part_templates.error }}</div>
+    {% if not template_pro %}
+        <div class="error">{% trans "Plugin inventree-template-pro required" %}</div>
+    {% elif template_pro.error %}
+        <div class="error">{{ template_pro.error }}</div>
     {% else %}
         <table class="borderless-table">
             <tbody>
@@ -172,7 +172,7 @@ content: "{% inventree_version shortstring=True %}";
                     {% part_context line.sub_part.pk as part_context %}
                     {% if not part_context %}
                         <tr>
-                            <td colspan="5" class="error">{% trans "Plugin inventree-part-templates did not locate part" %} {{line.sub_part.pk }}</td>
+                            <td colspan="5" class="error">{% trans "Plugin inventree-template-pro did not locate part" %} {{line.sub_part.pk }}</td>
                         </tr>
                     {% elif part_context.error %}
                         <tr>

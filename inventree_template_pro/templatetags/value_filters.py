@@ -27,22 +27,22 @@ Config = Dict[str, Filters]
 def load_filters() -> Config:
     """
     Provides the filters from the configuration file, from cache or by loading the file.  The file
-    path and name can be defined in the environment variable PART_TEMPLATES_CONFIG_FILE, or it will
-    default to 'part_templates.yaml' in the inventree-part-templates plugin directory.
+    path and name can be defined in the environment variable TEMPLATE_PRO_CONFIG_FILE, or it will
+    default to 'template_pro.yaml' in the inventree-template-pro plugin directory.
 
     Returns:
         Config: The loaded filters from the configuration file.
     """
     # do we have config cached?
-    filters: Config | None = cache.get('part-templates-yaml')
+    filters: Config | None = cache.get('template-pro-yaml')
     if not filters:
         # set the path to the config file using environment variable PART_TEPLATES_CONFIG_FILE, or
         # get from the plugin directory if not set
-        cfg_filename = os.getenv('PART_TEMPLATES_CONFIG_FILE')
+        cfg_filename = os.getenv('TEMPLATE_PRO_CONFIG_FILE')
         if cfg_filename:
             cfg_filename = Path(cfg_filename.strip()).resolve()
         else:
-            cfg_filename = Path(__file__).parent.parent.joinpath('part_templates.yaml').resolve()
+            cfg_filename = Path(__file__).parent.parent.joinpath('template_pro.yaml').resolve()
 
         # load the config file
         with open(cfg_filename, 'r', encoding='utf-8') as file:
@@ -52,13 +52,13 @@ def load_filters() -> Config:
             filters = loaded_data
 
         # cache the config data
-        cache.set('part-templates-yaml', filters, timeout=CACHE_TIMEOUT)
+        cache.set('template-pro-yaml', filters, timeout=CACHE_TIMEOUT)
     return filters
 
 @register.filter()
 def scrub(scrub_string: str, name: str) -> str:
     """
-    Scrubs a string (typically from a part parameter) using rules defined in the part_templates.yaml
+    Scrubs a string (typically from a part parameter) using rules defined in the template_pro.yaml
     file based on the supplied name.  The rules are defined in the configuration file as a list of
     dictionaries, where each dictionary contains a pattern and replacement key using regex.
 
@@ -71,7 +71,7 @@ def scrub(scrub_string: str, name: str) -> str:
     try:
         config = load_filters()
     except FileNotFoundError as error:
-        return (_('["part_templates.yaml" not found or invalid: {error}]').format(error=str(error)))
+        return (_('["template_pro.yaml" not found or invalid: {error}]').format(error=str(error)))
     except yaml.YAMLError as error:
         return (_("[Error in configuration file: {error}]").format(error=str(error)))
 

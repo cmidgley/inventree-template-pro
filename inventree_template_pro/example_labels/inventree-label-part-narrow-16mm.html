@@ -2,7 +2,7 @@
 
 {% extends "label/label_base.html" %}
 
-{% load l10n i18n barcode report part_templates %}
+{% load l10n i18n barcode report template_pro %}
 
 {% block style %}
 {% localize off %}
@@ -110,10 +110,10 @@
 
 
 {% block content %}
-{% if not part_templates %}
-    <div class="error">Plugin inventree-part-templates required</div>
-{% elif part_templates.error %}
-    <div class="error">{{ part_templates.error }}</div>
+{% if not template_pro %}
+    <div class="error">Plugin inventree-template-pro required</div>
+{% elif template_pro.error %}
+    <div class="error">{{ template_pro.error }}</div>
 {% else %}
     <div class="label">
         <div class="narrow">
@@ -121,13 +121,13 @@
 
             <div class='right-section'>
                 <div class="'category-ipn">
-                    <span class='category'>{{ part_templates.short_cat }}</span>
+                    <span class='category'>{{ template_pro.short_cat }}</span>
                     {% if part.IPN %}
                         <span class='ipn'>{{ part.IPN }}</span>
                     {% endif %}
                 </div>
                 <div class='name'>{{ part.name|scrub:"MPN" }}</div>
-                <div class='description'>{{ part_templates.description }}</div>
+                <div class='description'>{{ template_pro.description }}</div>
             </div>
         </div>
     </div>

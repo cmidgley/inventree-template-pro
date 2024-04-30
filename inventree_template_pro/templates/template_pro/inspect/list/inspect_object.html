@@ -30,7 +30,7 @@
     larger than the number of items in children due to filtering of item-level content
 {% endcomment %}
 
-{% load report part_templates %}
+{% load report template_pro %}
 <li>
     {% if object.link_to %}
         <a href="#{{ object.link_to }}">{{ object.title }} ({{object.type}})</a>

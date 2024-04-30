@@ -1,5 +1,5 @@
 """ 
-    InvenTree-Part-Templates: A plugin for InvenTree that extends reporting (including label reports) with context properties
+    inventree-template-pro: A plugin for InvenTree that extends reporting (including label reports) with context properties
     that are built from category and part context templates.  
 
     Copyright (c) 2024 Chris Midgley
@@ -18,7 +18,7 @@ from stock.views import StockItemDetail
 from django.views.generic import UpdateView
 from django.urls import path
 from django.http import HttpResponse, HttpRequest, JsonResponse
-from inventree_part_templates.constants import METADATA_PARENT, METADATA_TEMPLATE_KEY, MAX_TEMPLATES, TEMPLATETAGS_CONTEXT_PLUGIN
+from inventree_template_pro.constants import METADATA_PARENT, METADATA_TEMPLATE_KEY, MAX_TEMPLATES, TEMPLATETAGS_CONTEXT_PLUGIN
 from .version import PLUGIN_VERSION
 from django.contrib.auth.models import User
 from .property_context import PropertyContext
@@ -30,7 +30,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
 
     # plugin metadata for identity in InvenTree
     NAME = "PartTemplatesPlugin"
-    SLUG = "part-templates"
+    SLUG = "template-pro"
     TITLE = _("InvenTree Part Templates")
     DESCRIPTION = _("Extends reporting with customizable part / category templates")
     VERSION = PLUGIN_VERSION
@@ -58,7 +58,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         },
         'T1_KEY': {
             'name': _('Template 1: Context property name'),
-            'description': _('Name of the context property (used in templates such as "part_templates.my_name.")'),
+            'description': _('Name of the context property (used in templates such as "template_pro.my_name.")'),
             'default': 'description',
         },
         'T1_TEMPLATE': {
@@ -68,7 +68,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         },
         'T2_KEY': {
             'name': _('Template 2: Context property name'),
-            'description': _('Name of the context property (used in templates such as "part_templates.my_name.")'),
+            'description': _('Name of the context property (used in templates such as "template_pro.my_name.")'),
             'default': 'category',
         },
         'T2_TEMPLATE': {
@@ -78,7 +78,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         },
         'T3_KEY': {
             'name': _('Template 3: Context property name'),
-            'description': _('Name of the context property (used in templates such as "part_templates.my_name.")'),
+            'description': _('Name of the context property (used in templates such as "template_pro.my_name.")'),
             'default': '',
         },
         'T3_TEMPLATE': {
@@ -88,7 +88,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         },
         'T4_KEY': {
             'name': _('Template 4: Context property name'),
-            'description': _('Name of the context property (used in templates such as "part_templates.my_name.")'),
+            'description': _('Name of the context property (used in templates such as "template_pro.my_name.")'),
             'default': '',
         },
         'T4_TEMPLATE': {
@@ -98,7 +98,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         },
         'T5_KEY': {
             'name': _('Template 5: Context property name'),
-            'description': _('Name of the context property (used in templates such as "part_templates.my_name.")'),
+            'description': _('Name of the context property (used in templates such as "template_pro.my_name.")'),
             'default': '',
         },
         'T5_TEMPLATE': {
@@ -156,7 +156,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         """
         Retrieves the panel context for the given view, when PartDetail or CategoryDetail and
         settings EDITING and VIEWING indiate the panel should be shown.  The context name is
-        'part_templates' and is a list of entries one per template context variable defined in the
+        'template_pro' and is a list of entries one per template context variable defined in the
         plugin settings.  Each entry contains the key name (key), the template associated with the
         key (template), and the inherited template for the key (inherited_template).  The inherited
         template is the template that would be used if the template on the instance was not defined.
@@ -178,9 +178,9 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
             return ctx
 
         # add our context
-        ctx['part_templates'] = self._get_panel_context(view.get_object())
-        ctx['part_templates_may_edit'] = self._may_edit_panel(request, view)
-        ctx['part_templates_may_view'] = self._may_view_panel(request, view)
+        ctx['template_pro'] = self._get_panel_context(view.get_object())
+        ctx['template_pro_may_edit'] = self._may_edit_panel(request, view)
+        ctx['template_pro_may_view'] = self._may_view_panel(request, view)
 
         return ctx
 
@@ -206,7 +206,7 @@ class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, Settings
         panels.append({
             'title': 'Part Templates',
             'icon': 'fa-file-alt',
-            'content_template': 'part_templates/part_detail_panel.html',
+            'content_template': 'template_pro/part_detail_panel.html',
             'javascript': 'onPartTemplatesPanelLoad();'
         })
 

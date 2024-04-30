@@ -5,7 +5,7 @@
 
 {% extends "label/label_base.html" %}
 
-{% load l10n i18n barcode report part_templates %}
+{% load l10n i18n barcode report template_pro %}
 
 {% block style %}
 {% localize off %}
@@ -106,21 +106,21 @@
 
 
 {% block content %}
-{% if not part_templates %}
-    <div class="error">Plugin inventree-part-templates required</div>
-{% elif part_templates.error %}
-    <div class="error">{{ part_templates.error }}</div>
+{% if not template_pro %}
+    <div class="error">Plugin inventree-template-pro required</div>
+{% elif template_pro.error %}
+    <div class="error">{{ template_pro.error }}</div>
 {% else %}
     <div class="label">
         <div class="smd">
             <img class='qr' alt="{% trans 'QR Code' %}" src='{% qrcode qr_data %}'>
 
             <div class='right-section'>
-                <div class='category'>{{ part_templates.short_cat }}</div>
+                <div class='category'>{{ template_pro.short_cat }}</div>
             </div>
             <div class='bottom-section'>
                 <div class='name'>{{ part.name|scrub:"MPN" }}</div>
-                <div class='description'>{{ part_templates.short_desc }}</div>
+                <div class='description'>{{ template_pro.short_desc }}</div>
             </div>  
         </div>
     </div>

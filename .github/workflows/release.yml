@@ -1,4 +1,4 @@
-name: Release inventree-part-templates to PyPI based on a GitHub Release tag
+name: Release inventree-template-pro to PyPI based on a GitHub Release tag
 
 on:
   release:

@@ -6,12 +6,12 @@
 """
 
 from typing import Dict
-from inventree_part_templates.property_context import PropertyContext
-from inventree_part_templates.constants import TEMPLATETAGS_CONTEXT_PLUGIN
+from inventree_template_pro.property_context import PropertyContext
+from inventree_template_pro.constants import TEMPLATETAGS_CONTEXT_PLUGIN
 from .shared import register
 from django.template import Context
 from django.utils.translation import gettext_lazy as _
-from inventree_part_templates.constants import CONTEXT_KEY
+from inventree_template_pro.constants import CONTEXT_KEY
 
 @register.simple_tag(takes_context=True)
 def part_context(context: Context, pk: str) -> Dict[str, str]:
@@ -27,7 +27,7 @@ def part_context(context: Context, pk: str) -> Dict[str, str]:
     # make sure we have the plugin in context
     plugin = context.get(TEMPLATETAGS_CONTEXT_PLUGIN)
     if not plugin:
-        return { 'error': _("[Internal error: inventree_part_templates unable to locate plugin inside context]") }
+        return { 'error': _("[Internal error: inventree_template_pro unable to locate plugin inside context]") }
 
     # instantiate the plugin class to so we can get the property context for this part
     property_context = PropertyContext(pk)

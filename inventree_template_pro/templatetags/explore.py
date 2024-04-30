@@ -16,7 +16,7 @@ from inventree_template_pro.templatetags.inspect import InspectionManager
 from .shared import register
 
 @register.simple_tag(takes_context=True)
-def explore(context: Context, obj:Any, depth=3, lists=5, methods=False, privates=False, style="list", none=True) -> str:
+def explore(context: Context, obj:Any, depth=3, lists=5, methods=True, privates=False, style="list", none=True) -> str:
     """
     Tag to explore properties of an object for finding and understanding properties
     on various objects.
@@ -37,7 +37,7 @@ def explore(context: Context, obj:Any, depth=3, lists=5, methods=False, privates
     Options are:
     - depth=<number>: set the maximum depth to explore (default 3).
     - lists=<number>: set the maximum number of items in a list to include (default 5).
-    - methods=True/False: if methods and partials are included in the output (default False).
+    - methods=True/False: if methods and partials are included in the output (default True).
     - privates=True/False: if private and protected members (_ and __) are included in the output
     (default False).
     - style=<style>: set the output style (template) to use (default "list").

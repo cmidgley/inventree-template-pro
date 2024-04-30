@@ -67,7 +67,8 @@ simply use this tag:
 Your report will contain detailed information about the members of the part, like this (shown with
 the "interactive" style using reports in debug mode for HTML interaction):
 
-*** ADD IMAGE OF INTERACTIVE ***
+<img alt="Screen shot of Explore tag with the Interactive style" src="https://github.com/cmidgley/inventree-template-pro/raw/main/README-images/explore-interactive-example.png" style="border: black 1px
+solid" width="350px">
 
 ## Example Labels and Reports
 
@@ -75,29 +76,31 @@ A few example labels and reports are provided (the ones the author uses) to show
 capabilities. For example, here is a fragment of a "Build report" that contains detailed part
 information including stock allocation details:
 
-*** ADD FRAGMENT IMAGE OF BUILD REPORT ***
+<img alt="Partial example build report" src="https://github.com/cmidgley/inventree-template-pro/raw/main/README-images/build-report-example.png" style="border: black 1px
+solid" width="350px">
 
 
 ## Documentation
 
 General documentation on installation, configuration, and usage:
 
-- [Installation](): Brief description of how to install the plugin.
-- [Context Templates](): How to use Context Templates for parts based on part categories.
-- [Parameter Scrubbing](): How to configure parameter scrubbing to clean up imported parameter values.
-- [Example reports]() and [Example labels](): Review examples included in this GitHub repo.
+- [Installation](https://github.com/cmidgley/inventree-template-pro/tree/main/README-images/installation.md): Brief description of how to install the plugin.
+- [Context Templates](https://github.com/cmidgley/inventree-template-pro/tree/main/README-images/context-templates.md): How to use Context Templates for parts based on part categories.
+- [Parameter Scrubbing](https://github.com/cmidgley/inventree-template-pro/tree/main/README-images/parameter-scrubbing.md): How to configure parameter scrubbing to clean up imported parameter values.
+- [Example reports](https://github.com/cmidgley/inventree-template-pro/tree/main/example_reports) and [Example labels](https://github.com/cmidgley/inventree-template-pro/tree/main/example_labels): Review examples included in this GitHub repo.
 
 Information on each of the tags and filters provided by InvenTree Template Pro:
 
-- [`call` tag](): Utility tag to call any method of an object with parameters.
-- [`explore` tag](): Explore the properties and methods of InvenTree objects in your reports.
-- [`item` filter](): Retrieve a property value from a part (or any dictionary) with automatic Parameter Scrubbing.
-- [`part_context` tag](): Get a part context using Context Templates for any part, such as when
+- [`call` tag](https://github.com/cmidgley/inventree-template-pro/tree/main/README-images/call-tag.md): Utility tag to call any method of an object with parameters.
+- [`explore` tag](https://github.com/cmidgley/inventree-template-pro/tree/main/README-images/explore-tag.md): Explore the properties and methods of InvenTree objects in your reports.
+- [`item` filter](https://github.com/cmidgley/inventree-template-pro/tree/main/README-images/item-filter.md): Retrieve a property value from a part (or any dictionary) with automatic Parameter Scrubbing.
+- [`part_context` tag](https://github.com/cmidgley/inventree-template-pro/tree/main/README-images/part-context-tag.md): Get a part context using Context Templates for any part, such as when
   processing parts in a loop for reporting.
-- [`replace` filter](): Helper method to replace content in a string using simple match/replace or
+- [`replace` filter](https://github.com/cmidgley/inventree-template-pro/tree/main/README-images/replace-filter.md): Helper method to replace content in a string using simple match/replace or
   more advanced with regular expressions.
-- [`scrub` filter](): Scrub any string based on any filter name using Parameter Scrubbing.
-- [`value` filter](): Retrieve a property value from a part (or any dictionary), without Parameter Scrubbing.
+- [`scrub` filter](https://github.com/cmidgley/inventree-template-pro/tree/main/README-images/scrub-filter.md): Scrub any string based on any filter name using Parameter Scrubbing.
+- [`value` filter](https://github.com/cmidgley/inventree-template-pro/tree/main/README-images/value-filter.md): Retrieve a property value from a part (or any dictionary), without Parameter Scrubbing.
 
+## License
 
-
+Licensed under the [MIT License](https://github.com/cmidgley/inventree-template-pro/tree/main/LICENSE).

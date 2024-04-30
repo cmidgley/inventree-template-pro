@@ -1,7 +1,9 @@
 """ 
-    inventree-template-pro: A plugin for InvenTree that extends reporting (including label reports) with context properties
-    that are built from category and part context templates.  
-
+    inventree-template-pro: A plugin for InvenTree that extends reporting (including label reports)
+    with template tags and filters including part and category context templates, parameter
+    scrubbing and object exploring.  This plugin is designed to be used with the InvenTree
+    inventory management system.
+ 
     Copyright (c) 2024 Chris Midgley
     License: MIT (see LICENSE file)
 """
@@ -23,16 +25,18 @@ from .version import PLUGIN_VERSION
 from django.contrib.auth.models import User
 from .property_context import PropertyContext
 
-class PartTemplatesPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, InvenTreePlugin):
+class TemplatesProPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, SettingsMixin, InvenTreePlugin):
     """
-    A plugin for InvenTree that extends reporting with customizable part / category templates.
+    A plugin for InvenTree that extends reporting (including label reports) with template tags and
+    filters including part and category context templates, parameter scrubbing and object exploring.
+    This plugin is designed to be used with the InvenTree inventory management system.
     """
 
     # plugin metadata for identity in InvenTree
-    NAME = "PartTemplatesPlugin"
+    NAME = "TemplatesProPlugin"
     SLUG = "template-pro"
     TITLE = _("InvenTree Part Templates")
-    DESCRIPTION = _("Extends reporting with customizable part / category templates")
+    DESCRIPTION = _("Extends InvenTree reporting with template tags and filters including part and category context templates, parameter scrubbing and object exploring.")
     VERSION = PLUGIN_VERSION
     AUTHOR = "Chris Midgley"
 

@@ -79,7 +79,7 @@ Then, install the plugin using your preferred method. The easiest methods are:
 - Visit the `Settings / Plugin Settings / Plugins` page in the management console and install it
   from there.
 
-Once installed, verify the installation by checking the `Settings / Plugin Settings / Plugins` page. There should be no errors from plugins at the bottom of the page, and the `PartTemplatesPlugin` should be listed.
+Once installed, verify the installation by checking the `Settings / Plugin Settings / Plugins` page. There should be no errors from plugins at the bottom of the page, and the `TemplatesProPlugin` should be listed.
 
 # Plugin settings
 

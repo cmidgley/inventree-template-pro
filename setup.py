@@ -83,7 +83,7 @@ setuptools.setup(
 
     entry_points={
         "inventree_plugins": [
-            "PartTemplatesPlugin = inventree_template_pro.template_pro_plugin:PartTemplatesPlugin"
+            "TemplatesProPlugin = inventree_template_pro.template_pro_plugin:TemplatesProPlugin"
         ]
     },
 )

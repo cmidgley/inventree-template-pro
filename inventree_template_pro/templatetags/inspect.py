@@ -1,5 +1,5 @@
 """ 
-    Object inspection w/recursion for the inventree-part-template plugin  
+    Object inspection w/recursion for the inventree-template-pro plugin  
 
     Copyright (c) 2024 Chris Midgley
     License: MIT (see LICENSE file)

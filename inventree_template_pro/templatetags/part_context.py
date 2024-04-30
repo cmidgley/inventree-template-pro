@@ -1,5 +1,5 @@
 """ 
-    'replace' template tag for the inventree-part-template plugin  
+    'replace' template tag for the inventree-template-pro plugin  
 
     Copyright (c) 2024 Chris Midgley
     License: MIT (see LICENSE file)

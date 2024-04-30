@@ -20,7 +20,6 @@ def find_package_data(base_folder: str, source_folder: str) -> List[str]:
             if filename.endswith('.html'):
                 directory = path[len(base_folder)+1:]
                 full_path = os.path.join(directory, filename)
-                print(f"Found {full_path}")
                 paths.append(full_path)
     return paths
 
@@ -61,7 +60,7 @@ setuptools.setup(
 
     long_description_content_type='text/markdown',
 
-    keywords="inventree inventreeplugins plugins label report part category print template",
+    keywords="inventree inventreeplugins plugins label report part category print template parameter scrub explore",
 
     url="https://github.com/cmidgley/inventree-template-pro",
 

@@ -1,5 +1,5 @@
 """ 
-    Shared library for all template tags/filters for the inventree-part-template plugin  
+    Shared library for all template tags/filters for the inventree-template-pro plugin  
 
     Copyright (c) 2024 Chris Midgley
     License: MIT (see LICENSE file)

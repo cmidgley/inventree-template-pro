@@ -39,14 +39,14 @@ panel used on Part and Category detail pages to display and manage part template
             showMessage(`{% trans "Unable to save; network error " %}${e}`, { style: 'danger' });
         }
     	$(opts.modal).modal('hide');
-        window.location.href = window.location.origin + window.location.pathname + '?display=parttemplatesparttemplates#'
+        window.location.href = window.location.origin + window.location.pathname + '?display=templateprotemplatepro#'
         location.reload();
     }
     
     // handler for when the part templates panel is loaded.  Sets up the on-click handlers for edit 
     // and delete, including the confirmation/edit dialogs and requesting the template changes to be saved.
-    function onPartTemplatesPanelLoad() {
-        let table = $('#part-template-table');
+    function onTemplateProPanelLoad() {
+        let table = $('#template-pro-table');
         // edit button handler
         $(table)
             .find('.button-template-pro-edit')
@@ -125,7 +125,7 @@ panel used on Part and Category detail pages to display and manage part template
 <div class="bootstrap-table bootstrap5">
 	<div class="fixed-table-container" style="padding-bottom: 0px;">
 		<div class="fixed-table-body">
-            <table class="table table-condensed table-striped table-bordered table-hover" id="part-template-table">
+            <table class="table table-condensed table-striped table-bordered table-hover" id="template-pro-table">
                 <thead>
                     <tr>
                         <th><div class="th-inner">{% trans "Context property" %}</div></th>

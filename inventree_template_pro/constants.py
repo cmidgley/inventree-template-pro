@@ -1,5 +1,5 @@
 """ 
-    Gloabl constants for inventree-part-template plugin  
+    Gloabl constants for inventree-template-pro plugin  
 
     Copyright (c) 2024 Chris Midgley
     License: MIT (see LICENSE file)

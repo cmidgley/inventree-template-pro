@@ -1,5 +1,5 @@
 """ 
-    Main include file for all template tags and filters for the inventree-part-template plugin  
+    Main include file for all template tags and filters for the inventree-template-pro plugin  
 
     Copyright (c) 2024 Chris Midgley
     License: MIT (see LICENSE file)

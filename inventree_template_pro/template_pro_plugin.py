@@ -211,7 +211,7 @@ class TemplatesProPlugin(AppMixin, PanelMixin, UrlsMixin, ReportMixin, SettingsM
             'title': 'Part Templates',
             'icon': 'fa-file-alt',
             'content_template': 'template_pro/part_detail_panel.html',
-            'javascript': 'onPartTemplatesPanelLoad();'
+            'javascript': 'onTemplateProPanelLoad();'
         })
 
         return panels

@@ -1,6 +1,14 @@
-# InvenTree Template Pro
+<p align="center"><img src="images/InvenTree Template Pro Logo.png" alt="InvenTree Template Pro
+Logo" width="80px"></p>
 
-# Parameter Scrubbing
+<h3 align="center">
+
+[InvenTree Template Pro](README.md)
+
+</h3>
+
+
+#### Parameter Scrubbing
 
 Parameters on parts are convienent, but often not very consistent.  This is especially true when
 automatically importing parts and parameters from supplies such as DigiKey, Mouser and LCSC.  For

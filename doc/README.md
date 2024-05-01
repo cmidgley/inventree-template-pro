@@ -1,4 +1,3 @@
-
 <p align="center"><img src="images/InvenTree Template Pro Logo.png" alt="InvenTree Template Pro
 Logo" width="80px"></p>
 

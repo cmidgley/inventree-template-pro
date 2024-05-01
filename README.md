@@ -1,4 +1,8 @@
-# InvenTree Template Pro
+<p align="center">
+    <img src="https://github.com/cmidgley/inventree-template-pro/raw/main/doc/images/InvenTree Template Pro Logo.png" alt="InvenTree Template Pro Logo" width="80px">
+</p>
+<h3 align="center">InvenTree Template Pro</h3>
+<br>
 
 This plugin extends InvenTree Templates Pro to enhance the clarity and professionalism of your reports
 and labels. Key features include:

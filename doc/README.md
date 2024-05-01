@@ -1,8 +1,8 @@
 
-<table border="0" cellpadding="0" cellspacing="0">
+<table cellpadding="0" cellspacing="0">
   <tr>
-    <td width="80px">
-      <img src="images/InvenTree Template Pro Logo.png" alt="InvenTree Template Pro Logo" height="80">
+    <td style="border: 0" height="80px" width="80px">
+      <img src="images/InvenTree Template Pro Logo.png" alt="InvenTree Template Pro Logo">
     </td>
     <td valign="middle">
       <h3>InvenTree Template Pro</h3>

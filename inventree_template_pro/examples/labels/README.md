@@ -1,4 +1,13 @@
-# Example Labels
+<p align="center"><img src="../../../doc/images/InvenTree Template Pro Logo.png" alt="InvenTree Template Pro
+Logo" width="80px"></p>
+
+<h3 align="center">
+
+[InvenTree Template Pro](../../../doc/README.md)
+
+</h3>
+
+#### Example Labels
 
 See the 
 [example labels](https://github.com/cmidgley/inventree-template-pro/tree/main/inventree_template_pro/example_labels)
@@ -42,7 +51,7 @@ tape sizes.
   - `short-cat`: A very short category, limited to a maximum of 6 characters per word and up to two words.
 
 
-# Best practice for template error detection
+#### Best practice for template error detection
 
 A best practice is to check for errors in the template, so that you can see descriptive errors in your
 report/labels when there is a problem with a template.  This is accompished by using the

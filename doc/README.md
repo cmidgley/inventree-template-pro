@@ -5,7 +5,7 @@ General documentation on installation, configuration, and usage:
 - [Installation](installation.md): Brief description of how to install the plugin.
 - [Context Templates](context-templates.md): How to use Context Templates for parts based on part categories.
 - [Parameter Scrubbing](parameter-scrubbing.md): How to configure parameter scrubbing to clean up imported parameter values.
-- [Example reports](inventree_template_pro/example/reports) and [Example labels](inventree_template_pro/example/labels): Review examples included in this GitHub repo.
+- [Example reports](../inventree_template_pro/example/reports) and [Example labels](../inventree_template_pro/example/labels): Review examples included in this GitHub repo.
 
 Information on each of the tags and filters provided by InvenTree Template Pro:
 

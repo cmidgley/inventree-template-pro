@@ -82,7 +82,7 @@ solid" width="350px">
 
 ## Documentation
 
-Detailed [documentation](https://github.com/cmidgley/inventree-template-pro/tree/main/doc) is available, including concepts, installation and use.
+Detailed [documentation](https://github.com/cmidgley/inventree-template-pro/tree/main/doc/README.md) is available, including concepts, installation and use.
 
 ## License
 

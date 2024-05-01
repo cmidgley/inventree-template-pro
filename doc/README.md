@@ -1,13 +1,18 @@
-# InvenTree Template Pro
 
-General documentation on installation, configuration, and usage:
+<div style="display: flex; align-items: center;">
+    <h3>InvenTree Template Pro</h3>
+    <img src="images/InvenTree Template Pro Logo.png" alt="Description" style="height: 80px; margin-left: auto;">
+</div>
+<hr>
+
+#### Installation, configuration, and usage:
 
 - [Installation](installation.md): Brief description of how to install the plugin.
 - [Context Templates](context-templates.md): How to use Context Templates for parts based on part categories.
 - [Parameter Scrubbing](parameter-scrubbing.md): How to configure parameter scrubbing to clean up imported parameter values.
 - [Example reports](../inventree_template_pro/examples/reports) and [Example labels](../inventree_template_pro/examples/labels): Review examples included in this GitHub repo.
 
-Information on each of the tags and filters provided by InvenTree Template Pro:
+#### Tags and filters
 
 - [`call` tag](tags/call.md): Utility tag to call any method of an object with parameters.
 - [`explore` tag](tags/explore.md): Explore the properties and methods of InvenTree objects in your reports.

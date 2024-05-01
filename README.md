@@ -87,7 +87,7 @@ General documentation on installation, configuration, and usage:
 - [Installation](https://github.com/cmidgley/inventree-template-pro/tree/main/doc/installation.md): Brief description of how to install the plugin.
 - [Context Templates](https://github.com/cmidgley/inventree-template-pro/tree/main/doc/context-templates.md): How to use Context Templates for parts based on part categories.
 - [Parameter Scrubbing](https://github.com/cmidgley/inventree-template-pro/tree/main/doc/parameter-scrubbing.md): How to configure parameter scrubbing to clean up imported parameter values.
-- [Example reports](https://github.com/cmidgley/inventree-template-pro/tree/main/example/reports) and [Example labels](https://github.com/cmidgley/inventree-template-pro/tree/main/example/labels): Review examples included in this GitHub repo.
+- [Example reports](https://github.com/cmidgley/inventree-template-pro/tree/main/inventree_template_pro/example/reports) and [Example labels](https://github.com/cmidgley/inventree-template-pro/tree/main/inventree_template_pro/example/labels): Review examples included in this GitHub repo.
 
 Information on each of the tags and filters provided by InvenTree Template Pro:
 

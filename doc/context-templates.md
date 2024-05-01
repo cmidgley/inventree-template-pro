@@ -14,7 +14,7 @@ template_pro.my_new_property }}`) in your report and label templates for easy, c
 reporting. Additionally, this plugin allows you to clean up inconsistencies in parameter values,
 significantly improving the quality of your labels and reports.
 
-#### Introducing Context Properties
+### Introducing Context Properties
 
 Context Properties are a feature of InvenTree Part Templates that provide a straightforward way to
 include contextual information about a part in a report. A single Context Property can have
@@ -75,8 +75,7 @@ in a blank output). This is beneficial for defining templates higher up in the c
 that might reference properties that do not exist on all children.
 
 
-
-#### Plugin settings
+### Plugin settings
 
 The first step is to determine which context properties you want to start with. You can have up to five context properties (if you need more, please open a GitHub issue). Commonly, a part description and a category property are used, both of which are set as defaults. You can remove or edit these as needed.
 
@@ -94,7 +93,7 @@ The first two fields control access rights for viewing and editing the templates
 
 The remaining ten fields are for defining the name and default template for up to five context properties.
 
-##### Use in Labels and Reports
+#### Use in Labels and Reports
 
 With the plugin installed and some context properties defined, you can now update your reports and
 labels to incorporate them. Initially, they will display values from the default template, but as
@@ -111,7 +110,7 @@ view how the default template for your context property functions on the screen.
 > must request the context for each child part to access the Context Properties on it.  See the
 > [`get_context`](#context-property-template-tags-and-filters) tag for additional information.
 
-#### Context Templates
+### Context Templates
 
 The next step is to adjust the template value so that it is contextually appropriate. This adjustment is typically made on catalog items but can also be applied to individual parts. For instance, if you have the catalog structure `Electronics / Passives / Capacitors / Aluminum`, you might want a context template on `Capacitors` that is specific to all capacitor types (Aluminum, Tantalum, MLCC, etc.), allowing shared values across these different types.
 
@@ -128,7 +127,7 @@ When you view a Catalog item, the template values column is not included:
 Use the edit buttons on the right (edit, delete) to modify the templates for this specific catalog
 or part template.
 
-#### Template Context Variables and Filters
+### Template Context Variables and Filters
 
 The context templates are standard InvenTree/Django templates and support several context variables along with a few new filters. The context variables include:
 
@@ -140,4 +139,4 @@ The context templates are standard InvenTree/Django templates and support severa
 These variables facilitate dynamic content generation in templates, enhancing the adaptability and
 relevance of your reports and labels.
 
-##### TODO: Add links to the various filters
+#### TODO: Add links to the various filters

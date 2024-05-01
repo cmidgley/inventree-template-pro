@@ -21,7 +21,7 @@ For example, you can contextually filter (scrub) content to clean up imported pa
 Additionally, it is possible to call methods on objects with specific parameters, providing deeper
 access to InvenTree models.
 
-#### Context templates
+### Context templates
 
 Display contextual information about parts based on new category templates. For example, instead of having descriptions from the vendors such as these:
 
@@ -40,7 +40,7 @@ You can instead have properties that are specific to your part, such as showing 
 <img alt="100ohm 62.5mw 1% SMD 0402" src="https://github.com/cmidgley/inventree-template-pro/raw/main/doc/images/29mm-label-example.png" style="border: black 1px
 solid" width="200px">
 
-#### Parameter Scrubbing
+### Parameter Scrubbing
 
 Parameters on parts are convenient, but often inconsistent, especially when automatically importing
 parts and parameters from suppliers such as DigiKey, Mouser, and LCSC. For example, a parameter of
@@ -60,7 +60,7 @@ For example, the scrubbing can make the following adjustments (contextual to the
 - "1.2 uF (1200 nF)" -> "1.2µF"
 
 
-#### Object Exploring
+### Object Exploring
 
 InvenTree is quite powerful with a well-designed object model, including plenty of properties and access
 methods make detailed, high-quality reports. The challenge is finding the information to make those
@@ -77,7 +77,7 @@ the "interactive" style using reports in debug mode for HTML interaction):
 <img alt="Screen shot of Explore tag with the Interactive style" src="https://github.com/cmidgley/inventree-template-pro/raw/main/doc/images/explore-interactive-example.png" style="border: black 1px
 solid" width="350px">
 
-#### Example Labels and Reports
+### Example Labels and Reports
 
 A few example labels and reports are provided (the ones the author uses) to show how to use these
 capabilities. For example, here is a fragment of a "Build report" that contains detailed part
@@ -87,10 +87,10 @@ information including stock allocation details:
 solid" width="350px">
 
 
-#### Documentation
+### Documentation
 
 Detailed [documentation](https://github.com/cmidgley/inventree-template-pro/tree/main/doc/README.md) is available, including concepts, installation and use.
 
-#### License
+### License
 
 Licensed under the [MIT License](https://github.com/cmidgley/inventree-template-pro/tree/main/LICENSE).

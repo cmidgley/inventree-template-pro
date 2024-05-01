@@ -8,7 +8,7 @@ Logo" width="80px"></p>
 </h3>
 
 
-#### Parameter Scrubbing
+### Parameter Scrubbing
 
 Parameters on parts are convienent, but often not very consistent.  This is especially true when
 automatically importing parts and parameters from supplies such as DigiKey, Mouser and LCSC.  For

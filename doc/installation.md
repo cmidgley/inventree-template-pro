@@ -8,7 +8,7 @@ Logo" width="80px"></p>
 </h3>
 
 
-#### Installation
+### Installation
 
 InvenTree Part Templates is [installed](https://docs.inventree.org/en/stable/extend/plugins/install/) like most plugins. First, verify that plugins are enabled by visiting the `Settings / Plugin Settings / Plugins` page, and ensure the `Enable URL integration`, `Enable app integration`, and `Check plugins on startup` settings (if using Docker containers) are all enabled.
 

@@ -8,14 +8,14 @@ Logo" width="80px"></p>
 </h3>
 
 
-#### Installation, configuration, and usage:
+### Installation, configuration, and usage:
 
 - [Installation](installation.md): Brief description of how to install the plugin.
 - [Context Templates](context-templates.md): How to use Context Templates for parts based on part categories.
 - [Parameter Scrubbing](parameter-scrubbing.md): How to configure parameter scrubbing to clean up imported parameter values.
 - [Example reports](../inventree_template_pro/examples/reports) and [Example labels](../inventree_template_pro/examples/labels): Review examples included in this GitHub repo.
 
-#### Tags and filters
+### Tags and filters
 
 - [`call` tag](tags/call.md): Utility tag to call any method of an object with parameters.
 - [`explore` tag](tags/explore.md): Explore the properties and methods of InvenTree objects in your reports.

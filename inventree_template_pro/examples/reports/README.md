@@ -8,7 +8,7 @@ Logo" width="80px"></p>
 </h3>
 
 
-#### Example reports
+### Example reports
 
 See the 
 [example reports](https://github.com/cmidgley/inventree-template-pro/tree/main/inventree_template_pro/example_reports)
@@ -17,7 +17,7 @@ information on the child parts in order to display detailed information about mu
 single report.
 
 
-#### Best practice for template error detection
+### Best practice for template error detection
 
 A best practice is to check for errors in the template, so that you can see descriptive errors in your
 report/labels when there is a problem with a template.  This is accompished by using the

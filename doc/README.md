@@ -1,15 +1,7 @@
 
-<table cellpadding="0" cellspacing="0">
-  <tr>
-    <td style="border: 0" height="80px" width="80px">
-      <img src="images/InvenTree Template Pro Logo.png" alt="InvenTree Template Pro Logo">
-    </td>
-    <td valign="middle">
-      <h3>InvenTree Template Pro</h3>
-    </td>
-  </tr>
-</table>
-
+<center><img src="images/InvenTree Template Pro Logo.png" alt="InvenTree Template Pro Logo" width="80px"></center>
+<center><h3>InvenTree Template Pro</h3></center>
+<br>
 
 #### Installation, configuration, and usage:
 

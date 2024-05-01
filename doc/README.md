@@ -1,8 +1,14 @@
 
 <p align="center">
-    [<img src="images/InvenTree Template Pro Logo.png" alt="InvenTree Template Pro Logo" width="80px">](README.md)
+
+[<img src="images/InvenTree Template Pro Logo.png" alt="InvenTree Template Pro Logo" width="80px">](README.md)
+
 </p>
-[<h3 align="center">InvenTree Template Pro</h3>](README.md)
+<h3 align="center">
+
+[InvenTree Template Pro](README.md)
+
+</h3>
 <br>
 
 #### Installation, configuration, and usage:

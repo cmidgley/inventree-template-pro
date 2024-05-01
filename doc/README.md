@@ -1,9 +1,15 @@
 
-<div style="display: flex; align-items: center;">
-    <h3>InvenTree Template Pro</h3>
-    <img src="images/InvenTree Template Pro Logo.png" alt="Description" style="height: 80px; margin-left: auto;">
-</div>
-<hr>
+<table border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td width="80px">
+      <img src="images/InvenTree Template Pro Logo.png" alt="InvenTree Template Pro Logo" height="80">
+    </td>
+    <td valign="middle">
+      <h3>InvenTree Template Pro</h3>
+    </td>
+  </tr>
+</table>
+
 
 #### Installation, configuration, and usage:
 

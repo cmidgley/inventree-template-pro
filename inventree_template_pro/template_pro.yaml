@@ -12,6 +12,9 @@ filters:
     # remove extra spaces
     - pattern: "(\\s+)"
       replacement: " "
+  "_unitless":
+    - pattern: "(?<=\d)\s*mm\b|\s*inch\b|\\\""
+      replacement: ""
   "MPN":
     # remove everything after a comma
     - pattern: "^\\s*([^,\\s]*).*"

@@ -17,13 +17,13 @@
 {% define 1 as qr_to_right_margin %}
 {% subtract right_width qr_to_right_margin as right_width %}
 
-{% define 2.4 as font_size %}
+{% define 2.2 as font_size %}
 
 .label {
     display: block;
     position: absolute;
     font-family: Verdana, Arial, Helvetica, sans-serif;
-    font-size: {{ front_size }}mm;
+    font-size: {{ font_size }}mm;
     height: {{ height }}mm;
     width: {{ width }}mm;
     line-height: 1.05;

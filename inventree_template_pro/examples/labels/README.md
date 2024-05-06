@@ -28,7 +28,7 @@ tape sizes.
   [Gridfinity](https://gridfinity.xyz/) single-unit 12mm labels (such as those generated using the
   [Fusion 360 Gridfinity
   Generator](https://apps.autodesk.com/FUSION/en/Detail/Index?id=7197558650811789)).  Gridfinity
-  uses about 40mm width for labels (34mm in settings).
+  uses about 36mm width for labels (30mm in settings).
 
 > Brother labels have margins of about 3mm on the left and right edges, and 1.5mm on the top and
 > bottom.  When setting the label size in settings, the width will control the cutting length (not

@@ -13,7 +13,7 @@ filters:
     - pattern: "(\\s+)"
       replacement: " "
   "_unitless":
-    - pattern: "(?<=\d)\s*mm\b|\s*inch\b|\\\""
+    - pattern: "(?<=\\d)\\s*mm\\b|\\s*inch\\b|\\\""
       replacement: ""
   "MPN":
     # remove everything after a comma
@@ -100,3 +100,6 @@ filters:
   "Pitch":
     - pattern: "\\s+"
       replacement: ""
+  "Finish":
+    - pattern: "Black oxide"
+      replacement: "Black"

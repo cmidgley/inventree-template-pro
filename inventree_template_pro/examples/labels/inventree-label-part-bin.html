@@ -1,4 +1,4 @@
-{# inventree-label-part-gridfinity.html #}
+{# inventree-label-part-bin.html #}
 
 {% extends "label/label_base.html" %}
 
@@ -126,7 +126,7 @@
                     {% endif %}
                 </div>
                 <div class='name'>{{ part.name|scrub:"MPN" }}</div>
-                <div class='description'>{{ template_pro.description }}</div>
+                <div class='description'>{{ template_pro.short_desc }}</div>
             </div>
         </div>
     </div>

@@ -118,6 +118,10 @@ tr {
     width: 300px;
 }
 
+.col-stock-location {
+    font-weight: bold;
+}
+
 .col-reference {
     overflow-wrap: break-word;
     white-space: normal;
@@ -303,12 +307,17 @@ content: "v{{ report_revision }} - {{ date.isoformat }}";
                     {% for build_item in required_part.build_order_allocations %}
                         {% if build_item.build.pk == build.pk %}
                             {% if build_item.stock_item.location %}
-                                {{ build_item.stock_item.location.description }}
-                                {% if build_item.stock_item.location_type %}
-                                    {% blocktrans with type=build_item.stock_item.location_type %}
-                                        (type {{ type }})
+                                {% if build_item.stock_item.location.parent %}
+                                    {% if build_item.stock_item.location.parent.name|slice:":1" != "_" %}
+                                        {{ build_item.stock_item.location.parent.name }} &gt; 
+                                    {% endif %}
+                                {% endif %}
+                                {% if build_item.stock_item.location.location_type %}
+                                    {% blocktrans with typename=build_item.stock_item.location.location_type.name %}
+                                        {{ typename }}
                                     {% endblocktrans %}
                                 {% endif %}
+                                "{{ build_item.stock_item.location.description }}"
                             {% endif %}
                         {% endif %}
                     {% endfor %}

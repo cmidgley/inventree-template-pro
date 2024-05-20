@@ -1,0 +1,102 @@
+{# inventree-label-location-drawer-shelf.html #}
+
+{% extends "label/label_base.html" %}
+
+{% load l10n i18n barcode report template_pro inventree_extras %}
+
+{% block style %}
+{% localize off %}
+
+{% subtract width 0 as label_width %}
+{% subtract height 1.5 as label_height %}
+{% define 2 as qr_margin %}
+
+{% subtract label_height qr_margin as qr_size %}
+
+{% subtract width qr_size as right_width %}
+
+{% define 3 as qr_to_right_margin %}
+{% subtract right_width qr_to_right_margin as right_width %}
+
+{% define 6 as font_size %}
+
+.label {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    width: 100%;
+    position: absolute;
+    height: {{ height }}mm;
+    font-size: {{ font_size }}mm;
+    line-height: 1.05;
+}
+
+.contents {
+    height: {{ label_height }}mm;
+    width: {{ label_width }}mm;
+    overflow: hidden;
+}
+
+.qr {
+    display: block;
+    height: {{ qr_size }}mm;
+    width: {{ qr_size }}mm;
+    position: fixed;
+    left: 0mm;
+    top: 0mm;
+}
+
+.right-section {
+    display: block;
+    position: absolute;
+    height: {{ right_height }}mm;
+    width: {{ right_width }}mm;
+    left: {% add qr_size qr_to_right_margin %}mm;
+    top: 0mm;
+}
+
+.name {
+    font-weight: normal;
+    font-style: italic;
+    font-size: 70%;
+    line-height: 1.05;
+    margin-bottom: 1.2mm
+}
+
+.description {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    font-size: 80%;
+    font-weight: bold;
+    padding-top: 0.2mm;
+    margin-top: 0.3mm;
+    line-height: 1.05;
+}
+
+.error {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8pt;
+    color: red;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+{% endlocalize %}
+{% endblock style %}
+
+{% block content %}
+{% if not template_pro %}
+    <div class="error">Plugin inventree-template-pro required</div>
+{% elif template_pro.error %}
+    <div class="error">{{ template_pro.error }}</div>
+{% else %}
+    <div class="label">
+        <div class="contents">
+            <img class='qr' alt="{% trans 'QR Code' %}" src='{% qrcode qr_data %}'>
+            <div class='right-section'>
+                {% if location.name|slice:":1" != '_' %}
+                    <div class="name">{{ location.name }}</div>
+                {% endif %}
+                <div class='description'>{{ location.description }}</div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock content %}
